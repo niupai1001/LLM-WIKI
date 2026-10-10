@@ -18,8 +18,7 @@ from station.evidence import knowledge_evidence, source_evidence
 from station.common import ROOT
 page = knowledge_evidence('missing')
 assert '没有来源登记' in page and '没有内容核查记录' in page
-assert '未登记差异或冲突；这不代表已排除矛盾' in page
-assert 'Codex 核查' in page and '不是同行评审' in page
+assert '未登记差异或冲突' in page
 assert '来源元数据未核实' in source_evidence({})
 assert '没有来源登记' in knowledge_evidence('../outside')
 assert list(ROOT.iterdir()) == [], 'Read-only helpers created files or data directories'
@@ -73,7 +72,7 @@ page=knowledge_evidence('topic')
 assert '2 组，覆盖 2/2' in page and '多源一致' in page
 assert '适用范围：小规模模拟环境' in page and '适用范围：设置一' in page and '适用范围：设置二' in page
 assert 'A在设置一较好' in page and 'B在设置二较好' in page
-assert '并列保留，不作横向排名' in page and '不按数量或模型意见自动选胜者' in page
+assert '并列保留，不作横向排名' in page
 assert '&lt;研究' in page and '<研究' not in page
 assert page.count('href="/source/') >= 6
 ''')

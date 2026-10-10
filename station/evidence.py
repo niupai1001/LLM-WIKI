@@ -117,7 +117,6 @@ def source_evidence(record):
         body += "<p>核对说明：" + _escape(note) + "</p>"
     if url := _url(bib.get("metadata_source_url")):
         body += '<p><a href="' + html.escape(url, quote=True) + '" target="_blank" rel="noopener noreferrer">查看元数据核对来源 ↗</a></p>'
-    body += "<p class=\"muted\">元数据核对确认的是来源身份和书目信息，不代表研究结论已证实。全文已获取也不等于内容可靠。</p>"
     if meta_status.endswith("未核实"):
         body += "<p>这份来源尚缺元数据核查记录。</p>"
     return body + "</section>"
@@ -210,14 +209,13 @@ def _render_knowledge_evidence(meta, element_id='knowledge-trust'):
     independent, covered = _independence(meta, records, works)
     body = '<section class="panel evidence-panel" id="' + _escape(element_id) + '"><h2>证据与可信边界</h2>'
     body += f"<p>登记来源 {len(ids)} 条 · 本地可核对 {len(records)} 条 · 按作品标识去重 {len(set(works.values()))} 组。</p>"
-    body += "<p>来源数量、不同网址和已审核标记均不等于可信度。不同版本与重复出版物不算独立验证；独立研究还要核对作者、数据与方法。</p>"
     if independent:
         body += f"<p>来源独立性核查记录：{len(independent)} 组，覆盖 {len(covered)}/{len(records)} 条本地来源（按维护者记录）。</p><ul>"
         for key, basis, group_ids in independent:
             body += "<li>" + _escape(key) + "：" + _escape(basis) + "<br>" + _links(group_ids, records) + "</li>"
         body += "</ul>"
     if not records or len(covered) < len(records):
-        body += "<p>来源独立性尚未完整核实，作品去重组数不能当作独立研究数。</p>"
+        body += "<p>来源独立性尚未完整核实。</p>"
     if ids:
         body += "<details><summary>逐份来源状态</summary><ul>"
         for sid in ids:
@@ -235,11 +233,10 @@ def _render_knowledge_evidence(meta, element_id='knowledge-trust'):
         body += _escape(_text(review.get("notes"), "核查范围未记录")) + "</p>"
     else:
         body += "<p>没有内容核查记录，主要断言尚未逐项核实。</p>"
-    body += "<p class=\"muted\">Codex 核查指对照原文和编辑记录的检查，不是同行评审、独立复现实验或真实性认证。</p>"
     body += "<h3>主要断言与适用范围</h3>"
     claims = [v for v in _list(meta.get("claims")) if isinstance(v, dict)]
     if not claims:
-        body += "<p>尚未建立逐项断言证据记录；页面不能据此视为已证实。</p>"
+        body += "<p>尚未建立逐项断言证据记录。</p>"
     for claim in claims:
         claim_ids = _ids(claim.get("source_ids"))
         known = [sid for sid in claim_ids if sid in records]
@@ -263,14 +260,12 @@ def _render_knowledge_evidence(meta, element_id='knowledge-trust'):
         body += '<p><span class="tag">' + _escape(label) + "</span> · 按维护者记录"
         if claim.get('proposed_by') == 'LLM':
             body += "；模型提议，尚待逐项核查"
-        if status == "多源一致" and not problems:
-            body += "，一致结论不代表独立复现"
         body += "</p><p>适用范围：" + _escape(scope or "未记录，未核实") + "</p>"
         body += "<p>支持来源：" + _links(claim_ids, records) + "</p></div>"
-    body += "<h3>差异与冲突如何处理</h3>"
+    body += "<h3>差异与冲突</h3>"
     conflicts = [v for v in _list(meta.get("conflicts")) if isinstance(v, dict)]
     if not conflicts:
-        body += "<p>未登记差异或冲突；这不代表已排除矛盾。</p>"
+        body += "<p>未登记差异或冲突。</p>"
     for conflict in conflicts:
         sides = [v for v in _list(conflict.get("sides")) if isinstance(v, dict)]
         complete = len(sides) >= 2 and all(_text(s.get("text")) and _text(s.get("scope")) and _ids(s.get("source_ids"))
@@ -284,5 +279,4 @@ def _render_knowledge_evidence(meta, element_id='knowledge-trust'):
             body += "<br>适用范围：" + _escape(_text(side.get("scope"), "未记录，未核实"))
             body += "<br>来源：" + _links(_ids(side.get("source_ids")), records) + "</li>"
         body += "</ul><p>处理说明：" + _escape(_text(conflict.get("handling"), "尚未记录处理依据，保留各侧表述并待核查")) + "</p></div>"
-    body += "<p class=\"muted\">发生差异时先核对版本、定义、样本和实验设置；范围差异分别保留，未解决冲突持续标记，不按数量或模型意见自动选胜者。</p>"
     return body + "</section>"
