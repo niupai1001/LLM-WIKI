@@ -1,0 +1,17 @@
+.env
+data/logs/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+data/raw/
+data/pending/
+data/originals/
+data/state.db*
+data/editorial/
+artifacts/
+.DS_Store
+*.tmp
+*.bak
+
+data/source_metadata/

@@ -1,0 +1,48 @@
+{
+  "slug": "agent-context-selection",
+  "title": "常驻上下文选择",
+  "category": "agents",
+  "page_kind": "concept",
+  "source_ids": [
+    "926ac126f2443b70"
+  ],
+  "related_slugs": [
+    "agent-context-memory-governance",
+    "agent-memory-admission"
+  ],
+  "updated_at": "2026-10-09T06:07:48+00:00",
+  "writing_guide_version": "2",
+  "content_review": {
+    "by": "Codex",
+    "at": "2026-10-10T11:00:10+00:00",
+    "notes": "对照原文检查定义、机制与指标口径，逐段编辑可读性，并登记断言范围与实验设置差异；未实施独立复现。"
+  },
+  "claims": [
+    {
+      "id": "capacity-dilution",
+      "text": "把所有指令追加进常驻文件可能降低整体收益。",
+      "source_ids": [
+        "926ac126f2443b70"
+      ],
+      "scope": "论文的有限容量、共享稀释和成本模型；指令遵循实验不能直接证明完整任务质量下降。",
+      "status": "单源支持"
+    },
+    {
+      "id": "censored-feedback",
+      "text": "已加载与未加载指令的价值反馈具有不对称的可观察性。",
+      "source_ids": [
+        "926ac126f2443b70"
+      ],
+      "scope": "论文的删失反馈设定；遵循数据本身不足以识别指令收益的大小及一般情况下的正负。",
+      "status": "单源支持"
+    }
+  ],
+  "conflicts": [],
+  "review_history": [
+    {
+      "by": "Codex",
+      "at": "2026-10-09T06:07:48+00:00",
+      "notes": "对照完整原文核查，纠正机制/指标口径；人工编辑压缩枝节与解释术语，构造示例与研究结果分开。"
+    }
+  ]
+}

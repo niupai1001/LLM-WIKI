@@ -1,0 +1,1605 @@
+{
+  "description": "公开来源书目快照；原文、PDF与运行状态在本地保存。",
+  "sources": [
+    {
+      "id": "0b44ee6389202cb6",
+      "title": "Error-Propagation Modeling for Failure Attribution in LLM-Based Multi-Agent Systems",
+      "url": "https://arxiv.org/abs/2610.11600",
+      "kind": "paper",
+      "category": "agents",
+      "captured_at": "2026-10-09T04:30:23+00:00",
+      "published": "Fri, 09 Oct 2026 00:00:00 -0400",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Jiaqi Liao",
+            "affiliations": []
+          },
+          {
+            "name": "Yuanzhao Zhai",
+            "affiliations": []
+          },
+          {
+            "name": "Huanxi Liu",
+            "affiliations": []
+          },
+          {
+            "name": "Xu Zhang",
+            "affiliations": []
+          },
+          {
+            "name": "Zheming Zhuang",
+            "affiliations": []
+          },
+          {
+            "name": "Dawei Feng",
+            "affiliations": []
+          },
+          {
+            "name": "Bo Ding",
+            "affiliations": []
+          },
+          {
+            "name": "Huaimin Wang",
+            "affiliations": []
+          }
+        ],
+        "affiliations": [],
+        "publisher": "arXiv",
+        "original_url": "https://arxiv.org/abs/2610.11600",
+        "arxiv_id": "2610.11600",
+        "arxiv_version": 1,
+        "doi": "",
+        "doi_status": "not-provided",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided",
+        "arxiv_doi": "10.48550/arXiv.2610.11600",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "first_published": "2026-10-08T09:44:59Z",
+        "updated": "2026-10-08T09:44:59Z",
+        "captured_at": "2026-10-09T04:30:23+00:00",
+        "source_type": "paper",
+        "publication_status": "arxiv-preprint",
+        "journal_ref": "",
+        "metadata_status": "verified",
+        "method": "arxiv-api",
+        "metadata_source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8",
+        "checked_at": "2026-10-10T10:53:46+00:00",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "html",
+        "content_status": "full-text",
+        "announced_at": "Fri, 09 Oct 2026 00:00:00 -0400",
+        "field_sources": {
+          "title": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "authors": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "first_published": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "updated": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_id": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_version": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "doi": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "journal_ref": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_doi": {
+            "method": "arxiv-abs-page",
+            "source_url": "https://arxiv.org/abs/2610.11600"
+          }
+        },
+        "title": "Error-Propagation Modeling for Failure Attribution in LLM-Based Multi-Agent Systems",
+        "arxiv_categories": [
+          "cs.AI"
+        ],
+        "metadata_snapshot": "source_metadata/arxiv-2026-10-10-fe998c3717f31afc.atom.xml",
+        "last_query_at": "2026-10-10T10:53:46+00:00",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2610.11600",
+        "arxiv_doi_checked_at": "2026-10-10T10:53:56+00:00"
+      },
+      "selection": {
+        "status": "候选资料",
+        "reason": "Agent 专题关键词与近期发布时间匹配，全文和原件已取得；支持页中明确范围内的新进展记录。",
+        "limitations": "近期预印本，同行评审与独立复现尚未核实；同一批发现不构成多方验证。",
+        "checked_at": "2026-10-10T10:53:56+00:00"
+      }
+    },
+    {
+      "id": "3fb5d6b0a837235b",
+      "title": "Reflexion: Language Agents with Verbal Reinforcement Learning",
+      "url": "https://arxiv.org/abs/2303.11366",
+      "kind": "paper",
+      "category": "agents",
+      "captured_at": "2026-10-10T05:42:16+00:00",
+      "published": "",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Noah Shinn",
+            "affiliations": []
+          },
+          {
+            "name": "Federico Cassano",
+            "affiliations": []
+          },
+          {
+            "name": "Edward Berman",
+            "affiliations": []
+          },
+          {
+            "name": "Ashwin Gopinath",
+            "affiliations": []
+          },
+          {
+            "name": "Karthik Narasimhan",
+            "affiliations": []
+          },
+          {
+            "name": "Shunyu Yao",
+            "affiliations": []
+          }
+        ],
+        "affiliations": [],
+        "publisher": "arXiv",
+        "original_url": "https://arxiv.org/abs/2303.11366",
+        "arxiv_id": "2303.11366",
+        "arxiv_version": 4,
+        "doi": "",
+        "doi_status": "not-provided",
+        "first_published": "2023-03-20T18:08:50Z",
+        "updated": "2023-10-10T05:21:45Z",
+        "captured_at": "2026-10-10T05:42:16+00:00",
+        "source_type": "paper",
+        "publication_status": "arxiv-preprint",
+        "journal_ref": "",
+        "metadata_status": "verified",
+        "method": "arxiv-api",
+        "metadata_source_url": "https://export.arxiv.org/api/query?id_list=2303.11366v4&max_results=1",
+        "checked_at": "2026-10-10T05:42:17+00:00",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "",
+        "field_sources": {
+          "title": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2303.11366v4&max_results=1"
+          },
+          "authors": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2303.11366v4&max_results=1"
+          },
+          "first_published": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2303.11366v4&max_results=1"
+          },
+          "updated": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2303.11366v4&max_results=1"
+          },
+          "arxiv_id": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2303.11366v4&max_results=1"
+          },
+          "arxiv_version": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2303.11366v4&max_results=1"
+          },
+          "doi": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2303.11366v4&max_results=1"
+          },
+          "journal_ref": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2303.11366v4&max_results=1"
+          },
+          "arxiv_doi": {
+            "method": "arxiv-abs-page",
+            "source_url": "https://arxiv.org/abs/2303.11366"
+          },
+          "publication_record": {
+            "method": "verified-on-official-site",
+            "source_url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html"
+          }
+        },
+        "title": "Reflexion: Language Agents with Verbal Reinforcement Learning",
+        "arxiv_categories": [
+          "cs.AI",
+          "cs.CL",
+          "cs.LG"
+        ],
+        "metadata_snapshot": "source_metadata/arxiv-2026-10-10-07fd83166bf939ff.atom.xml",
+        "last_query_at": "2026-10-10T05:42:17+00:00",
+        "arxiv_doi": "10.48550/arXiv.2303.11366",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2303.11366",
+        "arxiv_doi_checked_at": "2026-10-10T10:53:52+00:00",
+        "publication_record": {
+          "venue": "NeurIPS",
+          "year": 2023,
+          "url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html",
+          "status": "verified-on-official-site",
+          "authors": [
+            "Noah Shinn",
+            "Federico Cassano",
+            "Ashwin Gopinath",
+            "Karthik Narasimhan",
+            "Shunyu Yao"
+          ],
+          "doi": "10.52202/075280-0377",
+          "checked_at": "2026-10-10T10:55:23+00:00"
+        }
+      },
+      "selection": {
+        "status": "基础参考",
+        "reason": "补足 Agent 推理与行动、工具学习、反馈记忆和编程评测的基础方法；有公开原文及发表记录可追溯。",
+        "limitations": "归档版本是 arXiv 版本；正式发表版本可能不同。尚未逐项复现实验，不能替现有近期方法作独立验证。",
+        "checked_at": "2026-10-10T10:53:52+00:00"
+      }
+    },
+    {
+      "id": "4a3710e0ff43d563",
+      "title": "Toolformer: Language Models Can Teach Themselves to Use Tools",
+      "url": "https://arxiv.org/abs/2302.04761",
+      "kind": "paper",
+      "category": "agents",
+      "captured_at": "2026-10-10T05:42:13+00:00",
+      "published": "",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Timo Schick",
+            "affiliations": []
+          },
+          {
+            "name": "Jane Dwivedi-Yu",
+            "affiliations": []
+          },
+          {
+            "name": "Roberto Dessì",
+            "affiliations": []
+          },
+          {
+            "name": "Roberta Raileanu",
+            "affiliations": []
+          },
+          {
+            "name": "Maria Lomeli",
+            "affiliations": []
+          },
+          {
+            "name": "Luke Zettlemoyer",
+            "affiliations": []
+          },
+          {
+            "name": "Nicola Cancedda",
+            "affiliations": []
+          },
+          {
+            "name": "Thomas Scialom",
+            "affiliations": []
+          }
+        ],
+        "affiliations": [],
+        "publisher": "arXiv",
+        "original_url": "https://arxiv.org/abs/2302.04761",
+        "arxiv_id": "2302.04761",
+        "arxiv_version": 1,
+        "doi": "",
+        "doi_status": "not-provided",
+        "first_published": "2023-02-09T16:49:57Z",
+        "updated": "2023-02-09T16:49:57Z",
+        "captured_at": "2026-10-10T05:42:13+00:00",
+        "source_type": "paper",
+        "publication_status": "arxiv-preprint",
+        "journal_ref": "",
+        "metadata_status": "verified",
+        "method": "arxiv-api",
+        "metadata_source_url": "https://export.arxiv.org/api/query?id_list=2302.04761v1&max_results=1",
+        "checked_at": "2026-10-10T05:42:14+00:00",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "",
+        "field_sources": {
+          "title": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2302.04761v1&max_results=1"
+          },
+          "authors": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2302.04761v1&max_results=1"
+          },
+          "first_published": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2302.04761v1&max_results=1"
+          },
+          "updated": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2302.04761v1&max_results=1"
+          },
+          "arxiv_id": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2302.04761v1&max_results=1"
+          },
+          "arxiv_version": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2302.04761v1&max_results=1"
+          },
+          "doi": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2302.04761v1&max_results=1"
+          },
+          "journal_ref": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2302.04761v1&max_results=1"
+          },
+          "arxiv_doi": {
+            "method": "arxiv-abs-page",
+            "source_url": "https://arxiv.org/abs/2302.04761"
+          },
+          "publication_record": {
+            "method": "verified-on-official-site",
+            "source_url": "https://proceedings.nips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html"
+          }
+        },
+        "title": "Toolformer: Language Models Can Teach Themselves to Use Tools",
+        "arxiv_categories": [
+          "cs.CL"
+        ],
+        "metadata_snapshot": "source_metadata/arxiv-2026-10-10-fae3cddc4ac58a22.atom.xml",
+        "last_query_at": "2026-10-10T05:42:14+00:00",
+        "arxiv_doi": "10.48550/arXiv.2302.04761",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2302.04761",
+        "arxiv_doi_checked_at": "2026-10-10T10:53:47+00:00",
+        "publication_record": {
+          "venue": "NeurIPS",
+          "year": 2023,
+          "url": "https://proceedings.nips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html",
+          "status": "verified-on-official-site",
+          "authors": [
+            "Timo Schick",
+            "Jane Dwivedi-Yu",
+            "Roberto Dessi",
+            "Roberta Raileanu",
+            "Maria Lomeli",
+            "Eric Hambro",
+            "Luke Zettlemoyer",
+            "Nicola Cancedda",
+            "Thomas Scialom"
+          ],
+          "doi": "10.52202/075280-2997",
+          "checked_at": "2026-10-10T10:55:23+00:00"
+        }
+      },
+      "selection": {
+        "status": "基础参考",
+        "reason": "补足 Agent 推理与行动、工具学习、反馈记忆和编程评测的基础方法；有公开原文及发表记录可追溯。",
+        "limitations": "归档版本是 arXiv 版本；正式发表版本可能不同。尚未逐项复现实验，不能替现有近期方法作独立验证。",
+        "checked_at": "2026-10-10T10:53:47+00:00"
+      }
+    },
+    {
+      "id": "7d220dd5706f59fd",
+      "title": "Plan-and-Patch: Diffusion Language Models for Agentic Planning",
+      "url": "https://arxiv.org/abs/2610.10786",
+      "kind": "paper",
+      "category": "agents",
+      "captured_at": "2026-10-09T04:29:09+00:00",
+      "published": "Fri, 09 Oct 2026 00:00:00 -0400",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Syamantak Kumar",
+            "affiliations": []
+          },
+          {
+            "name": "Jiang Guo",
+            "affiliations": []
+          },
+          {
+            "name": "Hassan Hamad",
+            "affiliations": []
+          },
+          {
+            "name": "Hideo Kobayashi",
+            "affiliations": []
+          },
+          {
+            "name": "Yi Xiang",
+            "affiliations": []
+          },
+          {
+            "name": "Yezhou Yang",
+            "affiliations": []
+          },
+          {
+            "name": "Yanjun Qi",
+            "affiliations": []
+          },
+          {
+            "name": "Daniele Bonadiman",
+            "affiliations": []
+          },
+          {
+            "name": "Jiarong Jiang",
+            "affiliations": []
+          }
+        ],
+        "affiliations": [],
+        "publisher": "arXiv",
+        "original_url": "https://arxiv.org/abs/2610.10786",
+        "arxiv_id": "2610.10786",
+        "arxiv_version": 1,
+        "doi": "",
+        "doi_status": "not-provided",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided",
+        "arxiv_doi": "10.48550/arXiv.2610.10786",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "first_published": "2026-10-07T18:45:45Z",
+        "updated": "2026-10-07T18:45:45Z",
+        "captured_at": "2026-10-09T04:29:09+00:00",
+        "source_type": "paper",
+        "publication_status": "arxiv-preprint",
+        "journal_ref": "",
+        "metadata_status": "verified",
+        "method": "arxiv-api",
+        "metadata_source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8",
+        "checked_at": "2026-10-10T10:53:46+00:00",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "html",
+        "content_status": "full-text",
+        "announced_at": "Fri, 09 Oct 2026 00:00:00 -0400",
+        "field_sources": {
+          "title": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "authors": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "first_published": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "updated": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_id": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_version": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "doi": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "journal_ref": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_doi": {
+            "method": "arxiv-abs-page",
+            "source_url": "https://arxiv.org/abs/2610.10786"
+          }
+        },
+        "title": "Plan-and-Patch: Diffusion Language Models for Agentic Planning",
+        "arxiv_categories": [
+          "cs.AI",
+          "cs.CL",
+          "cs.LG"
+        ],
+        "metadata_snapshot": "source_metadata/arxiv-2026-10-10-fe998c3717f31afc.atom.xml",
+        "last_query_at": "2026-10-10T10:53:46+00:00",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2610.10786",
+        "arxiv_doi_checked_at": "2026-10-10T10:53:55+00:00"
+      },
+      "selection": {
+        "status": "候选资料",
+        "reason": "Agent 专题关键词与近期发布时间匹配，全文和原件已取得；支持页中明确范围内的新进展记录。",
+        "limitations": "近期预印本，同行评审与独立复现尚未核实；同一批发现不构成多方验证。",
+        "checked_at": "2026-10-10T10:53:55+00:00"
+      }
+    },
+    {
+      "id": "926ac126f2443b70",
+      "title": "Curating Always-Loaded Context for LLM Agents: A Capacitated Assortment Model with Censored Feedback",
+      "url": "https://arxiv.org/abs/2610.11007",
+      "kind": "paper",
+      "category": "agents",
+      "captured_at": "2026-10-09T04:30:16+00:00",
+      "published": "Fri, 09 Oct 2026 00:00:00 -0400",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Zexuan Liu",
+            "affiliations": [
+              "University of Illinois at Urbana-Champaign"
+            ]
+          },
+          {
+            "name": "Yuning Yang",
+            "affiliations": [
+              "Georgia Institute of Technology"
+            ]
+          },
+          {
+            "name": "Tiancheng Zhao",
+            "affiliations": [
+              "Saint Louis University"
+            ]
+          }
+        ],
+        "affiliations": [
+          "University of Illinois at Urbana-Champaign",
+          "Georgia Institute of Technology",
+          "Saint Louis University"
+        ],
+        "publisher": "arXiv",
+        "original_url": "https://arxiv.org/abs/2610.11007",
+        "arxiv_id": "2610.11007",
+        "arxiv_version": 1,
+        "doi": "",
+        "doi_status": "not-provided",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided",
+        "arxiv_doi": "10.48550/arXiv.2610.11007",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "first_published": "2026-10-07T23:44:32Z",
+        "updated": "2026-10-07T23:44:32Z",
+        "captured_at": "2026-10-09T04:30:16+00:00",
+        "source_type": "paper",
+        "publication_status": "arxiv-preprint",
+        "journal_ref": "",
+        "metadata_status": "verified",
+        "method": "arxiv-api",
+        "metadata_source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8",
+        "checked_at": "2026-10-10T10:53:46+00:00",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "html",
+        "content_status": "full-text",
+        "announced_at": "Fri, 09 Oct 2026 00:00:00 -0400",
+        "field_sources": {
+          "affiliations": {
+            "method": "archived-html-author-affiliations",
+            "source_url": "https://arxiv.org/html/2610.11007"
+          },
+          "title": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "authors": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "first_published": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "updated": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_id": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_version": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "doi": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "journal_ref": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_doi": {
+            "method": "arxiv-abs-page",
+            "source_url": "https://arxiv.org/abs/2610.11007"
+          }
+        },
+        "title": "Curating Always-Loaded Context for LLM Agents: A Capacitated Assortment Model with Censored Feedback",
+        "arxiv_categories": [
+          "cs.AI",
+          "cs.LG",
+          "math.OC"
+        ],
+        "metadata_snapshot": "source_metadata/arxiv-2026-10-10-fe998c3717f31afc.atom.xml",
+        "last_query_at": "2026-10-10T10:53:46+00:00",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2610.11007",
+        "arxiv_doi_checked_at": "2026-10-10T10:53:54+00:00"
+      },
+      "selection": {
+        "status": "候选资料",
+        "reason": "Agent 专题关键词与近期发布时间匹配，全文和原件已取得；支持页中明确范围内的新进展记录。",
+        "limitations": "近期预印本，同行评审与独立复现尚未核实；同一批发现不构成多方验证。",
+        "checked_at": "2026-10-10T10:53:54+00:00"
+      }
+    },
+    {
+      "id": "accd5feccfb2c025",
+      "title": "What to Admit and How to Present: Governing Persistent Memory in LLM Agents",
+      "url": "https://arxiv.org/abs/2610.11188",
+      "kind": "paper",
+      "category": "agents",
+      "captured_at": "2026-10-09T04:30:20+00:00",
+      "published": "Fri, 09 Oct 2026 00:00:00 -0400",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Chang Liu",
+            "affiliations": [
+              "Pazhou Laboratory, Guangzhou, China"
+            ]
+          },
+          {
+            "name": "Deliang Ding",
+            "affiliations": []
+          }
+        ],
+        "affiliations": [
+          "Pazhou Laboratory, Guangzhou, China"
+        ],
+        "publisher": "arXiv",
+        "original_url": "https://arxiv.org/abs/2610.11188",
+        "arxiv_id": "2610.11188",
+        "arxiv_version": 1,
+        "doi": "",
+        "doi_status": "not-provided",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided",
+        "arxiv_doi": "10.48550/arXiv.2610.11188",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "first_published": "2026-10-08T03:45:28Z",
+        "updated": "2026-10-08T03:45:28Z",
+        "captured_at": "2026-10-09T04:30:20+00:00",
+        "source_type": "paper",
+        "publication_status": "arxiv-preprint",
+        "journal_ref": "",
+        "metadata_status": "verified",
+        "method": "arxiv-api",
+        "metadata_source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8",
+        "checked_at": "2026-10-10T10:53:46+00:00",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "html",
+        "content_status": "full-text",
+        "announced_at": "Fri, 09 Oct 2026 00:00:00 -0400",
+        "field_sources": {
+          "affiliations": {
+            "method": "archived-html-author-affiliations",
+            "source_url": "https://arxiv.org/html/2610.11188"
+          },
+          "title": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "authors": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "first_published": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "updated": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_id": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_version": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "doi": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "journal_ref": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_doi": {
+            "method": "arxiv-abs-page",
+            "source_url": "https://arxiv.org/abs/2610.11188"
+          }
+        },
+        "title": "What to Admit and How to Present: Governing Persistent Memory in LLM Agents",
+        "arxiv_categories": [
+          "cs.AI"
+        ],
+        "metadata_snapshot": "source_metadata/arxiv-2026-10-10-fe998c3717f31afc.atom.xml",
+        "last_query_at": "2026-10-10T10:53:46+00:00",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2610.11188",
+        "arxiv_doi_checked_at": "2026-10-10T10:53:53+00:00"
+      },
+      "selection": {
+        "status": "候选资料",
+        "reason": "Agent 专题关键词与近期发布时间匹配，全文和原件已取得；支持页中明确范围内的新进展记录。",
+        "limitations": "近期预印本，同行评审与独立复现尚未核实；同一批发现不构成多方验证。",
+        "checked_at": "2026-10-10T10:53:53+00:00"
+      }
+    },
+    {
+      "id": "b36ffb44e7a44c44",
+      "title": "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?",
+      "url": "https://arxiv.org/abs/2310.06770",
+      "kind": "paper",
+      "category": "agents",
+      "captured_at": "2026-10-10T05:42:20+00:00",
+      "published": "",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Carlos E. Jimenez",
+            "affiliations": []
+          },
+          {
+            "name": "John Yang",
+            "affiliations": []
+          },
+          {
+            "name": "Alexander Wettig",
+            "affiliations": []
+          },
+          {
+            "name": "Shunyu Yao",
+            "affiliations": []
+          },
+          {
+            "name": "Kexin Pei",
+            "affiliations": []
+          },
+          {
+            "name": "Ofir Press",
+            "affiliations": []
+          },
+          {
+            "name": "Karthik Narasimhan",
+            "affiliations": []
+          }
+        ],
+        "affiliations": [],
+        "publisher": "arXiv",
+        "original_url": "https://arxiv.org/abs/2310.06770",
+        "arxiv_id": "2310.06770",
+        "arxiv_version": 3,
+        "doi": "",
+        "doi_status": "not-provided",
+        "first_published": "2023-10-10T16:47:29Z",
+        "updated": "2024-11-11T23:05:04Z",
+        "captured_at": "2026-10-10T05:42:20+00:00",
+        "source_type": "paper",
+        "publication_status": "arxiv-preprint",
+        "journal_ref": "",
+        "metadata_status": "verified",
+        "method": "arxiv-api",
+        "metadata_source_url": "https://export.arxiv.org/api/query?id_list=2310.06770v3&max_results=1",
+        "checked_at": "2026-10-10T05:42:21+00:00",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "",
+        "field_sources": {
+          "title": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2310.06770v3&max_results=1"
+          },
+          "authors": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2310.06770v3&max_results=1"
+          },
+          "first_published": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2310.06770v3&max_results=1"
+          },
+          "updated": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2310.06770v3&max_results=1"
+          },
+          "arxiv_id": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2310.06770v3&max_results=1"
+          },
+          "arxiv_version": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2310.06770v3&max_results=1"
+          },
+          "doi": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2310.06770v3&max_results=1"
+          },
+          "journal_ref": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2310.06770v3&max_results=1"
+          },
+          "arxiv_doi": {
+            "method": "arxiv-abs-page",
+            "source_url": "https://arxiv.org/abs/2310.06770"
+          },
+          "publication_record": {
+            "method": "verified-on-official-site",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/edac78c3e300629acfe6cbe9ca88fb84-Abstract-Conference.html"
+          }
+        },
+        "title": "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?",
+        "arxiv_categories": [
+          "cs.CL",
+          "cs.AI",
+          "cs.SE"
+        ],
+        "metadata_snapshot": "source_metadata/arxiv-2026-10-10-89cd9b4ea10ec42d.atom.xml",
+        "last_query_at": "2026-10-10T05:42:21+00:00",
+        "arxiv_doi": "10.48550/arXiv.2310.06770",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2310.06770",
+        "arxiv_doi_checked_at": "2026-10-10T10:53:48+00:00",
+        "publication_record": {
+          "venue": "ICLR",
+          "year": 2024,
+          "url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/edac78c3e300629acfe6cbe9ca88fb84-Abstract-Conference.html",
+          "status": "verified-on-official-site",
+          "authors": [
+            "Carlos E Jimenez",
+            "John Yang",
+            "Alexander Wettig",
+            "Shunyu Yao",
+            "Kexin Pei",
+            "Ofir Press",
+            "Karthik Narasimhan"
+          ],
+          "doi": "",
+          "checked_at": "2026-10-10T10:55:23+00:00"
+        }
+      },
+      "selection": {
+        "status": "基础参考",
+        "reason": "补足 Agent 推理与行动、工具学习、反馈记忆和编程评测的基础方法；有公开原文及发表记录可追溯。",
+        "limitations": "归档版本是 arXiv 版本；正式发表版本可能不同。尚未逐项复现实验，不能替现有近期方法作独立验证。",
+        "checked_at": "2026-10-10T10:53:48+00:00"
+      }
+    },
+    {
+      "id": "b7c8bebd4466160c",
+      "title": "On the Clock: Towards Punctual and Productive Time-Budgeted AI Agents",
+      "url": "https://arxiv.org/abs/2610.10833",
+      "kind": "paper",
+      "category": "agents",
+      "captured_at": "2026-10-09T04:29:14+00:00",
+      "published": "Fri, 09 Oct 2026 00:00:00 -0400",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Aaron Wang",
+            "affiliations": [
+              "University of Illinois at Chicago"
+            ]
+          },
+          {
+            "name": "Neelabh Madan",
+            "affiliations": []
+          },
+          {
+            "name": "Vlad Sobal",
+            "affiliations": [
+              "AWS"
+            ]
+          },
+          {
+            "name": "Matthew Trager",
+            "affiliations": [
+              "AWS"
+            ]
+          },
+          {
+            "name": "Michael Kleinman",
+            "affiliations": [
+              "AWS"
+            ]
+          },
+          {
+            "name": "Elman Mansimov",
+            "affiliations": [
+              "AWS"
+            ]
+          },
+          {
+            "name": "Wei Xia",
+            "affiliations": [
+              "AWS"
+            ]
+          },
+          {
+            "name": "Stefano Soatto",
+            "affiliations": [
+              "AWS"
+            ]
+          }
+        ],
+        "affiliations": [
+          "University of Illinois at Chicago",
+          "New York University",
+          "AWS"
+        ],
+        "publisher": "arXiv",
+        "original_url": "https://arxiv.org/abs/2610.10833",
+        "arxiv_id": "2610.10833",
+        "arxiv_version": 1,
+        "doi": "",
+        "doi_status": "not-provided",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided",
+        "arxiv_doi": "10.48550/arXiv.2610.10833",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "first_published": "2026-10-07T19:35:08Z",
+        "updated": "2026-10-07T19:35:08Z",
+        "captured_at": "2026-10-09T04:29:14+00:00",
+        "source_type": "paper",
+        "publication_status": "arxiv-preprint",
+        "journal_ref": "",
+        "metadata_status": "verified",
+        "method": "arxiv-api",
+        "metadata_source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8",
+        "checked_at": "2026-10-10T10:53:46+00:00",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "html",
+        "content_status": "full-text",
+        "announced_at": "Fri, 09 Oct 2026 00:00:00 -0400",
+        "field_sources": {
+          "affiliations": {
+            "method": "archived-html-author-affiliations",
+            "source_url": "https://arxiv.org/html/2610.10833"
+          },
+          "title": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "authors": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "first_published": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "updated": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_id": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_version": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "doi": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "journal_ref": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_doi": {
+            "method": "arxiv-abs-page",
+            "source_url": "https://arxiv.org/abs/2610.10833"
+          }
+        },
+        "title": "On the Clock: Towards Punctual and Productive Time-Budgeted AI Agents",
+        "arxiv_categories": [
+          "cs.AI",
+          "cs.LG"
+        ],
+        "metadata_snapshot": "source_metadata/arxiv-2026-10-10-fe998c3717f31afc.atom.xml",
+        "last_query_at": "2026-10-10T10:53:46+00:00",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2610.10833",
+        "arxiv_doi_checked_at": "2026-10-10T10:53:51+00:00"
+      },
+      "selection": {
+        "status": "候选资料",
+        "reason": "Agent 专题关键词与近期发布时间匹配，全文和原件已取得；支持页中明确范围内的新进展记录。",
+        "limitations": "近期预印本，同行评审与独立复现尚未核实；同一批发现不构成多方验证。",
+        "checked_at": "2026-10-10T10:53:51+00:00"
+      }
+    },
+    {
+      "id": "c59a22e9fb289ff4",
+      "title": "SWE-Journey: Towards More Realistic Evaluation of Coding Assistants through Long-Horizon, Multi-Turn Interaction",
+      "url": "https://arxiv.org/abs/2610.11559",
+      "kind": "paper",
+      "category": "agents",
+      "captured_at": "2026-10-09T04:30:36+00:00",
+      "published": "Fri, 09 Oct 2026 00:00:00 -0400",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Hexuan Deng",
+            "affiliations": []
+          },
+          {
+            "name": "Yue Wang",
+            "affiliations": []
+          },
+          {
+            "name": "Wenyu Jiang",
+            "affiliations": []
+          },
+          {
+            "name": "Cheng Yang",
+            "affiliations": []
+          },
+          {
+            "name": "Haolin Yang",
+            "affiliations": []
+          },
+          {
+            "name": "Zhaohua Zhang",
+            "affiliations": []
+          },
+          {
+            "name": "Chenchen Zhao",
+            "affiliations": []
+          },
+          {
+            "name": "Beiduo Chen",
+            "affiliations": []
+          },
+          {
+            "name": "Muxi Chen",
+            "affiliations": []
+          },
+          {
+            "name": "Sa Zhu",
+            "affiliations": []
+          },
+          {
+            "name": "Geyuan Zhu",
+            "affiliations": []
+          },
+          {
+            "name": "Jianhuan Zhuo",
+            "affiliations": []
+          },
+          {
+            "name": "Qiuyong Xiao",
+            "affiliations": []
+          },
+          {
+            "name": "Tianwen Jiang",
+            "affiliations": []
+          },
+          {
+            "name": "Jihong Zhang",
+            "affiliations": []
+          },
+          {
+            "name": "Xuebo Liu",
+            "affiliations": []
+          }
+        ],
+        "affiliations": [
+          "Tencent Hy AI Data",
+          "Beijing Zhongguancun Academy"
+        ],
+        "publisher": "arXiv",
+        "original_url": "https://arxiv.org/abs/2610.11559",
+        "arxiv_id": "2610.11559",
+        "arxiv_version": 1,
+        "doi": "",
+        "doi_status": "not-provided",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided",
+        "arxiv_doi": "10.48550/arXiv.2610.11559",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "first_published": "2026-10-08T09:21:49Z",
+        "updated": "2026-10-08T09:21:49Z",
+        "captured_at": "2026-10-09T04:30:36+00:00",
+        "source_type": "paper",
+        "publication_status": "arxiv-preprint",
+        "journal_ref": "",
+        "metadata_status": "verified",
+        "method": "arxiv-api",
+        "metadata_source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8",
+        "checked_at": "2026-10-10T10:53:46+00:00",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "html",
+        "content_status": "full-text",
+        "announced_at": "Fri, 09 Oct 2026 00:00:00 -0400",
+        "field_sources": {
+          "affiliations": {
+            "method": "archived-html-author-affiliations",
+            "source_url": "https://arxiv.org/html/2610.11559"
+          },
+          "title": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "authors": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "first_published": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "updated": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_id": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_version": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "doi": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "journal_ref": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_doi": {
+            "method": "arxiv-abs-page",
+            "source_url": "https://arxiv.org/abs/2610.11559"
+          }
+        },
+        "title": "SWE-Journey: Towards More Realistic Evaluation of Coding Assistants through Long-Horizon, Multi-Turn Interaction",
+        "arxiv_categories": [
+          "cs.CL",
+          "cs.AI",
+          "cs.MA",
+          "cs.SE"
+        ],
+        "metadata_snapshot": "source_metadata/arxiv-2026-10-10-fe998c3717f31afc.atom.xml",
+        "last_query_at": "2026-10-10T10:53:46+00:00",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2610.11559",
+        "arxiv_doi_checked_at": "2026-10-10T10:53:50+00:00"
+      },
+      "selection": {
+        "status": "候选资料",
+        "reason": "Agent 专题关键词与近期发布时间匹配，全文和原件已取得；支持页中明确范围内的新进展记录。",
+        "limitations": "近期预印本，同行评审与独立复现尚未核实；同一批发现不构成多方验证。",
+        "checked_at": "2026-10-10T10:53:50+00:00"
+      }
+    },
+    {
+      "id": "e0c0d198c4709cc7",
+      "title": "NOMOS: Compiling Written Policies into Statically Verified Tool-Call Gates for LLM Agents",
+      "url": "https://arxiv.org/abs/2610.11030",
+      "kind": "paper",
+      "category": "agents",
+      "captured_at": "2026-10-09T04:30:31+00:00",
+      "published": "Fri, 09 Oct 2026 00:00:00 -0400",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Min-Young Yu",
+            "affiliations": []
+          },
+          {
+            "name": "Tony Kim",
+            "affiliations": []
+          },
+          {
+            "name": "Jang Won Choi",
+            "affiliations": []
+          }
+        ],
+        "affiliations": [],
+        "publisher": "arXiv",
+        "original_url": "https://arxiv.org/abs/2610.11030",
+        "arxiv_id": "2610.11030",
+        "arxiv_version": 1,
+        "doi": "10.5281/zenodo.22123420",
+        "doi_status": "source-provided",
+        "publication_doi": "10.5281/zenodo.22123420",
+        "publication_doi_status": "source-provided",
+        "arxiv_doi": "10.48550/arXiv.2610.11030",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "first_published": "2026-10-08T00:23:22Z",
+        "updated": "2026-10-08T00:23:22Z",
+        "captured_at": "2026-10-09T04:30:31+00:00",
+        "source_type": "paper",
+        "publication_status": "arxiv-preprint",
+        "journal_ref": "",
+        "metadata_status": "verified",
+        "method": "arxiv-api",
+        "metadata_source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8",
+        "checked_at": "2026-10-10T10:53:46+00:00",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "html",
+        "content_status": "full-text",
+        "announced_at": "Fri, 09 Oct 2026 00:00:00 -0400",
+        "field_sources": {
+          "title": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "authors": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "first_published": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "updated": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_id": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_version": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "doi": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "journal_ref": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_doi": {
+            "method": "arxiv-abs-page",
+            "source_url": "https://arxiv.org/abs/2610.11030"
+          }
+        },
+        "title": "NOMOS: Compiling Written Policies into Statically Verified Tool-Call Gates for LLM Agents",
+        "arxiv_categories": [
+          "cs.CR",
+          "cs.AI",
+          "cs.LG"
+        ],
+        "metadata_snapshot": "source_metadata/arxiv-2026-10-10-fe998c3717f31afc.atom.xml",
+        "last_query_at": "2026-10-10T10:53:46+00:00",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2610.11030",
+        "arxiv_doi_checked_at": "2026-10-10T10:53:49+00:00"
+      },
+      "selection": {
+        "status": "候选资料",
+        "reason": "Agent 专题关键词与近期发布时间匹配，全文和原件已取得；支持页中明确范围内的新进展记录。",
+        "limitations": "近期预印本，同行评审与独立复现尚未核实；同一批发现不构成多方验证。",
+        "checked_at": "2026-10-10T10:53:49+00:00"
+      }
+    },
+    {
+      "id": "e504ba1ba9c3fffc",
+      "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+      "url": "https://arxiv.org/abs/2210.03629",
+      "kind": "paper",
+      "category": "agents",
+      "captured_at": "2026-10-10T05:42:10+00:00",
+      "published": "",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Shunyu Yao",
+            "affiliations": []
+          },
+          {
+            "name": "Jeffrey Zhao",
+            "affiliations": []
+          },
+          {
+            "name": "Dian Yu",
+            "affiliations": []
+          },
+          {
+            "name": "Nan Du",
+            "affiliations": []
+          },
+          {
+            "name": "Izhak Shafran",
+            "affiliations": []
+          },
+          {
+            "name": "Karthik Narasimhan",
+            "affiliations": []
+          },
+          {
+            "name": "Yuan Cao",
+            "affiliations": []
+          }
+        ],
+        "affiliations": [],
+        "publisher": "arXiv",
+        "original_url": "https://arxiv.org/abs/2210.03629",
+        "arxiv_id": "2210.03629",
+        "arxiv_version": 3,
+        "doi": "",
+        "doi_status": "not-provided",
+        "first_published": "2022-10-06T01:00:32Z",
+        "updated": "2023-03-10T01:00:17Z",
+        "captured_at": "2026-10-10T05:42:10+00:00",
+        "source_type": "paper",
+        "publication_status": "arxiv-preprint",
+        "journal_ref": "",
+        "metadata_status": "verified",
+        "method": "arxiv-api",
+        "metadata_source_url": "https://export.arxiv.org/api/query?id_list=2210.03629v3&max_results=1",
+        "checked_at": "2026-10-10T05:42:11+00:00",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "",
+        "field_sources": {
+          "title": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2210.03629v3&max_results=1"
+          },
+          "authors": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2210.03629v3&max_results=1"
+          },
+          "first_published": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2210.03629v3&max_results=1"
+          },
+          "updated": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2210.03629v3&max_results=1"
+          },
+          "arxiv_id": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2210.03629v3&max_results=1"
+          },
+          "arxiv_version": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2210.03629v3&max_results=1"
+          },
+          "doi": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2210.03629v3&max_results=1"
+          },
+          "journal_ref": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2210.03629v3&max_results=1"
+          },
+          "arxiv_doi": {
+            "method": "arxiv-abs-page",
+            "source_url": "https://arxiv.org/abs/2210.03629"
+          },
+          "publication_record": {
+            "method": "author-reported",
+            "source_url": "https://github.com/ysymyth/ReAct"
+          }
+        },
+        "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+        "arxiv_categories": [
+          "cs.CL",
+          "cs.AI",
+          "cs.LG"
+        ],
+        "metadata_snapshot": "source_metadata/arxiv-2026-10-10-04727bb14269e10f.atom.xml",
+        "last_query_at": "2026-10-10T05:42:11+00:00",
+        "arxiv_doi": "10.48550/arXiv.2210.03629",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2210.03629",
+        "arxiv_doi_checked_at": "2026-10-10T10:53:57+00:00",
+        "publication_record": {
+          "venue": "ICLR",
+          "year": 2023,
+          "url": "https://github.com/ysymyth/ReAct",
+          "status": "author-reported",
+          "authors": [
+            "Shunyu Yao",
+            "Jeffrey Zhao",
+            "Dian Yu",
+            "Nan Du",
+            "Izhak Shafran",
+            "Karthik Narasimhan",
+            "Yuan Cao"
+          ],
+          "doi": "",
+          "notes": "作者项目标注 ICLR 2023；OpenReview 访问受验证限制，未把作者声明记为独立出版站核查。",
+          "checked_at": "2026-10-10T10:55:23+00:00"
+        }
+      },
+      "selection": {
+        "status": "基础参考",
+        "reason": "补足 Agent 推理与行动、工具学习、反馈记忆和编程评测的基础方法；有公开原文及发表记录可追溯。",
+        "limitations": "归档版本是 arXiv 版本；正式发表版本可能不同。尚未逐项复现实验，不能替现有近期方法作独立验证。",
+        "checked_at": "2026-10-10T10:53:57+00:00"
+      }
+    },
+    {
+      "id": "eddf2edee3305425",
+      "title": "ReCast: Attribution-Oriented Step Representation Learning for LLM-Based Agent Systems",
+      "url": "https://arxiv.org/abs/2610.11334",
+      "kind": "paper",
+      "category": "agents",
+      "captured_at": "2026-10-09T04:30:40+00:00",
+      "published": "Fri, 09 Oct 2026 00:00:00 -0400",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Weilin Jin",
+            "affiliations": [
+              "Peking University, Beijing, China",
+              "Joy Future Academy, Beijing, China"
+            ]
+          },
+          {
+            "name": "Mingyu Wang",
+            "affiliations": [
+              "Peking University, Beijing, China",
+              "Joy Future Academy, Beijing, China"
+            ]
+          },
+          {
+            "name": "Taiyu Zhu",
+            "affiliations": [
+              "Peking University, Beijing, China"
+            ]
+          },
+          {
+            "name": "Ziqi Zhou",
+            "affiliations": [
+              "Tsinghua University, Beijing, China"
+            ]
+          },
+          {
+            "name": "Wenbo Li",
+            "affiliations": [
+              "Joy Future Academy, Beijing, China"
+            ]
+          },
+          {
+            "name": "Haoyang Huang",
+            "affiliations": [
+              "Joy Future Academy, Beijing, China"
+            ]
+          },
+          {
+            "name": "Nan Duan",
+            "affiliations": [
+              "Joy Future Academy, Beijing, China"
+            ]
+          },
+          {
+            "name": "Yifan Wu",
+            "affiliations": [
+              "Peking University, Beijing, China"
+            ]
+          },
+          {
+            "name": "Ying Li",
+            "affiliations": []
+          },
+          {
+            "name": "Zhonghai Wu",
+            "affiliations": [
+              "Peking University, Beijing, China"
+            ]
+          }
+        ],
+        "affiliations": [
+          "Peking University, Beijing, China",
+          "Joy Future Academy, Beijing, China",
+          "Tsinghua University, Beijing, China"
+        ],
+        "publisher": "arXiv",
+        "original_url": "https://arxiv.org/abs/2610.11334",
+        "arxiv_id": "2610.11334",
+        "arxiv_version": 1,
+        "doi": "",
+        "doi_status": "not-provided",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided",
+        "arxiv_doi": "10.48550/arXiv.2610.11334",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "first_published": "2026-10-08T06:31:37Z",
+        "updated": "2026-10-08T06:31:37Z",
+        "captured_at": "2026-10-09T04:30:40+00:00",
+        "source_type": "paper",
+        "publication_status": "arxiv-preprint",
+        "journal_ref": "",
+        "metadata_status": "verified",
+        "method": "arxiv-api",
+        "metadata_source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8",
+        "checked_at": "2026-10-10T10:53:46+00:00",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "html",
+        "content_status": "full-text",
+        "announced_at": "Fri, 09 Oct 2026 00:00:00 -0400",
+        "field_sources": {
+          "affiliations": {
+            "method": "archived-html-author-affiliations",
+            "source_url": "https://arxiv.org/html/2610.11334"
+          },
+          "title": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "authors": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "first_published": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "updated": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_id": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_version": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "doi": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "journal_ref": {
+            "method": "arxiv-api",
+            "source_url": "https://export.arxiv.org/api/query?id_list=2610.10786v1%2C2610.10833v1%2C2610.11007v1%2C2610.11030v1%2C2610.11188v1%2C2610.11334v1%2C2610.11559v1%2C2610.11600v1&max_results=8"
+          },
+          "arxiv_doi": {
+            "method": "arxiv-abs-page",
+            "source_url": "https://arxiv.org/abs/2610.11334"
+          }
+        },
+        "title": "ReCast: Attribution-Oriented Step Representation Learning for LLM-Based Agent Systems",
+        "arxiv_categories": [
+          "cs.AI"
+        ],
+        "metadata_snapshot": "source_metadata/arxiv-2026-10-10-fe998c3717f31afc.atom.xml",
+        "last_query_at": "2026-10-10T10:53:46+00:00",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2610.11334",
+        "arxiv_doi_checked_at": "2026-10-10T10:53:52+00:00"
+      },
+      "selection": {
+        "status": "候选资料",
+        "reason": "Agent 专题关键词与近期发布时间匹配，全文和原件已取得；支持页中明确范围内的新进展记录。",
+        "limitations": "近期预印本，同行评审与独立复现尚未核实；同一批发现不构成多方验证。",
+        "checked_at": "2026-10-10T10:53:52+00:00"
+      }
+    }
+  ]
+}

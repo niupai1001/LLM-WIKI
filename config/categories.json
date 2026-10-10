@@ -1,0 +1,8 @@
+[
+  {"id": "agents", "name": "Agent 智能体"},
+  {"id": "ai", "name": "人工智能"},
+  {"id": "vision", "name": "计算机视觉"},
+  {"id": "engineering", "name": "工具与工程"},
+  {"id": "research", "name": "个人研究"},
+  {"id": "other", "name": "其他"}
+]

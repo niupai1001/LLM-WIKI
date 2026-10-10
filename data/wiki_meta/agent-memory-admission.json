@@ -1,0 +1,49 @@
+{
+  "slug": "agent-memory-admission",
+  "title": "长期记忆准入",
+  "category": "agents",
+  "page_kind": "concept",
+  "source_ids": [
+    "accd5feccfb2c025"
+  ],
+  "related_slugs": [
+    "agent-context-memory-governance",
+    "agent-context-selection",
+    "agent-tool-call-gates"
+  ],
+  "updated_at": "2026-10-09T06:07:48+00:00",
+  "writing_guide_version": "2",
+  "content_review": {
+    "by": "Codex",
+    "at": "2026-10-10T11:00:10+00:00",
+    "notes": "对照原文检查定义、机制与指标口径，逐段编辑可读性，并登记断言范围与实验设置差异；未实施独立复现。"
+  },
+  "claims": [
+    {
+      "id": "admission-presentation",
+      "text": "决定哪些记忆进入提示与如何组织同一记忆是两类控制。",
+      "source_ids": [
+        "accd5feccfb2c025"
+      ],
+      "scope": "论文的持久记忆治理实验，区分准入与呈现；不推定所有记忆架构采用同一流程。",
+      "status": "单源支持"
+    },
+    {
+      "id": "memory-tradeoff",
+      "text": "降低某些记忆相关失败可能同时损失个性化能力。",
+      "source_ids": [
+        "accd5feccfb2c025"
+      ],
+      "scope": "论文的失败率与个性化指标分别衡量；部分策略未达到预注册的双重目标，不能仅以安全指标判断收益。",
+      "status": "单源支持"
+    }
+  ],
+  "conflicts": [],
+  "review_history": [
+    {
+      "by": "Codex",
+      "at": "2026-10-09T06:07:48+00:00",
+      "notes": "对照完整原文核查，纠正机制/指标口径；人工编辑压缩枝节与解释术语，构造示例与研究结果分开。"
+    }
+  ]
+}

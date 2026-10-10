@@ -1,0 +1,49 @@
+{
+  "slug": "agent-tool-call-gates",
+  "title": "工具调用门控",
+  "category": "agents",
+  "page_kind": "concept",
+  "source_ids": [
+    "e0c0d198c4709cc7"
+  ],
+  "related_slugs": [
+    "agent-execution-reliability",
+    "agent-memory-admission",
+    "multi-agent-failure-attribution"
+  ],
+  "updated_at": "2026-10-09T06:07:48+00:00",
+  "writing_guide_version": "2",
+  "content_review": {
+    "by": "Codex",
+    "at": "2026-10-10T11:00:10+00:00",
+    "notes": "对照原文检查定义、机制与指标口径，逐段编辑可读性，并登记断言范围与实验设置差异；未实施独立复现。"
+  },
+  "claims": [
+    {
+      "id": "outside-model-enforcement",
+      "text": "工具调用门控把部分策略约束放在模型之外执行。",
+      "source_ids": [
+        "e0c0d198c4709cc7"
+      ],
+      "scope": "NOMOS 的编译与验证框架；静态校验与运行时事实/参数检查不同，不保证所有自然语言策略都能完整形式化。",
+      "status": "单源支持"
+    },
+    {
+      "id": "safety-scope",
+      "text": "阻止攻击者账户收款不等于阻止所有恶意付款。",
+      "source_ids": [
+        "e0c0d198c4709cc7"
+      ],
+      "scope": "论文银行任务的攻击者账户指标；已知收款人的注入诱导付款仍可能通过，正常任务效用需单独评估。",
+      "status": "单源支持"
+    }
+  ],
+  "conflicts": [],
+  "review_history": [
+    {
+      "by": "Codex",
+      "at": "2026-10-09T06:07:48+00:00",
+      "notes": "对照完整原文核查，纠正机制/指标口径；人工编辑压缩枝节与解释术语，构造示例与研究结果分开。"
+    }
+  ]
+}

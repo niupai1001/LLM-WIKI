@@ -1,0 +1,76 @@
+[
+  {
+    "name": "arXiv · AI Agent 论文",
+    "url": "https://rss.arxiv.org/rss/cs.AI",
+    "kind": "paper",
+    "category": "agents",
+    "enabled": true,
+    "require_keywords": [
+      "llm",
+      "language model",
+      "language models",
+      "foundation model",
+      "foundation models"
+    ],
+    "include_keywords": [
+      "agent",
+      "agents",
+      "agentic",
+      "multi-agent",
+      "tool use",
+      "tool-use",
+      "langgraph",
+      "智能体"
+    ],
+    "exclude_keywords": [
+      "sponsored",
+      "sponsorship",
+      "招聘"
+    ],
+    "max_age_days": 7
+  },
+  {
+    "name": "OpenAI · Agent 官方资讯",
+    "url": "https://openai.com/news/rss.xml",
+    "kind": "article",
+    "category": "agents",
+    "enabled": true,
+    "include_keywords": [
+      "agent",
+      "agents",
+      "agentic",
+      "multi-agent",
+      "tool use",
+      "tool-use",
+      "langgraph",
+      "智能体"
+    ],
+    "exclude_keywords": [
+      "sponsored",
+      "sponsorship",
+      "招聘"
+    ],
+    "max_age_days": 7
+  },
+  {
+    "name": "arXiv AI",
+    "url": "https://rss.arxiv.org/rss/cs.AI",
+    "kind": "paper",
+    "category": "ai",
+    "enabled": false
+  },
+  {
+    "name": "arXiv Computer Vision",
+    "url": "https://rss.arxiv.org/rss/cs.CV",
+    "kind": "paper",
+    "category": "vision",
+    "enabled": false
+  },
+  {
+    "name": "LangGraph Releases",
+    "url": "https://github.com/langchain-ai/langgraph/releases.atom",
+    "kind": "news",
+    "category": "engineering",
+    "enabled": false
+  }
+]

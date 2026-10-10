@@ -1,0 +1,136 @@
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+from station import citations, web
+
+
+A = '1111111111111111'
+B = '2222222222222222'
+C = '3333333333333333'
+
+
+class CitationTests(unittest.TestCase):
+    def setUp(self):
+        self.sources = {
+            A: {'title': 'Plan-and-Patch: Diffusion Language Models for Agentic Planning', 'published': 'Fri, 09 Oct 2026 00:00:00 -0400', 'url': 'https://arxiv.org/abs/2610.10786', 'pdf_url': 'https://arxiv.org/pdf/2610.10786'},
+            B: {'title': 'On the Clock: Towards Punctual and Productive Time-Budgeted AI Agents', 'published': '2026-10-08T12:00:00+00:00', 'url': 'https://arxiv.org/abs/2610.10833'},
+            C: {'title': 'NOMOS: Compiling Written Policies into Verified Tool-Call Gates', 'published': '', 'url': 'https://arxiv.org/abs/2610.11030'},
+        }
+
+    def test_first_body_occurrence_controls_numbering_repeats_are_stable(self):
+        body = f'B first [来源 222222](/source/{B}). A second [S:{A}]. B again [Named source](/source/{B}).'
+        rendered, entries = citations.prepare_citations(body, [A, B, C, C], self.sources.get)
+        self.assertEqual([entry.source_id for entry in entries], [B, A, C])
+        self.assertEqual(rendered.count('[1 · On the Clock]'), 2)
+        self.assertIn('[2 · Plan-and-Patch]', rendered)
+        self.assertIn(f'href="/source/{B}"', rendered)
+        self.assertIn('Towards Punctual and Productive', rendered)
+        self.assertIn('发布日期 2026-10-08', rendered)
+        evidence = citations.evidence_html(entries, 'test-page')
+        self.assertIn('id="evidence-test-page-1"', evidence)
+        self.assertIn('原文链接', evidence)
+        self.assertIn('发布日期 <time datetime="2026-10-09">2026-10-09</time>', evidence)
+        self.assertNotIn('来源ID', evidence)
+        self.assertNotIn(f'>{A}<', evidence)
+
+    def test_legacy_reference_section_removed_without_losing_other_sections(self):
+        legacy = f'# Page\n\nConclusion [来源 a](/source/{A}).\n\n---\n\n## 原始证据\n\n- [Plan-and-Patch](/source/{A}) · 来源ID `{A}`\n\n## Further work\n\nKeep this section.\n'
+        rendered, entries = citations.prepare_citations(legacy, [A], self.sources.get)
+        self.assertNotIn('## 原始证据', rendered)
+        self.assertNotIn('来源ID', rendered)
+        self.assertIn('## Further work', rendered)
+        self.assertIn('Keep this section.', rendered)
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(citations.evidence_html(entries).count('<h2>原始证据'), 1)
+
+    def test_narrative_evidence_section_and_code_are_preserved(self):
+        code = f'`[S:{A}]`\n\n```md\n## 原始证据\n- [Do not transform](/source/{A})\n```\n\n## 原始证据\n\nThis is discussion, not a reference list.\n'
+        rendered, entries = citations.prepare_citations(code, [], self.sources.get)
+        self.assertEqual(entries, [])
+        self.assertEqual(rendered, code.rstrip())
+
+    def test_unknown_sources_and_malicious_labels_are_not_html(self):
+        unknown = 'ffffffffffffffff'
+        self.sources[A]['title'] = '<img src=x onerror="alert(1)">: malicious title'
+        self.sources[A]['pdf_url'] = 'javascript:alert(1)'
+        self.sources[A]['url'] = 'https://user:secret@example.org/private'
+        body = f'[<script>alert(1)</script>](/source/{A}) [S:{unknown}]'
+        with patch.object(citations, 'source_info', side_effect=self.sources.get):
+            rendered = web.md_render(body, [A, unknown])
+        self.assertNotIn('<script', rendered)
+        self.assertNotIn('<img', rendered)
+        self.assertNotIn('href="javascript:', rendered)
+        self.assertNotIn('user:secret', rendered)
+        self.assertIn('&lt;img', rendered)
+        self.assertIn('来源记录缺失', rendered)
+        self.assertIn(f'/source/{unknown}', rendered)
+        self.assertNotIn('onclick=', rendered)
+
+    def test_original_markdown_does_not_gain_citation_rewriting(self):
+        body = f'Original label [来源 original](/source/{A})'
+        original = web.md_render(body)
+        self.assertIn('来源 original</a>', original)
+        self.assertNotIn('source-citation', original)
+        self.assertNotIn('evidence-panel', original)
+
+    def test_sanitizer_keeps_only_generated_citation_class_and_safe_attributes(self):
+        body = f'[S:{A}] <a href="/safe" onclick="alert(1)" style="display:none" class="other">safe</a>'
+        with patch.object(citations, 'source_info', side_effect=self.sources.get):
+            rendered = web.md_render(body, [A], evidence_prefix='safe')
+        self.assertIn('class="source-citation"', rendered)
+        self.assertIn('title="[1] Plan-and-Patch:', rendered)
+        self.assertNotIn('onclick=', rendered)
+        self.assertNotIn('style=', rendered)
+        self.assertNotIn('class="other"', rendered)
+        self.assertIn('href="#evidence-safe"', rendered)
+
+    def test_short_title_limits_and_invalid_identifiers(self):
+        title = 'A very long descriptive paper title that contains many words before a colon: subtitle'
+        self.assertLessEqual(len(citations.short_title(title)), 35)
+        rendered, entries = citations.prepare_citations('[S:../../secrets]', ['../../secrets', '<script>', A], self.sources.get)
+        self.assertEqual([entry.source_id for entry in entries], [A])
+        self.assertNotIn('class="source-citation"', rendered)
+
+    def test_page_and_draft_render_one_evidence_list_and_safe_writing_issues(self):
+        body = f'## Finding\n\nEvidence [S:{A}].\n\n---\n\n## 原始证据\n\n- [Legacy title](/source/{A}) · 来源ID `{A}`'
+        page_data = {'slug': 'example', 'title': 'Example', 'category': 'other', 'source_ids': [A], 'related_slugs': [], 'body': body}
+        with patch.object(web, 'wiki_pages', return_value=[page_data]), patch.object(citations, 'source_info', side_effect=self.sources.get):
+            page = web.page('example').body.decode()
+        self.assertEqual(page.count('<h2>原始证据'), 1)
+        self.assertIn('[1 · Plan-and-Patch]', page)
+        with tempfile.TemporaryDirectory() as temp:
+            pending = Path(temp)
+            (pending / 'draft.json').write_text('{}')
+            proposal = {'source_id': A, 'title': 'Draft', 'source_ids': [A], 'category': 'other', 'action': 'create', 'body_markdown': body,
+                        'writing_issues': ['正文可能偏长', '<script>alert(1)</script>']}
+            with patch.object(web, 'PENDING', pending), patch.object(web, 'load_json', return_value=proposal), patch.object(web, 'connect'), patch.object(citations, 'source_info', side_effect=self.sources.get):
+                draft = web.drafts().body.decode()
+        self.assertEqual(draft.count('<h2>原始证据'), 1)
+        self.assertNotIn('class="review-evidence"', draft)
+        self.assertIn('编写检查提示', draft)
+        self.assertIn('&lt;script&gt;alert(1)&lt;/script&gt;', draft)
+
+    def test_home_groups_topics_and_concepts_and_preserves_filters(self):
+        pages = [
+            {'slug': 'topic', 'title': 'Topic guide', 'page_kind': 'topic', 'category': 'other', 'source_ids': [], 'body': 'Topic match'},
+            {'slug': 'concept', 'title': 'Concept detail', 'page_kind': 'concept', 'category': 'other', 'source_ids': [], 'body': 'Concept match'},
+            {'slug': 'legacy', 'title': 'Legacy knowledge', 'category': 'other', 'source_ids': [], 'body': 'Legacy excluded'},
+        ]
+        with tempfile.TemporaryDirectory() as temp, patch.object(web, 'wiki_pages', return_value=pages), patch.object(web, 'PENDING', Path(temp)), patch.object(web, 'connect') as connection:
+            connection.return_value.__enter__.return_value.execute.return_value.fetchone.return_value = [0]
+            rendered = web.home().body.decode()
+            self.assertIn('主题入口', rendered)
+            self.assertIn('概念知识', rendered)
+            self.assertLess(rendered.index('href="/page/topic"'), rendered.index('href="/page/concept"'))
+            self.assertIn('href="/page/legacy"', rendered)
+            filtered = web.home(q='match', category='other').body.decode()
+            self.assertIn('href="/page/topic"', filtered)
+            self.assertIn('href="/page/concept"', filtered)
+            self.assertNotIn('href="/page/legacy"', filtered)
+
+
+
+if __name__ == '__main__':
+    unittest.main()

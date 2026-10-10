@@ -1,0 +1,73 @@
+{
+  "slug": "agent-plan-repair",
+  "title": "计划修补",
+  "category": "agents",
+  "page_kind": "concept",
+  "source_ids": [
+    "7d220dd5706f59fd"
+  ],
+  "related_slugs": [
+    "agent-planning-repair-time-budget",
+    "multi-agent-failure-attribution",
+    "agent-time-budget"
+  ],
+  "updated_at": "2026-10-09T06:07:48+00:00",
+  "writing_guide_version": "2",
+  "content_review": {
+    "by": "Codex",
+    "at": "2026-10-10T11:00:10+00:00",
+    "notes": "对照原文检查定义、机制与指标口径，逐段编辑可读性，并登记断言范围与实验设置差异；未实施独立复现。"
+  },
+  "claims": [
+    {
+      "id": "repair-definition",
+      "text": "计划修补是在执行反馈出现后修改原计划的受影响部分。",
+      "source_ids": [
+        "7d220dd5706f59fd"
+      ],
+      "scope": "Plan-and-Patch 的规划/修补框架；修补属于重新规划的一种方式，不能假定任意系统都能保留有效前缀。",
+      "status": "单源支持"
+    },
+    {
+      "id": "repair-benchmark-boundary",
+      "text": "扩散模型的修补优势依赖任务与训练条件。",
+      "source_ids": [
+        "7d220dd5706f59fd"
+      ],
+      "scope": "无训练规划基准中报告较高修补成功率；经任务训练的 ALFWorld/TextCraft 不能沿用同一优势结论。",
+      "status": "范围差异"
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "repair-across-settings",
+      "title": "修补优势随任务和训练条件变化",
+      "kind": "范围差异",
+      "sides": [
+        {
+          "text": "未做任务训练的规划基准上，扩散模型报告较高的修补成功率。",
+          "source_ids": [
+            "7d220dd5706f59fd"
+          ],
+          "scope": "论文的无训练规划设置。"
+        },
+        {
+          "text": "经任务训练的 ALFWorld/TextCraft 设置中，AR 的修补结果不能用上述优势描述。",
+          "source_ids": [
+            "7d220dd5706f59fd"
+          ],
+          "scope": "论文的任务训练智能体基准，与前者任务和训练条件不同。"
+        }
+      ],
+      "status": "范围已区分",
+      "handling": "两组结果来自同一论文的不同设置；分别保留，不能概括为扩散模型普遍更善于修补，也不计作两份独立研究。"
+    }
+  ],
+  "review_history": [
+    {
+      "by": "Codex",
+      "at": "2026-10-09T06:07:48+00:00",
+      "notes": "对照完整原文核查，纠正机制/指标口径；人工编辑压缩枝节与解释术语，构造示例与研究结果分开。"
+    }
+  ]
+}
