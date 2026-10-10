@@ -134,7 +134,8 @@ class SourceTests(unittest.TestCase):
         self.assertEqual((common.ASSETS / item["asset_path"]).read_bytes(), b"%PDF-test")
 
     def test_disabled_feed_never_fetches(self):
-        with patch.object(collector, "load_json", return_value=[{"enabled": False, "url": "https://example.org/rss", "name": "Disabled"}]), patch.object(collector, "fetch_bytes") as fetch:
+        config = {'topics': [{'id':'other', 'enabled':True}], 'feeds': [{"enabled": False, "url": "https://example.org/rss", "name": "Disabled"}]}
+        with patch('station.settings.snapshot', return_value=config), patch.object(collector, "fetch_bytes") as fetch:
             self.assertEqual(collector.ingest(), 0)
         fetch.assert_not_called()
 

@@ -353,7 +353,7 @@ def archive(record, db):
     """Idempotent source archive. Explicit text is a caller-provided original."""
     if not public_http(record["url"]):
         raise ValueError("Invalid public source link")
-    category = validate_category(record.get("category", "other"))
+    category = validate_category(record.get("category", "other"), active_only=True)
     kind = validate_kind(record.get("kind", "article"))
     sid = source_id(record["url"])
     if db.execute("SELECT id FROM sources WHERE id = ?", (sid,)).fetchone():
@@ -417,14 +417,19 @@ def entry_matches(entry, feed, now=None):
 
 def ingest():
     import feedparser
-    feeds = load_json(Path(__file__).resolve().parent.parent / "config/feeds.json")
+    from .settings import snapshot
+    config = snapshot()
+    feeds = config['feeds']
     db = connect()
     limit = max(1, min(int(os.getenv("MAX_PER_FEED", "12")), 100))
     count = 0
     captured_ids = []
+    active_categories = {c['id'] for c in config['topics'] if c['enabled']}
     try:
         for feed in feeds:
             if feed.get("enabled", True) is False:
+                continue
+            if feed.get('category', 'other') not in active_categories:
                 continue
             print(f"[FEED] {feed['name']}")
             try:
@@ -463,7 +468,7 @@ def ingest():
 
 def import_file(title, file_path, category="other", kind=None):
     """Import an original .md/.txt/.pdf file; return its id, including duplicates."""
-    category = validate_category(category)
+    category = validate_category(category, active_only=True)
     path = Path(file_path)
     suffix = path.suffix.lower()
     title = (title or path.stem).strip()
@@ -543,7 +548,7 @@ def refresh_source(sid):
 
 
 def import_url(url, category="other", title=None, kind="article", verify_metadata=False):
-    validate_category(category)
+    validate_category(category, active_only=True)
     validate_kind(kind)
     if not public_http(url):
         raise ValueError("Invalid public source link")
@@ -564,7 +569,7 @@ def import_url(url, category="other", title=None, kind="article", verify_metadat
 
 
 def set_category(sid, category):
-    category = validate_category(category)
+    category = validate_category(category, active_only=True)
     db = connect()
     try:
         db.execute("BEGIN IMMEDIATE")

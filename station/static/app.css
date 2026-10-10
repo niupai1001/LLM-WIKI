@@ -150,3 +150,38 @@ label {display:block;font-size:12px;color:var(--muted);margin:14px 0} label inpu
 .source-bibliography .muted {display:inline}
 @media(max-width:650px){.source-bibliography dl>div{grid-template-columns:1fr;gap:3px}.source-bibliography summary span{display:block;margin:4px 0 0}}
 .evidence-authors {margin-top:5px;font-size:11px;line-height:1.7;color:var(--muted)}
+
+/* Topic and subscription controls share the workspace's restrained styling. */
+.settings-jumps {display:flex;gap:24px;border-bottom:1px solid var(--line);padding:0 0 14px;margin-bottom:26px;font-size:13px}
+.settings-jumps a {display:flex;gap:8px;align-items:center;font-weight:500}
+.settings-jumps span {font-size:11px;color:var(--muted);font-weight:400}
+.settings-section {margin:0 0 42px;scroll-margin-top:20px}
+.settings-section .section-heading {align-items:baseline;flex-wrap:wrap;gap:8px}
+.settings-create,.settings-item {border:1px solid var(--line);background:var(--paper);border-radius:var(--radius);margin-bottom:12px}
+.settings-create>summary {padding:14px 18px;font-size:12px;cursor:pointer;font-weight:500}
+.settings-create[open]>summary {border-bottom:1px solid var(--line)}
+.settings-list {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.settings-item {padding:18px 20px;margin:0;min-width:0}
+.settings-item-heading {display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.settings-item h3 {font-size:14px;font-weight:550;margin:0 0 5px;overflow-wrap:anywhere}
+.settings-item-heading p,.settings-keywords {font-size:11px;color:var(--muted);margin:0;line-height:1.8;overflow-wrap:anywhere}
+.settings-item-heading .tag {flex-shrink:0}
+.settings-item-foot {display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--muted);margin-top:14px}
+.settings-feed-url {font-size:11px;color:var(--muted);overflow-wrap:anywhere;margin:12px 0 8px}
+.settings-edit {border-top:1px solid var(--line);margin-top:15px;padding-top:11px;font-size:12px}
+.settings-edit>summary {cursor:pointer;font-weight:500}
+.settings-edit>summary span {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.settings-form {padding:18px 20px}
+.settings-edit .settings-form {padding:14px 0 0}
+.settings-form label {display:block;font-size:12px;margin:0 0 13px}
+.settings-form .checkbox-label {display:flex;margin:13px 0;align-items:center}
+.settings-form textarea {font:inherit;display:block;resize:vertical;min-height:64px;width:100%;margin:6px 0 0;padding:9px 11px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink)}
+.settings-fields {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.field-help {font-size:11px;line-height:1.8;color:var(--muted);margin:8px 0 14px}
+.settings-actions {display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.settings-advanced {border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0;margin-bottom:12px}
+.settings-advanced summary {font-size:12px;cursor:pointer}
+.settings-advanced[open] summary {margin-bottom:12px}
+.settings-saved {background:var(--success-bg);color:var(--success);margin:0 0 22px}
+@media(max-width:900px){.settings-list{grid-template-columns:1fr}}
+@media(max-width:650px){.settings-fields{grid-template-columns:1fr;gap:0}.settings-form{padding:15px}.settings-item{padding:16px}.settings-section .section-heading .muted{width:100%}}

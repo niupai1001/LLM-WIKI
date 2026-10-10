@@ -5,7 +5,7 @@ services:
     env_file: .env
     volumes:
       - ./data:/app/data
-      - ./config:/app/config:ro
+      - ./config:/app/config
     ports:
       - "127.0.0.1:8765:8765"
   collector:
@@ -15,5 +15,5 @@ services:
     env_file: .env
     volumes:
       - ./data:/app/data
-      - ./config:/app/config:ro
+      - ./config:/app/config
     command: ["python", "-m", "station.cli", "loop", "--minutes", "30"]

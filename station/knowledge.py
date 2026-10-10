@@ -24,14 +24,20 @@ def categories():
             raise ValueError("Invalid or duplicate category ID")
         if not isinstance(name, str) or not name.strip():
             raise ValueError("Category name is required")
-        result.append({"id": key, "name": name.strip()})
+        enabled, description = item.get('enabled', True), item.get('description', '')
+        if not isinstance(enabled, bool) or not isinstance(description, str):
+            raise ValueError('Invalid category settings')
+        result.append({"id": key, "name": name.strip(), "enabled": enabled, "description": description})
         seen.add(key)
     return result
 
 
-def validate_category(value):
-    if not isinstance(value, str) or value not in {c["id"] for c in categories()}:
-        raise ValueError("Unknown category")
+def validate_category(value, active_only=False):
+    entries = {c['id']: c for c in categories()}
+    if not isinstance(value, str) or value not in entries:
+        raise ValueError('主题不存在，请刷新页面后重试')
+    if active_only and not entries[value]['enabled']:
+        raise ValueError('该主题已停用，请在“主题与订阅”中启用，或选择其他主题')
     return value
 
 

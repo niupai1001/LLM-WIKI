@@ -15,3 +15,5 @@ artifacts/
 *.bak
 
 data/source_metadata/
+
+config/.settings.lock

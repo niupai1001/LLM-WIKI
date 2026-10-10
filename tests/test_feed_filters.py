@@ -32,11 +32,25 @@ class FeedFilterTests(unittest.TestCase):
         entries += [feedparser.FeedParserDict(title='Agent already archived', link='https://example.org/existing'), feedparser.FeedParserDict(title='Agent paper', link='https://example.org/one'), feedparser.FeedParserDict(title='Agent tools', link='https://example.org/two')]
         parsed = feedparser.FeedParserDict(entries=entries, bozo=False)
         feed = {'name': 'Test', 'url': 'https://example.org/feed', 'include_keywords': ['agent']}
-        with patch('station.collector.load_json', return_value=[feed]), patch('station.collector.connect') as connect, patch('station.collector.fetch_bytes', return_value=b'feed'), patch('feedparser.parse', return_value=parsed), patch('station.collector.archive', return_value='new') as archive, patch.dict('os.environ', {'MAX_PER_FEED': '1'}):
+        config = {'topics': [{'id': 'other', 'enabled': True}], 'feeds': [feed]}
+        with patch('station.settings.snapshot', return_value=config), patch('station.collector.connect') as connect, patch('station.collector.fetch_bytes', return_value=b'feed'), patch('feedparser.parse', return_value=parsed), patch('station.collector.archive', return_value='new') as archive, patch.dict('os.environ', {'MAX_PER_FEED': '1'}):
             connect.return_value.execute.return_value.fetchone.side_effect = [('existing',), None, None]
             self.assertEqual(ingest(), 1)
             self.assertEqual(archive.call_count, 1)
             self.assertEqual(archive.call_args.args[0]['url'], 'https://example.org/one')
+
+    def test_ingest_uses_current_settings_and_skips_disabled_topics(self):
+        import feedparser
+        config = {'topics': [{'id': 'agents', 'enabled': True}, {'id': 'ai', 'enabled': False}],
+                  'feeds': [{'name':'Current', 'url':'https://example.org/current', 'category':'agents', 'enabled':True},
+                            {'name':'Disabled topic', 'url':'https://example.org/disabled', 'category':'ai', 'enabled':True},
+                            {'name':'Disabled node', 'url':'https://example.org/stopped', 'category':'agents', 'enabled':False}]}
+        empty = feedparser.FeedParserDict(entries=[], bozo=False)
+        with patch('station.settings.snapshot', return_value=config) as snapshot, patch('station.collector.connect'), \
+             patch('station.collector.fetch_bytes', return_value=b'feed') as fetch, patch('feedparser.parse', return_value=empty):
+            self.assertEqual(ingest(), 0)
+            snapshot.assert_called_once()
+            fetch.assert_called_once_with('https://example.org/current')
 
 
 if __name__ == '__main__':

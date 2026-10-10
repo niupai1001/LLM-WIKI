@@ -34,3 +34,28 @@ if(fileForm) fileForm.addEventListener('submit',event=>{event.preventDefault();c
 
 document.querySelectorAll('[data-refresh]').forEach(button=>button.addEventListener('click',()=>action(button,()=>post(`/api/sources/${button.dataset.refresh}/refresh`),'正在重新获取原文…')));
 document.querySelectorAll('[data-fetch-pdf]').forEach(button=>button.addEventListener('click',()=>action(button,()=>post(`/api/sources/${button.dataset.fetchPdf}/pdf`),'正在获取 PDF…')));
+
+const settingsWorkspace = document.querySelector('[data-settings-version]');
+if (settingsWorkspace) {
+  const version = settingsWorkspace.dataset.settingsVersion;
+  const keywords = value => String(value || '').split(/[,，\n\r]+/).map(word => word.trim()).filter(Boolean);
+  document.querySelectorAll('[data-settings-form]').forEach(form => form.addEventListener('submit', event => {
+    event.preventDefault();
+    const payload = Object.fromEntries(new FormData(form));
+    payload.version = version;
+    payload.enabled = form.elements.enabled.type === 'hidden' || form.elements.enabled.checked;
+    const kind = form.dataset.settingsForm;
+    if (kind === 'feed') {
+      for (const field of ['include_keywords', 'require_keywords', 'exclude_keywords']) payload[field] = keywords(payload[field]);
+      payload.max_age_days = payload.max_age_days ? Number(payload.max_age_days) : null;
+    }
+    action(form.querySelector('button[type="submit"], button:not([type])'), () => post(`/api/settings/${kind === 'topic' ? 'topics' : 'feeds'}`, payload), '正在保存…');
+  }));
+  document.querySelectorAll('[data-settings-delete]').forEach(button => button.addEventListener('click', () => {
+    const kind = button.dataset.settingsDelete;
+    const name = button.dataset.itemName;
+    const message = kind === 'topic' ? `删除主题“${name}”？有资料、知识或订阅引用时会保留。` : `删除订阅“${name}”？后续停止采集，已归档的资料和知识保留。`;
+    if (!window.confirm(message)) return;
+    action(button, () => post(`/api/settings/${kind === 'topic' ? 'topics' : 'feeds'}/${encodeURIComponent(button.dataset.itemId)}/delete`, {version}), '正在删除…');
+  }));
+}

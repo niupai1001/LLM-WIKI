@@ -21,6 +21,7 @@ from .wiki import approve, prepare, reject
 
 app = FastAPI(title='LLM Wiki')
 app.mount('/static', StaticFiles(directory=Path(__file__).parent / 'static'), name='static')
+ASSET_VERSIONS = {name: str((Path(__file__).parent / "static" / name).stat().st_mtime_ns) for name in ("app.css", "app.js")}
 MAX_UPLOAD = 15 * 1024 * 1024
 E = lambda value: html.escape(str(value), quote=True)
 STAGES = {'new': '待编写', 'compiling': '正在编写', 'drafted': '待审核', 'approved': '已入 Wiki'}
@@ -47,9 +48,10 @@ def layout(title, body, active='wiki'):
     }
     nav = ''.join(f'<a class="nav-link {"active" if key == active else ""}" href="{url}" {"aria-current=page" if key == active else ""}><svg viewBox="0 0 24 24" aria-hidden="true">{icons[key]}</svg><span>{name}</span></a>' for key, url, name in [
         ('wiki', '/', '知识 Wiki'), ('sources', '/sources', '原始资料'), ('drafts', '/drafts', '编写与审核'), ('graph', '/graph', '知识图谱')])
-    topic_links = ''.join(f'<a class="topic-link" href="/?category={quote(c["id"])}"><span class="topic-dot"></span>{E(c["name"])}</a>' for c in categories())
+    topic_links = ''.join(f'<a class="topic-link" href="/?category={quote(c["id"])}"><span class="topic-dot"></span>{E(c["name"])}</a>' for c in categories() if c['enabled'])
     nav += f'<a class="nav-link {"active" if active == "collection" else ""}" href="/collection" {"aria-current=page" if active == "collection" else ""}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg><span>采集计划</span></a>'
-    return HTMLResponse(f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{E(title)} · LLM Wiki</title><script>try{{document.documentElement.dataset.theme=localStorage.getItem('wiki-theme')==='dark'?'dark':'light'}}catch(e){{}}</script><link rel="stylesheet" href="/static/app.css"></head><body><a class="skip-link" href="#main">跳到内容</a><aside class="sidebar"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 6 4 12 4-8 4 8 4-12"/></svg></span> LLM Wiki</a><a class="sidebar-import" href="/sources#import"><span>＋</span> 导入资料</a><div class="workspace-label">工作空间</div><nav aria-label="工作空间">{nav}</nav><div class="topic-nav"><div class="workspace-label">主题</div>{topic_links}</div><div class="sidebar-bottom"><span class="status-dot"></span> 本地工作空间<small>原文 · 知识 · 关联</small></div></aside><div class="main-shell"><header class="topbar"><div class="topbar-path"><span>工作空间</span><span class="path-divider">/</span><strong>{E(title)}</strong></div><div class="topbar-actions"><span class="local-label"><span class="status-dot"></span>本地</span><button class="icon-button" id="theme-toggle" aria-label="切换深色模式" title="切换深浅色模式"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 13.1A9 9 0 0 1 10.9 3.2 9 9 0 1 0 20.8 13.1Z"/></svg></button></div></header><main id="main">{body}</main><footer class="workspace-footer">LLM Wiki<span>每个知识页面，都能回到原始证据</span></footer></div><div id="toast" role="status" aria-live="polite"></div><script src="/static/app.js" defer></script></body></html>''')
+    nav += f'<a class="nav-link {"active" if active == "settings" else ""}" href="/settings" {"aria-current=page" if active == "settings" else ""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg><span>主题与订阅</span></a>'
+    return HTMLResponse(f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{E(title)} · LLM Wiki</title><script>try{{document.documentElement.dataset.theme=localStorage.getItem('wiki-theme')==='dark'?'dark':'light'}}catch(e){{}}</script><link rel="stylesheet" href="/static/app.css?v={ASSET_VERSIONS["app.css"]}"></head><body><a class="skip-link" href="#main">跳到内容</a><aside class="sidebar"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 6 4 12 4-8 4 8 4-12"/></svg></span> LLM Wiki</a><a class="sidebar-import" href="/sources#import"><span>＋</span> 导入资料</a><div class="workspace-label">工作空间</div><nav aria-label="工作空间">{nav}</nav><div class="topic-nav"><div class="workspace-label">主题</div>{topic_links}</div><div class="sidebar-bottom"><span class="status-dot"></span> 本地工作空间<small>原文 · 知识 · 关联</small></div></aside><div class="main-shell"><header class="topbar"><div class="topbar-path"><span>工作空间</span><span class="path-divider">/</span><strong>{E(title)}</strong></div><div class="topbar-actions"><span class="local-label"><span class="status-dot"></span>本地</span><button class="icon-button" id="theme-toggle" aria-label="切换深色模式" title="切换深浅色模式"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 13.1A9 9 0 0 1 10.9 3.2 9 9 0 1 0 20.8 13.1Z"/></svg></button></div></header><main id="main">{body}</main><footer class="workspace-footer">LLM Wiki<span>每个知识页面，都能回到原始证据</span></footer></div><div id="toast" role="status" aria-live="polite"></div><script src="/static/app.js?v={ASSET_VERSIONS["app.js"]}" defer></script></body></html>''')
 
 
 def md_render(source, citation_source_ids=None, evidence_prefix="knowledge"):
@@ -72,9 +74,12 @@ def md_render(source, citation_source_ids=None, evidence_prefix="knowledge"):
     return evidence_jump(citations, evidence_prefix) + clean + evidence_html(citations, evidence_prefix)
 
 
-def category_options(selected='', all_option=False):
+def category_options(selected='', all_option=False, active_only=False, retain_selected=False):
+    entries = categories()
+    if active_only and not retain_selected and not any(c['id'] == selected and c['enabled'] for c in entries):
+        selected = 'other'
     result = '<option value="">全部主题</option>' if all_option else ''
-    return result + ''.join(f'<option value="{E(c["id"])}" {"selected" if c["id"] == selected else ""}>{E(c["name"])}</option>' for c in categories())
+    return result + ''.join(f'<option value="{E(c["id"])}" {"selected" if c["id"] == selected else ""} {"disabled" if active_only and not c["enabled"] else ""}>{E(c["name"])}{"（已停用）" if not c["enabled"] else ""}</option>' for c in entries if not active_only or c['enabled'] or (retain_selected and c['id'] == selected))
 
 
 def original_label(record):
@@ -178,7 +183,7 @@ def sources(q: str = '', category: str = '', status: str = ''):
         body += '</div>'
     else:
         body += empty('资料库是空的' if not items else '没有匹配的资料', '导入需要的原始材料，再选择主题。自动订阅与运行状态可在“采集计划”中查看。', '<a class="button" href="/collection">查看采集计划</a>')
-    body += f'''<section class="panel import-panel" id="import"><div class="section-heading"><div><div class="eyebrow">ADD ORIGINAL EVIDENCE</div><h2>导入原始资料</h2></div></div><div class="import-grid"><form id="import-url-form"><h3>从公开链接导入</h3><label>原始网址<input name="url" type="url" required placeholder="https://…"></label><label>资料标题（可选）<input name="title" placeholder="留空时尝试使用页面标题"></label><label>主题分类<select name="category">{category_options('other')}</select></label><button class="button primary">获取原文并归档</button><small>公开网页提取正文；arXiv 尝试 HTML / PDF 原文。无法取得原文时会明确标记。</small></form><form id="import-file-form"><h3>从本地文件导入</h3><label>文件<input name="file" type="file" accept=".pdf,.md,.txt" required></label><label>资料标题（可选）<input name="title" placeholder="默认使用文件名"></label><label>资料类型<select name="kind"><option value="">按文件判断（PDF 论文 / 其他文档）</option><option value="paper">论文</option><option value="document">文档</option><option value="note">个人笔记与观点</option></select></label><label>主题分类<select name="category">{category_options('research')}</select></label><button class="button primary">上传原件并归档</button><small>支持 PDF、Markdown 和文本，最大 15 MB。PDF 原件可直接在资料页阅读。</small></form></div></section>'''
+    body += f'''<section class="panel import-panel" id="import"><div class="section-heading"><div><div class="eyebrow">ADD ORIGINAL EVIDENCE</div><h2>导入原始资料</h2></div></div><div class="import-grid"><form id="import-url-form"><h3>从公开链接导入</h3><label>原始网址<input name="url" type="url" required placeholder="https://…"></label><label>资料标题（可选）<input name="title" placeholder="留空时尝试使用页面标题"></label><label>主题分类<select name="category">{category_options('other', active_only=True)}</select></label><button class="button primary">获取原文并归档</button><small>公开网页提取正文；arXiv 尝试 HTML / PDF 原文。无法取得原文时会明确标记。</small></form><form id="import-file-form"><h3>从本地文件导入</h3><label>文件<input name="file" type="file" accept=".pdf,.md,.txt" required></label><label>资料标题（可选）<input name="title" placeholder="默认使用文件名"></label><label>资料类型<select name="kind"><option value="">按文件判断（PDF 论文 / 其他文档）</option><option value="paper">论文</option><option value="document">文档</option><option value="note">个人笔记与观点</option></select></label><label>主题分类<select name="category">{category_options('research', active_only=True)}</select></label><button class="button primary">上传原件并归档</button><small>支持 PDF、Markdown 和文本，最大 15 MB。PDF 原件可直接在资料页阅读。</small></form></div></section>'''
     return layout('原始资料', body, 'sources')
 
 
@@ -262,18 +267,21 @@ def source(sid: str):
         raise HTTPException(404)
     complete = row['content_status'] == 'full-text'
     body = f'<div class="breadcrumbs"><a href="/sources">原始资料</a> / {E(category_name(row["category"]))}</div><div class="page-heading"><div><div class="tags"><span class="tag subtle">{E(KINDS.get(d["kind"],d["kind"]))}</span><span class="tag {"complete" if complete else "warning"}">{E(original_label(d))}</span></div><h1 class="document-title">{E(d["title"])}</h1><p>{len(d.get("text", "")):,} 字符 · {E(STAGES.get(row["stage"],row["stage"]))}</p></div></div>'
-    body += f'<div class="source-toolbar"><label>主题分类 <select data-source-category="{sid}" {"disabled" if row["stage"] in {"drafted", "compiling"} else ""}>{category_options(row["category"])}</select></label>'
+    body += f'<div class="source-toolbar"><label>主题分类 <select data-source-category="{sid}" {"disabled" if row["stage"] in {"drafted", "compiling"} else ""}>{category_options(row["category"], active_only=True, retain_selected=True)}</select></label>'
     if d.get('url', '').startswith(('http://','https://')) and '.invalid/' not in d['url']:
         body += f'<a class="button" href="{E(d["url"])}" target="_blank" rel="noopener noreferrer">原始链接 ↗</a>'
     if d.get('asset_path'):
         body += f'<a class="button" href="/source/{sid}/original" target="_blank">查看归档原件 ↗</a>'
-    if complete and row['stage'] == 'new':
+    topic_active = any(c['id'] == row['category'] and c['enabled'] for c in categories())
+    if complete and row['stage'] == 'new' and topic_active:
         body += f'<button class="button primary" data-source-compile="{sid}">生成 Wiki 草稿</button>'
     elif row['stage'] == 'drafted':
         body += '<a class="button primary" href="/drafts">审核关联草稿 →</a>'
     if not complete and d.get('body_level') != 'manual-original':
         body += f'<button class="button" data-refresh="{sid}">重新获取原文</button>'
     body += '</div>'
+    if not topic_active:
+        body += '<p class="field-help">该主题已停用。已有原文仍可阅读；重新编写前，可启用主题或将资料改到其他主题。</p>'
     body += bibliography_html(d)
     from .evidence import source_evidence
     body += '<details class="source-bibliography"><summary>来源核查状态 <span>全文、书目与研究结论分别判断</span></summary>' + source_evidence(d) + '</details>'
@@ -344,29 +352,86 @@ def api_graph():
 @app.get('/collection', response_class=HTMLResponse)
 def collection():
     from .scheduler import get_status
+    from .settings import snapshot
     status = get_status(include_launchd=True)
-    feeds = load_json(Path(__file__).resolve().parent.parent / 'config' / 'feeds.json')
-    enabled = [f for f in feeds if f.get('enabled', True)]
+    config = snapshot()
+    feeds = config['feeds']
+    active_categories = {c['id'] for c in config['topics'] if c['enabled']}
+    enabled = [f for f in feeds if f.get('enabled', True) and f.get('category', 'other') in active_categories]
     last = status.get('last_run') or {}
     state = '已启用' if status.get('loaded') else '尚未启用'
     last_labels = {'succeeded': '采集完成', 'failed': '采集存在错误', 'running': '正在采集', 'skipped': '跳过重复运行', 'partial': '部分失败', 'interrupted': '上次运行中断', 'unknown': '运行状态待核实'}
     next_run = status.get('next_run') if status.get('loaded') else '等待启用任务'
     if isinstance(next_run, str):
         next_run = next_run.replace('T', ' ').replace('+08:00', '')[:16]
-    body = '<div class="page-heading"><div><h1>采集计划</h1><p>跟踪 Agent 的新研究与官方文章，按主题归档原文。</p></div><a class="button" href="/sources?category=agents">查看 Agent 资料 →</a></div>'
+    body = '<div class="page-heading"><div><h1>采集计划</h1><p>按你的主题与订阅设置发现新资料。</p></div><a class="button" href="/settings#feeds">管理主题与订阅 →</a></div>'
     body += f'<section class="schedule-card"><div class="schedule-time"><span class="muted">每日采集</span><strong>{E(status.get("time", "08:00"))}</strong><span class="muted">北京时间 · Asia/Shanghai</span></div><div class="schedule-detail"><span class="tag {"complete" if status.get("loaded") else "subtle"}">{E(state)}</span><p>下一次计划：{E(next_run)}</p><small>最近运行：{E(last_labels.get(last.get("status"), "尚未运行"))}</small></div></section>'
     if not status.get('timezone_matches', True):
         body += '<div class="notice warning">系统时区已不在北京时间，任务的实际触发时刻会变化。请将 macOS 时区恢复为 Asia/Shanghai 后重新确认计划。</div>'
-    body += f'<div class="section-heading"><h2>Agent 主题 · {len(enabled)} 个订阅源</h2><span class="muted">近 7 天 · 关键词筛选 · 自动去重</span></div><div class="source-list">'
+    body += f'<div class="section-heading"><h2>启用订阅 · {len(enabled)} 个节点</h2><span class="muted">按节点筛选 · 自动去重</span></div><div class="source-list">'
     for feed in enabled:
         required = feed.get('require_keywords', [])
-        body += f'<section class="source-card"><div class="source-icon">{"论文" if feed.get("kind") == "paper" else "官方"}</div><div class="source-summary"><div class="tags"><span class="tag">{E(category_name(feed.get("category", "other")))}</span><span class="tag subtle">{E(KINDS.get(feed.get("kind"), "文章"))}</span></div><h3>{E(feed["name"])}</h3><p>包含任一：{E(" · ".join(feed.get("include_keywords", [])))}</p>'
+        body += f'<section class="source-card"><div class="source-icon">{"论文" if feed.get("kind") == "paper" else "订阅"}</div><div class="source-summary"><div class="tags"><span class="tag">{E(category_name(feed.get("category", "other")))}</span><span class="tag subtle">{E(KINDS.get(feed.get("kind"), "文章"))}</span></div><h3>{E(feed["name"])}</h3><p>包含任一：{E(" · ".join(feed.get("include_keywords", [])) or "不限关键词")}</p>'
         if required:
-            body += f'<p>同时包含语言模型相关词：{E(" · ".join(required))}</p>'
-        body += f'<small>仅最近 {E(feed.get("max_age_days", "不限"))} 天的有日期内容</small> · <a class="text-link" href="{E(feed["url"])}" target="_blank" rel="noopener noreferrer">原始订阅源 ↗</a></div></section>'
+            body += f'<p>还需匹配任一：{E(" · ".join(required))}</p>'
+        window = f'仅最近 {feed["max_age_days"]} 天的有日期内容' if feed.get('max_age_days') else '不限发布时间'
+        body += f'<small>{E(window)}</small> · <a class="text-link" href="{E(feed["url"])}" target="_blank" rel="noopener noreferrer">原始订阅源 ↗</a></div></section>'
+    if not enabled:
+        body += '<p class="muted">当前没有启用的订阅。到“主题与订阅”新增或启用节点后，下次采集会使用这些设置。</p>'
     drafting = '采集完成后，LLM 自动编写知识草稿；首页和“编写与审核”均可阅读，核查后发布。' if os.getenv('AUTO_DRAFT', 'false').lower() == 'true' else '编写草稿由你手动触发，核查后发布。'
-    body += f'</div><section class="panel collection-notes"><h2>如何确定主题与质量</h2><p>主题由“分类 + 订阅源 + 关键词”共同确定。当前聚焦 Agent；论文还需匹配语言模型相关词。官方来源与论文优先，但来源和关键词不能替代内容质量审核，arXiv 论文可能尚未经过同行评审。</p><p>论文直接展示 PDF 原件；提取文字仅供 LLM 使用。全文提取失败会显示“待补原文”，不会直接编写成 Wiki。{drafting}</p><p>定时任务在本机运行。Mac 需要保持开机并登录；睡眠期间无法准时采集，唤醒后可能补触发。关机错过的任务没有保证补跑。</p></section>'
+    body += f'</div><section class="panel collection-notes"><h2>如何确定主题与质量</h2><p>在<a href="/settings">主题与订阅</a>中调整关注领域，为每个订阅设置所属主题、关键词与日期范围。保存后，下次采集读取新设置。来源和关键词不能替代内容质量审核，arXiv 论文可能尚未经过同行评审。</p><p>论文直接展示 PDF 原件；提取文字仅供 LLM 使用。全文提取失败会显示“待补原文”，不会直接编写成 Wiki。{drafting}</p><p>定时任务在本机运行。Mac 需要保持开机并登录；睡眠期间无法准时采集，唤醒后可能补触发。关机错过的任务没有保证补跑。</p></section>'
     return layout('采集计划', body, 'collection')
+
+
+@app.get('/settings', response_class=HTMLResponse)
+def settings_page(notice: str = ''):
+    from .settings import snapshot
+    from .settings_view import settings_html
+    return layout('主题与订阅', settings_html(snapshot(), notice), 'settings')
+
+
+@app.get('/api/settings')
+def api_settings():
+    from .settings import snapshot
+    return snapshot()
+
+
+async def settings_change(fn, *args):
+    from .settings import SettingsConflict
+    try:
+        result = await run_in_threadpool(fn, *args)
+    except SettingsConflict as exc:
+        raise HTTPException(409, str(exc))
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)[:240])
+    except (OSError, RuntimeError):
+        raise HTTPException(400, '设置保存失败，请检查项目配置文件后重试。')
+    result['url'] = '/settings?notice=' + quote(result.get('message', '设置已保存'))
+    return result
+
+
+@app.post('/api/settings/topics')
+async def api_save_topic(request: Request):
+    from .settings import save_topic
+    return await settings_change(save_topic, await read_payload(request))
+
+
+@app.post('/api/settings/topics/{topic_id}/delete')
+async def api_delete_topic(topic_id: str, request: Request):
+    from .settings import delete_topic
+    return await settings_change(delete_topic, topic_id, await read_payload(request))
+
+
+@app.post('/api/settings/feeds')
+async def api_save_feed(request: Request):
+    from .settings import save_feed
+    return await settings_change(save_feed, await read_payload(request))
+
+
+@app.post('/api/settings/feeds/{feed_id}/delete')
+async def api_delete_feed(feed_id: str, request: Request):
+    from .settings import delete_feed
+    return await settings_change(delete_feed, feed_id, await read_payload(request))
 
 
 async def read_payload(request):
@@ -399,7 +464,7 @@ async def operation(fn, *args, **kwargs):
 async def api_import_url(request: Request):
     from .collector import import_url
     p = await read_payload(request)
-    category = await operation(validate_category, p.get('category','other'))
+    category = await operation(validate_category, p.get('category','other'), active_only=True)
     url = p.get('url','')
     if not isinstance(url,str) or not url.strip():
         raise HTTPException(400, '请输入原始资料链接')
@@ -411,7 +476,7 @@ async def api_import_url(request: Request):
 async def api_import_file(request: Request):
     from .collector import import_file
     p = await read_payload(request)
-    category = await operation(validate_category, p.get('category','other'))
+    category = await operation(validate_category, p.get('category','other'), active_only=True)
     filename = p.get('file_name','')
     if not isinstance(filename,str):
         raise HTTPException(400, '文件名无效')
@@ -449,7 +514,7 @@ async def api_compile(request: Request):
     p = await read_payload(request)
     category = p.get('category') or None
     if category:
-        await operation(validate_category, category)
+        await operation(validate_category, category, active_only=True)
     sid = p.get('source_id') or None
     if sid:
         source_record(sid)
