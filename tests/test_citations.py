@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from station import citations, web
+from station import citations, web, fact_checks
 
 
 A = '1111111111111111'
@@ -96,8 +96,10 @@ class CitationTests(unittest.TestCase):
     def test_page_and_draft_render_one_evidence_list_and_safe_writing_issues(self):
         body = f'## Finding\n\nEvidence [S:{A}].\n\n---\n\n## 原始证据\n\n- [Legacy title](/source/{A}) · 来源ID `{A}`'
         page_data = {'slug': 'example', 'title': 'Example', 'category': 'other', 'source_ids': [A], 'related_slugs': [], 'body': body}
-        with patch.object(web, 'wiki_pages', return_value=[page_data]), patch.object(citations, 'source_info', side_effect=self.sources.get):
-            page = web.page('example').body.decode()
+        with tempfile.TemporaryDirectory() as temp, patch.object(fact_checks, 'WIKI', Path(temp)), patch.object(fact_checks, 'META', Path(temp)), patch.object(fact_checks, 'REVIEWS', Path(temp)):
+            (Path(temp) / 'example.md').write_text(body)
+            with patch.object(web, 'wiki_pages', return_value=[page_data]), patch.object(citations, 'source_info', side_effect=self.sources.get):
+                page = web.page('example').body.decode()
         self.assertEqual(page.count('<h2>原始证据'), 1)
         self.assertIn('[1 · Plan-and-Patch]', page)
         with tempfile.TemporaryDirectory() as temp:

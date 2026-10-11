@@ -17,3 +17,4 @@ artifacts/
 data/source_metadata/
 
 config/.settings.lock
+data/claim_reviews/.lock

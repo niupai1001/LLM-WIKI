@@ -26,6 +26,8 @@
 
 两种设计也增加了个性化缺失：一些有益信息被过滤掉，回答不能充分利用用户偏好。PS 未同时达到预注册的风险改善和个性化保持门槛；记忆与事实证据冲突时仍有较高残余失败。因此它是需要权衡和验证的治理机制，并非已经解决记忆安全。[What to Admit and How to Present](/source/accd5feccfb2c025)
 
+外部基准只使用一个生成模型，结论由单一外部 LLM 评审判定，外部任务的评分准则尚未通过人工验证。这限制了结果的可信范围，仍需人工检查和独立复现。[What to Admit and How to Present](/source/accd5feccfb2c025)
+
 ## 常见误解
 
 **只换措辞就能解决信息使用权限。** 在固定筛选结果后，研究没有发现两种被测排列方式之间的稳健差异。这只约束那两种方式，不能推广为所有呈现策略都无效。[What to Admit and How to Present](/source/accd5feccfb2c025)

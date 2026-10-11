@@ -30,6 +30,47 @@ class SourceTests(unittest.TestCase):
     def item(self, sid):
         return common.load_json(common.RAW / f"{sid}.json")
 
+    def test_published_hook_failure_is_not_abstract_full_text(self):
+        url = 'https://aclanthology.org/2024.acl-long.123/'
+        with patch('station.published_sources.capture_published_original', side_effect=ValueError('no PDF')), patch.object(collector, 'fetch_bytes') as fetch:
+            item = collector._original(url, 'a' * 16)
+        self.assertEqual(item['content_status'], 'missing')
+        fetch.assert_not_called()
+
+    def test_original_route_selects_retained_preprint_and_blocks_unknown_versions(self):
+        from station import web
+        from fastapi import HTTPException
+        formal=common.ASSETS/'formal.pdf';formal.write_bytes(b'%PDF-formal')
+        preprint=common.ASSETS/'preprint.pdf';preprint.write_bytes(b'%PDF-preprint')
+        item={'pdf_path':'formal.pdf','bibliography':{'preprint_pdf_path':'preprint.pdf'}}
+        with patch.object(web,'ASSETS',common.ASSETS), patch.object(web,'source_record',return_value=item):
+            self.assertEqual(Path(web.original('a'*16).path),formal.resolve())
+            self.assertEqual(Path(web.original('a'*16,'preprint').path),preprint.resolve())
+            with self.assertRaises(HTTPException) as unknown:web.original('a'*16,'../../private')
+            self.assertEqual(unknown.exception.status_code,400)
+            item['bibliography']['preprint_pdf_path']='../../outside.pdf'
+            with self.assertRaises(HTTPException) as traversal:web.original('a'*16,'preprint')
+            self.assertEqual(traversal.exception.status_code,404)
+
+    def test_published_metadata_refresh_and_pdf_attachment_cannot_downgrade(self):
+        sid = collector.archive({'title':'Agent', 'url':'https://arxiv.org/abs/2410.12345', 'text':'Complete original.'}, self.db)
+        item = self.item(sid)
+        publication = 'https://aclanthology.org/2024.acl-long.123/'
+        pdf = 'https://aclanthology.org/2024.acl-long.123.pdf'
+        item.update(pdf_path=sid+'-published.pdf', pdf_url=pdf, original_url=pdf, content_format='pdf')
+        item['bibliography'] = {'original_version':'published', 'title':'Formal title', 'arxiv_id':'2410.12345',
+                                'publication_record':{'url':publication,'pdf_url':pdf}, 'publication_date':'2024-05-31'}
+        common.save_json(common.RAW/(sid+'.json'),item)
+        (common.ASSETS/item['pdf_path']).write_bytes(b'%PDF-1.7\nfixture')
+        with patch.object(collector,'fetch_bytes',side_effect=AssertionError('must not fetch')):
+            self.assertEqual(collector.refresh_bibliographies([sid],verify_doi=True)['skipped'],1)
+            collector.ensure_source_pdf(sid)
+            self.assertEqual(collector.import_url(publication),sid)
+            self.assertEqual(collector.import_url('https://arxiv.org/abs/2410.12345v3'),sid)
+        self.assertEqual(self.item(sid)['pdf_url'],pdf)
+        self.assertEqual(self.item(sid)['bibliography']['title'],'Formal title')
+        self.assertEqual(self.db.execute('SELECT COUNT(*) FROM sources').fetchone()[0],1)
+
     def test_explicit_original_classified_and_idempotent(self):
         with patch.object(collector, "fetch_bytes", side_effect=AssertionError("must not fetch")):
             record = {"title": "Original", "url": "https://example.org/original", "text": "An authored original.", "category": "research"}

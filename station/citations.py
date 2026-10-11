@@ -126,7 +126,8 @@ def prepare_citations(source, source_ids=(), lookup=None):
             b = info.get('bibliography') if isinstance(info.get('bibliography'), dict) else {}
             names = tuple(a['name'] for a in b.get('authors', []) if isinstance(a, dict) and isinstance(a.get('name'), str))
             identity = ('arXiv ' + str(b['arxiv_id']) + (f"v{b['arxiv_version']}" if b.get('arxiv_version') else '')) if b.get('arxiv_id') else ''
-            citation = Citation(sid, len(entries) + 1, title, short_title(title), _date(b.get('first_published') or info.get('published')), original, bool(info),
+            publication_date = b.get('publication_date') if b.get('original_version') == 'published' else None
+            citation = Citation(sid, len(entries) + 1, title, short_title(title), _date(publication_date or b.get('first_published') or info.get('published')), original, bool(info),
                                 names, b.get('doi') if isinstance(b.get('doi'), str) else '', b.get('doi_status', 'unverified'),
                                 b.get('publisher', ''), b.get('publication_status', 'unverified'), identity, b.get('arxiv_doi', ''))
             numbered[sid] = citation
@@ -170,9 +171,11 @@ def evidence_html(entries, prefix='knowledge'):
         author_line = f'<div class="evidence-authors">{_escape(author_text)}</div>' if author_text else ''
         doi_url = _external_url('https://doi.org/' + citation.doi) if citation.doi else ''
         doi = f'<span>出版 DOI <a href="{_escape(doi_url)}" target="_blank" rel="noopener noreferrer">{_escape(citation.doi)}</a></span>' if doi_url else '<span>出版 DOI 官方API未提供</span>' if citation.doi_status == 'not-provided' else '<span>出版 DOI 未核实</span>'
+        if not doi_url and citation.doi_status == 'not-provided-on-official-site':
+            doi = '<span>出版 DOI 官方出版页面未提供</span>'
         if citation.arxiv_doi:
             doi += f'<span>预印本 DOI <a href="{_escape("https://doi.org/" + citation.arxiv_doi)}" target="_blank" rel="noopener noreferrer">{_escape(citation.arxiv_doi)}</a></span>'
-        publication = '<span>arXiv 预印本</span>' if citation.publication_status == 'arxiv-preprint' else ''
+        publication = '<span>arXiv 预印本</span>' if citation.publication_status == 'arxiv-preprint' else '<span>正式发表版本</span>' if citation.publication_status == 'published' else ''
         identifier = '<span>' + _escape(citation.identifier) + '</span>' if citation.identifier else ''
         items.append(f'<li id="evidence-{prefix}-{citation.number}"><span class="evidence-number">[{citation.number}]</span><div class="evidence-details"><a class="evidence-title" href="/source/{citation.source_id}">{_escape(citation.title)}</a>{author_line}<div class="evidence-meta"><span>发布日期 {date}</span>{identifier}{doi}{publication}{external}{missing}</div></div></li>')
     return f'<section class="evidence-panel" id="evidence-{prefix}"><h2>原始证据 <span>{len(entries)} 份来源</span></h2><ol class="evidence-list">' + ''.join(items) + '</ol></section>'

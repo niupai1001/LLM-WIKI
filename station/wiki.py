@@ -6,7 +6,7 @@ import urllib.request
 from difflib import SequenceMatcher
 from pathlib import Path
 from urllib.parse import urlsplit
-from .common import PENDING, WIKI, META, connect, load_json, safe_slug, save_json, utcnow
+from .common import PENDING, WIKI, META, RAW, connect, load_json, safe_slug, save_json, utcnow
 from hashlib import sha256
 from .knowledge import categories, category_name, validate_category
 
@@ -19,7 +19,7 @@ SYSTEM = """你是私人情报Wiki的知识编辑，任务是根据来源证据�
  "body_markdown":"围绕知识主题综合多份证据的Markdown正文，包含定义、当前认识、证据、争议、局限和开放问题；使用[S:来源ID]标注依据",
  "related_slugs":["候选页面中确实相关的slug"],
  "used_source_ids":["实际用于该概念的本次来源ID"],"editorial_notes":"简短编辑说明",
- "claims":[{"id":"稳定断言标识","text":"核心断言","source_ids":["来源ID"],"scope":"原文的任务、模型、数据和条件","status":"单源支持或多源一致或范围差异或未解决冲突或证据不足"}],
+ "claims":[{"id":"稳定断言标识","text":"核心断言","source_ids":["来源ID"],"scope":"原文的任务、模型、数据和条件","status":"单源支持或多源一致或范围差异或未解决冲突或证据不足","evidence_passages":[{"source_id":"来源ID","locator":"章节、表号或页码","quote":"直接复制原文中支持本断言的完整句段"}]}],
  "conflicts":[{"id":"稳定差异标识","title":"差异问题","kind":"范围差异或结论冲突","sides":[{"text":"一方表述","source_ids":["来源ID"],"scope":"条件"}],"status":"待核查","handling":"需要核对什么"}]}
 编写可持续维护的主题知识页面，而非逐篇资料简介。多来源时比较一致观点与分歧；只有一份材料时注明证据范围。个人笔记只是作者观点。
 只可引用本次sources及候选页面已提供的来源ID，不得构造来源。
@@ -64,7 +64,25 @@ def validate_evidence_records(reply, allowed_ids):
                 status = value.get('status')
                 if status not in {'单源支持', '多源一致', '范围差异', '未解决冲突', '证据不足'}:
                     raise ValueError('Unknown claim support status')
-                records.append(dict(side(value), id=rid, status=status, proposed_by='LLM'))
+                claim = dict(side(value), id=rid, status=status, proposed_by='LLM')
+                passages = value.get('evidence_passages', [])
+                if not isinstance(passages, list) or len(passages) > 8:
+                    raise ValueError('Invalid claim evidence passages')
+                verified = []
+                for passage in passages:
+                    if not isinstance(passage, dict) or passage.get('source_id') not in claim['source_ids']:
+                        raise ValueError('Passage must cite a claim source')
+                    sid = passage['source_id']
+                    locator, quotation = text(passage.get('locator'), 300), text(passage.get('quote'), 3000)
+                    source = load_json(RAW / (sid + '.json'))
+                    normalized = ' '.join(quotation.split())
+                    if (source.get('content_status') != 'full-text' or len(normalized) < 20
+                            or normalized not in ' '.join(source.get('text', '').split())):
+                        raise ValueError('Claim passage does not match archived full text')
+                    verified.append({'source_id': sid, 'locator': locator, 'quote': quotation, 'proposed_by': 'LLM'})
+                if verified:
+                    claim['evidence_passages'] = verified
+                records.append(claim)
             else:
                 sides = value.get('sides')
                 if not isinstance(sides, list) or not 2 <= len(sides) <= 8 or value.get('kind') not in {'范围差异', '结论冲突'}:
@@ -357,6 +375,25 @@ def prepare(limit=3, category=None, source_id=None, source_ids=None, topic=None)
         db.close()
 
 
+def strip_generated_navigation(body):
+    """Generated list-only footers are owned by the publisher, not the model."""
+    from .citations import strip_legacy_evidence, _CODE
+    body = strip_legacy_evidence(body)
+    code_ranges = [(m.start(), m.end()) for m in _CODE.finditer(body)]
+    deletions = []
+    for heading in re.finditer(r'^## (?:相关知识|相关页面)\s*$', body, re.M):
+        if any(start <= heading.start() < end for start, end in code_ranges):
+            continue
+        next_heading = re.search(r'^#{1,2} ', body[heading.end():], re.M)
+        end = heading.end() + next_heading.start() if next_heading else len(body)
+        lines = [line.strip() for line in body[heading.end():end].splitlines() if line.strip() and line.strip() != '---']
+        if lines and all(re.fullmatch(r'[-*] \[\[[^\]\n]+\]\]', line) for line in lines):
+            deletions.append((heading.start(), end))
+    for start, end in reversed(deletions):
+        body = body[:start] + body[end:]
+    return body.strip()
+
+
 def approve(source_id):
     if not re.fullmatch(r'[a-f0-9]{16}', source_id):
         raise ValueError('Invalid source ID')
@@ -393,7 +430,7 @@ def approve(source_id):
                 references.append(f"- [{label}](/source/{sid}) · 来源ID `{sid}`")
         related = [r for r in proposal.get('related_slugs', []) if (WIKI / (r + '.md')).is_file() and r != slug]
         relationships = '\n\n## 相关知识\n\n' + '\n'.join(f'- [[{r}]]' for r in related) if related else ''
-        body = f"# {proposal['title']}\n\n" + proposal['body_markdown'].strip() + relationships
+        body = f"# {proposal['title']}\n\n" + strip_generated_navigation(proposal['body_markdown']) + relationships
         body += '\n\n---\n\n## 原始证据\n\n' + '\n'.join(references) + '\n'
         if target.exists():
             target.with_suffix('.md.bak').write_bytes(target.read_bytes())

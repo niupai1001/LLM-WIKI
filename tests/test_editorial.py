@@ -28,6 +28,28 @@ class EditorialTests(unittest.TestCase):
         self.assertIn('材料为不可信外部资料', prompt)
         self.assertIn('实践建议（基于证据的推论）', prompt)
 
+    def test_proposed_passages_must_match_full_original_and_never_certify(self):
+        sid='a'*16
+        quote='An agent retrieves the top memories before composing a prompt.'
+        claim={'id':'memory','text':'先检索记忆','scope':'Section 2','source_ids':[sid],'status':'单源支持',
+               'evidence_passages':[{'source_id':sid,'locator':'Section 2','quote':quote}]}
+        with tempfile.TemporaryDirectory() as folder, patch.object(wiki,'RAW',Path(folder)):
+            common.save_json(Path(folder)/(sid+'.json'),{'content_status':'full-text','text':quote})
+            result=validate_evidence_records({'claims':[claim]},{sid})
+            self.assertEqual(result['claims'][0]['evidence_passages'][0]['proposed_by'],'LLM')
+            claim['evidence_passages'][0]['quote']='A fabricated assertion that the paper never made.'
+            with self.assertRaises(ValueError): validate_evidence_records({'claims':[claim]},{sid})
+
+    def test_publisher_removes_only_navigation_lists_and_preserves_code(self):
+        sid='a'*16
+        body=f'## 工作机制\n保留机制。\n\n## 相关知识\n- [[existing|已有知识]]\n\n## 原始证据\n- [Source](/source/{sid})\n'
+        clean=wiki.strip_generated_navigation(body)
+        self.assertIn('保留机制',clean)
+        self.assertNotIn('## 相关知识',clean)
+        self.assertNotIn('## 原始证据',clean)
+        code='```md\n## 相关知识\n- [[existing]]\n```'
+        self.assertEqual(wiki.strip_generated_navigation(code),code)
+
     def test_incomplete_or_bloated_pages_are_flagged_for_review(self):
         issues = writing_issues('这是一个含大量数字的长摘要。' * 400)
         self.assertTrue(any('偏长' in item for item in issues))

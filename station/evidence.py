@@ -82,6 +82,8 @@ def _metadata_status(record):
 def _publication(record):
     published = _dict(_bibliography(record).get('publication_record'))
     if published.get('status') == 'verified-on-official-site':
+        if _bibliography(record).get('original_version') == 'published':
+            return '正式发表版本 · ' + _text(published.get('venue'), '出版来源')
         return '已核对正式发表记录：' + _text(published.get('venue'), '出版来源') + '；当前原件为 arXiv 版本'
     status = _text(_bibliography(record).get("publication_status"), _text(record.get("publication_status"), "unknown"))
     return {"arxiv-preprint": "arXiv 预印本版本；同行评审状态未核实",
@@ -228,7 +230,7 @@ def _render_knowledge_evidence(meta, element_id='knowledge-trust'):
         body += "<p>没有来源登记，当前知识证据未核实。</p>"
     review = _dict(meta.get("content_review"))
     if review:
-        body += "<p>内容核查记录：" + _escape(_text(review.get("by"), "核查者未记录"))
+        body += "<p>编辑维护记录：" + _escape(_text(review.get("by"), "维护者未记录"))
         body += " · " + _escape(_text(review.get("at"), "时间未记录")) + "。"
         body += _escape(_text(review.get("notes"), "核查范围未记录")) + "</p>"
     else:

@@ -27,7 +27,38 @@
       "sponsorship",
       "招聘"
     ],
-    "max_age_days": 7
+    "max_age_days": null
+  },
+  {
+    "id": "feed-acl-agent-published",
+    "name": "ACL Anthology · Agent 已出版论文",
+    "url": "https://aclanthology.org/papers/index.xml",
+    "kind": "paper",
+    "category": "agents",
+    "enabled": true,
+    "require_keywords": [
+      "llm",
+      "language model",
+      "language models",
+      "foundation model",
+      "foundation models"
+    ],
+    "include_keywords": [
+      "agent",
+      "agents",
+      "agentic",
+      "multi-agent",
+      "tool use",
+      "tool-use",
+      "langgraph",
+      "智能体"
+    ],
+    "exclude_keywords": [
+      "sponsored",
+      "sponsorship",
+      "招聘"
+    ],
+    "max_age_days": null
   },
   {
     "name": "OpenAI · Agent 官方资讯",

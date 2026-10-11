@@ -15,7 +15,7 @@ from ipaddress import ip_address
 from pathlib import Path
 from urllib.parse import urlparse
 
-from .common import ASSETS, RAW, connect, load_json, save_json, source_id, utcnow
+from .common import ASSETS, RAW, canonical, connect, load_json, save_json, source_id, utcnow
 from .knowledge import validate_category
 from .bibliography import arxiv_identifier, arxiv_doi_metadata, build_bibliography, parse_arxiv_atom, query_url
 
@@ -207,6 +207,13 @@ def _arxiv_urls(url):
 
 def _original(url, sid):
     """Preserve paper layout in a PDF; source text is a separate LLM input."""
+    from .published_sources import is_publication_page, capture_published_original
+    if is_publication_page(url):
+        try:
+            return capture_published_original(url, sid)
+        except Exception as exc:
+            return {"text": "", "content_status": "missing", "content_format": "unknown",
+                    "original_url": url, "fetch_error": "Published PDF retrieval failed (" + type(exc).__name__ + ")"}
     arxiv_urls = _arxiv_urls(url)
     candidates = [(arxiv_urls[0], "pdf"), (arxiv_urls[1], "html")] if arxiv_urls else [(url, "auto")]
     failures, captured = [], {}
@@ -276,6 +283,8 @@ def ensure_source_pdf(sid):
         item = load_json(path)
         existing = _pdf_asset_path(item)
         urls = _arxiv_urls(item.get("url", ""))
+        if (item.get('bibliography') or {}).get('original_version') == 'published':
+            urls = None
         pdf_url = urls[0] if urls else (item.get("pdf_url") or item.get("original_url", ""))
         data = None
         if not existing:
@@ -349,6 +358,25 @@ def _store(item, db):
     db.commit()
 
 
+def known_source_id(url, db):
+    """Publisher and preprint URLs for a curated work resolve to one source."""
+    sid = source_id(url)
+    if db.execute('SELECT 1 FROM sources WHERE id=?', (sid,)).fetchone():
+        return sid
+    key = canonical(url)
+    for row in db.execute('SELECT id,raw_path FROM sources'):
+        try:
+            item = load_json(Path(row['raw_path']))
+        except (OSError, ValueError):
+            continue
+        b = item.get('bibliography') or {}
+        publication = b.get('publication_record') or {}
+        aliases = [item.get('url'), b.get('preprint_url'), publication.get('url'), publication.get('pdf_url')]
+        if any(isinstance(value, str) and value and (canonical(value) == key or source_id(value) == sid) for value in aliases):
+            return row['id']
+    return None
+
+
 def archive(record, db):
     """Idempotent source archive. Explicit text is a caller-provided original."""
     if not public_http(record["url"]):
@@ -356,7 +384,7 @@ def archive(record, db):
     category = validate_category(record.get("category", "other"), active_only=True)
     kind = validate_kind(record.get("kind", "article"))
     sid = source_id(record["url"])
-    if db.execute("SELECT id FROM sources WHERE id = ?", (sid,)).fetchone():
+    if known_source_id(record['url'], db):
         return None
     summary = _plain(record.get("summary", ""))
     if record.get("text", "").strip():
@@ -443,7 +471,7 @@ def ingest():
                     url = entry.get("link", "")
                     if not public_http(url):
                         continue
-                    if db.execute('SELECT 1 FROM sources WHERE id=?', (source_id(url),)).fetchone():
+                    if known_source_id(url, db):
                         continue
                     if admitted >= limit:
                         break
@@ -531,10 +559,15 @@ def refresh_source(sid):
         item = load_json(path)
         if item.get("body_level") == "manual-original" or not public_http(item.get("url")):
             raise ValueError("Local originals cannot be fetched again; reimport searchable text")
-        original = _original(item["url"], sid)
+        bibliography = item.get('bibliography') or {}
+        publication_url = (bibliography.get('publication_record') or {}).get('url')
+        original = _original(publication_url if bibliography.get('original_version') == 'published' and publication_url else item['url'], sid)
         if original["content_status"] != "full-text" and item.get("summary"):
             original.update(text=item["summary"], content_status="summary-only", body_level="feed-summary")
         item.pop("fetch_error", None)
+        if original.get('bibliography'):
+            from .published_sources import merge_published_version
+            original['bibliography'] = merge_published_version(item, original)['bibliography']
         item.update(original)
         item["retrieved_at"] = utcnow()
         if original.get("original_title") and not item.get("title_is_custom", item.get("title") != item["url"]):
@@ -557,10 +590,10 @@ def import_url(url, category="other", title=None, kind="article", verify_metadat
     db = connect()
     try:
         sid = archive({"url": url, "title": title, "category": category, "kind": kind}, db)
-        existing = db.execute("SELECT content_status FROM sources WHERE id=?", (source_id(url),)).fetchone()
+        result = sid or known_source_id(url, db)
+        existing = db.execute("SELECT content_status FROM sources WHERE id=?", (result,)).fetchone()
     finally:
         db.close()
-    result = sid or source_id(url)
     if sid is None and existing["content_status"] != "full-text":
         result = refresh_source(result)
     if verify_metadata:
@@ -600,6 +633,10 @@ def _archived_html(record):
 
 def bibliography_for_record(record, authoritative=None):
     """Local parsing only; safe for rendering and all archive/import code paths."""
+    existing = record.get('bibliography')
+    if isinstance(existing, dict) and existing.get('original_version') == 'published':
+        # arXiv parsing must not change which version the archived PDF represents.
+        return dict(existing)
     return build_bibliography(record, authoritative, _archived_html(record))
 
 
@@ -644,8 +681,9 @@ def refresh_bibliographies(source_ids=None, fetcher=None, verify_doi=False):
     for row in rows:
         if requested is None or row['id'] in requested:
             records[row['id']] = load_json(Path(row['raw_path']))
-    identities = {sid: identity for sid, record in records.items() if (identity := _archived_arxiv_identity(record))}
-    result = {'updated': 0, 'verified': 0, 'failed': 0, 'skipped': 0, 'source_count': len(rows)}
+    published_ids = {sid for sid, record in records.items() if (record.get('bibliography') or {}).get('original_version') == 'published'}
+    identities = {sid: identity for sid, record in records.items() if sid not in published_ids and (identity := _archived_arxiv_identity(record))}
+    result = {'updated': 0, 'verified': 0, 'failed': 0, 'skipped': len(published_ids), 'source_count': len(rows)}
     authoritative, failure, api_url, snapshot = {}, '', '', ''
     if identities:
         ids = [value['id'] + (f"v{value['version']}" if value['version'] else '') for value in identities.values()]
@@ -681,6 +719,8 @@ def refresh_bibliographies(source_ids=None, fetcher=None, verify_doi=False):
             except Exception as exc:
                 doi_records[sid] = {'arxiv_doi_query_error': type(exc).__name__}
     for sid, snapshot_record in records.items():
+        if sid in published_ids:
+            continue
         identity = identities.get(sid)
         official = authoritative.get(identity['id']) if identity else None
         db = connect()
@@ -692,6 +732,9 @@ def refresh_bibliographies(source_ids=None, fetcher=None, verify_doi=False):
                 continue
             path = Path(row['raw_path'])
             record = load_json(path)
+            if (record.get('bibliography') or {}).get('original_version') == 'published':
+                result['skipped'] += 1
+                continue
             bibliography = bibliography_for_record(record, official)
             if sid in doi_records:
                 bibliography.update(doi_records[sid])

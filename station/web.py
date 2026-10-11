@@ -21,7 +21,7 @@ from .wiki import approve, prepare, reject
 
 app = FastAPI(title='LLM Wiki')
 app.mount('/static', StaticFiles(directory=Path(__file__).parent / 'static'), name='static')
-ASSET_VERSIONS = {name: str((Path(__file__).parent / "static" / name).stat().st_mtime_ns) for name in ("app.css", "app.js")}
+ASSET_VERSIONS = {name: str((Path(__file__).parent / "static" / name).stat().st_mtime_ns) for name in ("app.css", "app.js", "fact-checks.css", "fact-checks.js")}
 MAX_UPLOAD = 15 * 1024 * 1024
 E = lambda value: html.escape(str(value), quote=True)
 STAGES = {'new': '待编写', 'compiling': '正在编写', 'drafted': '待审核', 'approved': '已入 Wiki'}
@@ -158,9 +158,13 @@ def page(slug: str):
     current = matches[0]
     backlinks = [p for p in wiki_pages() if slug in p.get('related_slugs', []) or re.search(r'\[\[' + re.escape(slug) + r'(?:\||\]\])', p['body'])]
     page_kind = "主题入口" if current.get("page_kind") == "topic" else "概念条目"
-    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><p>{len(current.get("source_ids", []))} 份证据 · 已发布知识 · <a href="#knowledge-trust">证据与可信边界 ↓</a></p></div><a class="button" href="/graph">在图谱中探索 ↗</a></div><article class="prose">{md_render(current["body"], current.get("source_ids", []), evidence_prefix="wiki-" + slug)}</article>'
+    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><p>{len(current.get("source_ids", []))} 份证据 · 已发布知识 · <a href="#fact-check">逐项事实核查 ↓</a></p></div><a class="button" href="/graph">在图谱中探索 ↗</a></div><article class="prose">{md_render(current["body"], current.get("source_ids", []), evidence_prefix="wiki-" + slug)}</article>'
     from .evidence import knowledge_evidence
-    body += knowledge_evidence(slug)
+    from .fact_checks import render as fact_checks_html
+    body += f'<link rel="stylesheet" href="/static/fact-checks.css?v={ASSET_VERSIONS["fact-checks.css"]}">'
+    body += fact_checks_html(slug)
+    body += '<details class="page-evidence-records"><summary>来源、编辑记录与差异记录</summary>' + knowledge_evidence(slug) + '</details>'
+    body += f'<script src="/static/fact-checks.js?v={ASSET_VERSIONS["fact-checks.js"]}" defer></script>'
     if backlinks:
         body += '<section class="panel"><h2>引用这个页面的知识</h2>' + ''.join(f'<a class="text-link" href="/page/{quote(p["slug"])}">{E(p["title"])}</a> ' for p in backlinks) + '</section>'
     return layout(current['title'], body)
@@ -178,12 +182,21 @@ def sources(q: str = '', category: str = '', status: str = ''):
         for row in filtered:
             d = source_record(row['id'])
             complete = row['content_status'] == 'full-text'
-            body += f'<a class="source-card" href="/source/{row["id"]}"><div class="source-icon">{ "PDF" if str(d.get("asset_path", "")).endswith(".pdf") else "TXT" }</div><div class="source-summary"><div class="tags"><span class="tag">{E(category_name(row["category"]))}</span><span class="tag subtle">{E(KINDS.get(row["kind"],row["kind"]))}</span><span class="tag {"complete" if complete else "warning"}">{E(original_label(d))}</span></div><h3>{E(row["title"])}</h3><p>{E(re.sub(r"<[^>]+>", "", d.get("text", ""))[:180])}</p><small>{E(STAGES.get(row["stage"],row["stage"]))} · {len(d.get("text", "")):,} 字符</small></div><span class="arrow">↗</span></a>'
+            body += f'<a class="source-card" href="/source/{row["id"]}"><div class="source-icon">{ "PDF" if str(d.get("asset_path", "")).endswith(".pdf") else "TXT" }</div><div class="source-summary"><div class="tags"><span class="tag">{E(category_name(row["category"]))}</span><span class="tag subtle">{E(KINDS.get(row["kind"],row["kind"]))}</span><span class="tag {"complete" if complete else "warning"}">{E(original_label(d))}</span>{source_version_tag(d)}</div><h3>{E(row["title"])}</h3><p>{E(re.sub(r"<[^>]+>", "", d.get("text", ""))[:180])}</p><small>{E(STAGES.get(row["stage"],row["stage"]))} · {len(d.get("text", "")):,} 字符</small></div><span class="arrow">↗</span></a>'
         body += '</div>'
     else:
         body += empty('资料库是空的' if not items else '没有匹配的资料', '导入需要的原始材料，再选择主题。自动订阅与运行状态可在“采集计划”中查看。', '<a class="button" href="/collection">查看采集计划</a>')
     body += f'''<section class="panel import-panel" id="import"><div class="section-heading"><div><h2>导入原始资料</h2></div></div><div class="import-grid"><form id="import-url-form"><h3>从公开链接导入</h3><label>原始网址<input name="url" type="url" required placeholder="https://…"></label><label>资料标题（可选）<input name="title" placeholder="留空时尝试使用页面标题"></label><label>主题分类<select name="category">{category_options('other', active_only=True)}</select></label><button class="button primary">获取原文并归档</button><small>公开网页提取正文；arXiv 尝试 HTML / PDF 原文。无法取得原文时会明确标记。</small></form><form id="import-file-form"><h3>从本地文件导入</h3><label>文件<input name="file" type="file" accept=".pdf,.md,.txt" required></label><label>资料标题（可选）<input name="title" placeholder="默认使用文件名"></label><label>资料类型<select name="kind"><option value="">按文件判断（PDF 论文 / 其他文档）</option><option value="paper">论文</option><option value="document">文档</option><option value="note">个人笔记与观点</option></select></label><label>主题分类<select name="category">{category_options('research', active_only=True)}</select></label><button class="button primary">上传原件并归档</button><small>支持 PDF、Markdown 和文本，最大 15 MB。PDF 原件可直接在资料页阅读。</small></form></div></section>'''
     return layout('原始资料', body, 'sources')
+
+
+def source_version_tag(record):
+    if record.get('kind') != 'paper':
+        return ''
+    bibliography = record.get('bibliography') or {}
+    version = bibliography.get('original_version')
+    label = '正式发表版本' if version == 'published' else '预印本' if bibliography.get('arxiv_id') else '发表状态未核实'
+    return f'<span class="tag subtle">{E(label)}</span>'
 
 
 def bibliography_html(record):
@@ -196,12 +209,17 @@ def bibliography_html(record):
     first = _date(b.get('first_published'))
     doi = b.get('doi') or ''
     published_record = b.get('publication_record') if isinstance(b.get('publication_record'), dict) else {}
+    formal = b.get('original_version') == 'published'
+    arxiv_identity = identity
+    if formal:
+        identity = str(published_record.get('venue') or b.get('publisher') or '出版论文') + ' · 正式发表版本'
+        first = _date(b.get('publication_date')) or str(published_record.get('date') or published_record.get('year') or '')
     doi_status = '出版 DOI 由源提供' if doi else '官方API未提供出版 DOI' if b.get('doi_status') == 'not-provided' else '出版 DOI 未提供 / 未核实'
     if published_record.get('doi') and published_record.get('status') == 'verified-on-official-site':
         doi_status = '正式版本出版 DOI 已核对'
     if b.get('arxiv_doi'):
         doi_status += ' · 预印本 DOI 已记录'
-    summary = f'<div class="source-identity"><strong>{E(identity)}</strong><span>首次发布 {E(first or "未核实")}</span><span>{E(author_summary)}</span><span>{E(doi_status)}</span></div>'
+    summary = f'<div class="source-identity"><strong>{E(identity)}</strong><span>{"正式发表" if formal else "首次发布"} {E(first or "未核实")}</span><span>{E(author_summary)}</span><span>{E(doi_status)}</span></div>'
     def external(value):
         safe = _external_url(value)
         return f'<a href="{E(safe)}" target="_blank" rel="noopener noreferrer">{E(safe)} ↗</a>' if safe else '未提供'
@@ -218,17 +236,17 @@ def bibliography_html(record):
     if b.get('journal_ref'):
         publication += ' · 源提供期刊引用，发表状态需进一步核查'
     if published_record.get('status') == 'verified-on-official-site':
-        publication = '归档为 arXiv 版本；已核对正式发表记录：' + str(published_record.get('venue', ''))
+        publication = ('归档为正式发表版本：' if formal else '归档为 arXiv 版本；已核对正式发表记录：') + str(published_record.get('venue', ''))
     rows = [field('作者', '<br>'.join(author_lines) or '未提供 / 未核实'),
             field('作者机构', E('；'.join(affiliation_values)) or '未提供 / 未核实'),
             field('发布平台 / 发布方', E(b.get('publisher') or '未提供 / 未核实')),
             field('原始链接', external(b.get('original_url') or record.get('url', ''))),
             field('归档原件', f'<a href="/source/{record["id"]}/original">查看已保存原件 ↗</a>' if record.get('asset_path') else '未保存'),
-            field('arXiv 标识与版本', E(identity) if b.get('arxiv_id') else '未提供'),
+            field('arXiv 标识与版本', E(arxiv_identity) if b.get('arxiv_id') else '未提供'),
             field('出版 DOI', (external('https://doi.org/' + doi) + '<br><span class="muted">源提供标识符；DOI 注册记录未另核实</span>') if doi else E(doi_status)),
             field('预印本 DOI', external('https://doi.org/' + b['arxiv_doi']) + '<span class="muted"> · arXiv 页面列出的预印本标识</span>' if b.get('arxiv_doi') else '未核实 · 请查看 arXiv 标识'),
             field('原文题名', E(b.get('title') or record.get('title', '未提供'))),
-            field('首次发布日期', E(b.get('first_published') or '未提供 / 未核实')),
+            field('首次公开日期（预印本）' if formal and b.get('preprint_pdf_path') else '归档版本发布日期' if formal else '首次发布日期', E(b.get('first_published') or '未提供 / 未核实')),
             field('版本更新日期', E(b.get('updated') or '未提供 / 未核实')),
             field('订阅推送日期', E(b.get('announced_at') or record.get('published') or '未提供') + '<span class="muted"> · 不等同于首次发表</span>'),
             field('采集日期', E(record.get('captured_at') or '未提供')),
@@ -240,10 +258,11 @@ def bibliography_html(record):
             field('元数据核对时间', E(b.get('checked_at') or '尚未核对'))]
     selection = record.get('selection') if isinstance(record.get('selection'), dict) else {}
     if published_record:
+        rows.append(field('正式发表日期', E(published_record.get('date') or str(published_record.get('year') or '未提供'))))
         rows.append(field('正式发表记录', external(published_record.get('url', '')) + '<br>' + E(published_record.get('venue', '')) + ' · ' + E(str(published_record.get('year', '')))))
         rows.append(field('正式版本作者', E('；'.join(published_record.get('authors', []))) or '未记录'))
         rows.append(field('正式版本 DOI', external('https://doi.org/' + published_record['doi']) if published_record.get('doi') else '该核对页面未提供'))
-        rows.append(field('正式版本核对时间', E(published_record.get('checked_at', '未记录')) + '<br><span class="muted">正式发表版本与归档版本可能不同；上面的作者与日期属于归档版本。</span>'))
+        rows.append(field('正式版本核对时间', E(published_record.get('checked_at', '未记录')) + ('<br><span class="muted">归档原件为正式发表版本。</span>' if formal else '<br><span class="muted">上面的作者与日期属于归档预印本。</span>')))
         if published_record.get('notes'):
             rows.append(field('发表核对说明', E(published_record['notes'])))
     rows.append(field('资料入选状态', E(selection.get('status') or '自动发现的候选资料')))
@@ -265,12 +284,15 @@ def source(sid: str):
     if not row:
         raise HTTPException(404)
     complete = row['content_status'] == 'full-text'
-    body = f'<div class="breadcrumbs"><a href="/sources">原始资料</a> / {E(category_name(row["category"]))}</div><div class="page-heading"><div><div class="tags"><span class="tag subtle">{E(KINDS.get(d["kind"],d["kind"]))}</span><span class="tag {"complete" if complete else "warning"}">{E(original_label(d))}</span></div><h1 class="document-title">{E(d["title"])}</h1><p>{len(d.get("text", "")):,} 字符 · {E(STAGES.get(row["stage"],row["stage"]))}</p></div></div>'
+    body = f'<div class="breadcrumbs"><a href="/sources">原始资料</a> / {E(category_name(row["category"]))}</div><div class="page-heading"><div><div class="tags"><span class="tag subtle">{E(KINDS.get(d["kind"],d["kind"]))}</span><span class="tag {"complete" if complete else "warning"}">{E(original_label(d))}</span>{source_version_tag(d)}</div><h1 class="document-title">{E(d["title"])}</h1><p>{len(d.get("text", "")):,} 字符 · {E(STAGES.get(row["stage"],row["stage"]))}</p></div></div>'
     body += f'<div class="source-toolbar"><label>主题分类 <select data-source-category="{sid}" {"disabled" if row["stage"] in {"drafted", "compiling"} else ""}>{category_options(row["category"], active_only=True, retain_selected=True)}</select></label>'
     if d.get('url', '').startswith(('http://','https://')) and '.invalid/' not in d['url']:
         body += f'<a class="button" href="{E(d["url"])}" target="_blank" rel="noopener noreferrer">原始链接 ↗</a>'
     if d.get('asset_path'):
         body += f'<a class="button" href="/source/{sid}/original" target="_blank">查看归档原件 ↗</a>'
+    b = d.get('bibliography') or {}
+    if b.get('original_version') == 'published' and b.get('preprint_pdf_path'):
+        body += f'<a class="button" href="/source/{sid}/original?version=preprint" target="_blank">预印本原件 ↗</a>'
     topic_active = any(c['id'] == row['category'] and c['enabled'] for c in categories())
     if complete and row['stage'] == 'new' and topic_active:
         body += f'<button class="button primary" data-source-compile="{sid}">生成 Wiki 草稿</button>'
@@ -301,9 +323,11 @@ def source(sid: str):
 
 
 @app.get('/source/{sid}/original')
-def original(sid: str):
+def original(sid: str, version: str = 'current'):
     d = source_record(sid)
-    asset = d.get('pdf_path') or d.get('asset_path')
+    if version not in {'current', 'preprint'}:
+        raise HTTPException(400, '未知原件版本')
+    asset = (d.get('bibliography') or {}).get('preprint_pdf_path') if version == 'preprint' else d.get('pdf_path') or d.get('asset_path')
     if not asset:
         raise HTTPException(404, '没有已归档原件')
     path = (ASSETS / asset).resolve()
@@ -431,6 +455,20 @@ async def api_save_feed(request: Request):
 async def api_delete_feed(feed_id: str, request: Request):
     from .settings import delete_feed
     return await settings_change(delete_feed, feed_id, await read_payload(request))
+
+
+@app.post('/api/pages/{slug}/claim-reviews')
+async def api_claim_review(slug: str, request: Request):
+    from .fact_checks import save_review, ReviewConflict
+    payload = await read_payload(request)
+    try:
+        return await run_in_threadpool(save_review, slug, payload)
+    except ReviewConflict as exc:
+        raise HTTPException(409, str(exc))
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+    except OSError:
+        raise HTTPException(400, '核查记录保存失败，请检查数据目录权限')
 
 
 async def read_payload(request):

@@ -1,0 +1,20 @@
+.fact-checks {scroll-margin-top:24px}
+.fact-overview {display:flex;flex-wrap:wrap;gap:8px 24px;font-size:12px;margin:15px 0}
+.fact-related {display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+.fact-claim {border-top:1px solid var(--line);margin-top:22px;padding-top:20px;scroll-margin-top:24px;min-width:0}
+.fact-claim-heading {display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.fact-claim-heading h3 {font-size:14px;line-height:1.8;margin:0;overflow-wrap:anywhere;min-width:0}
+.fact-claim-heading .tag {flex-shrink:0;margin-top:3px}
+.fact-scope,.fact-review-meta {font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.fact-rationale,.fact-claim>p {font-size:12px;line-height:1.85;overflow-wrap:anywhere}
+.fact-quote {margin:12px 0;font-size:12px}
+.fact-quote summary,.fact-review-edit summary,.page-evidence-records>summary {cursor:pointer;font-size:12px;font-weight:500}
+.fact-quote blockquote {margin:12px 0;padding:14px 18px;border-left:3px solid var(--line);background:var(--soft);font:12px/1.85 ui-monospace,SFMono-Regular,monospace;overflow-wrap:anywhere;white-space:pre-wrap}
+.fact-review-edit {padding-top:13px;border-top:1px solid var(--line);margin-top:16px}
+.fact-review-edit form {max-width:720px;margin-top:16px;min-width:0}
+.fact-review-edit textarea {display:block;width:100%;min-width:0;max-width:100%;padding:10px 12px;margin-top:6px;border:1px solid var(--line);background:var(--field);color:var(--ink);border-radius:7px;resize:vertical;font:inherit}
+.fact-review-edit label {margin:14px 0}
+.fact-form-error {font-size:12px;color:var(--warning);overflow-wrap:anywhere}
+.page-evidence-records {border:1px solid var(--line);border-radius:var(--radius);padding:16px 20px;margin-top:22px}
+.page-evidence-records>.panel {margin-bottom:0;border:0;padding:0}
+@media(max-width:650px){.fact-claim-heading{flex-direction:column;gap:5px}.fact-overview{gap:6px 16px}.fact-quote blockquote{padding:12px}}

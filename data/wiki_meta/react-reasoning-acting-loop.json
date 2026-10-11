@@ -1,0 +1,51 @@
+{
+  "slug": "react-reasoning-acting-loop",
+  "title": "ReAct 推理与行动循环",
+  "category": "agents",
+  "source_ids": [
+    "e504ba1ba9c3fffc"
+  ],
+  "page_kind": "concept",
+  "writing_guide_version": "2",
+  "claims": [
+    {
+      "text": "ReAct 让语言模型交替生成推理轨迹与任务动作，并把环境观察接回上下文。",
+      "scope": "论文第 2 节对动作空间 A∪L 的定义与图 1 轨迹示例；thought 不改变环境、不产生观察。",
+      "source_ids": [
+        "e504ba1ba9c3fffc"
+      ],
+      "id": "interleaved-thought-action",
+      "status": "单源支持",
+      "proposed_by": "LLM"
+    },
+    {
+      "text": "推理与行动结合在知识任务上提升事实性，但结构化约束会降低推理灵活性。",
+      "scope": "论文第 3.3 节对 HotpotQA 轨迹的条件抽样人工分析：每种方法各抽 50 条正确和 50 条错误轨迹，共 200 条；不能把抽样比例解释为整体错误发生率。",
+      "source_ids": [
+        "e504ba1ba9c3fffc"
+      ],
+      "id": "reasoning-acting-tradeoff",
+      "status": "单源支持",
+      "proposed_by": "LLM"
+    },
+    {
+      "text": "在交互决策基准上，少量示例的 ReAct 提示可超过用大量任务训练的模仿/强化学习基线。",
+      "scope": "论文第 4 节，PaLM-540B：ALFWorld 134 个未见游戏，最佳 ReAct 提示 71% vs 最佳 BUTLER 37%，差 34 个百分点；ReAct 平均为 57%。WebShop 500 条指令，ReAct 40.0% vs IL 29.1%，差 10.9 个百分点。比较受提示选择与解码设置限制。",
+      "source_ids": [
+        "e504ba1ba9c3fffc"
+      ],
+      "id": "decision-making-gain",
+      "status": "单源支持",
+      "proposed_by": "LLM"
+    }
+  ],
+  "conflicts": [],
+  "content_review": {},
+  "review_history": [],
+  "related_slugs": [
+    "agent-context-memory-governance",
+    "agent-plan-repair",
+    "agent-tool-call-gates"
+  ],
+  "updated_at": "2026-10-11T02:11:40+00:00"
+}

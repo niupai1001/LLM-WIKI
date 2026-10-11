@@ -1,0 +1,61 @@
+{
+  "slug": "agent-memory-admission",
+  "reviews": [
+    {
+      "by": "Codex",
+      "locator": "第 3.1 节 Problem Formulation；第 3.3 节 Channel vs. Permission-Note Rendering（已存 HTML 全文对应标题）",
+      "quote": "At generation time an agent retrieves the top-$k$ memories $M=\\{m_{1},\\dots,m_{k}\\}$ for query $q$. Governance composes two maps. *Admission* $A$ maps each retrieved entry $m$ to typed units $U(m)$—with $U(m){=}\\{m\\}$ when the design judges whole entries, as in FC—and selects which of them reach the working context; *presentation* $P$ decides the surface form of the prompt that encodes the admitted units. The deployed default injects everything retrieved verbatim. Both levers act at inference time—no retraining, no deletion, no edit of stored content (Figure 1).",
+      "rationale": "第 3.1 节直接把 admission 定义为选择进入工作上下文的记忆单元，把 presentation 定义为表达已准入单元的提示表面形式。第 3.3 节比较固定裁定和准入内容下的 PN/CH 标签与组织方式，因此 Wiki 将两者视为不同控制与原文相符。这是论文的控制分解框架，不代表所有记忆系统均实现两阶段流程，也不等于所有措辞影响已经被排除。",
+      "claim_id": "admission-presentation",
+      "source_id": "accd5feccfb2c025",
+      "verdict": "supported",
+      "page_version": "555dcad7bf8307234662bd370a46359c7539ec9c2a8169e4cd6b499328bca823",
+      "claim_version": "72bb167597e2d823e284ba3dee74799db2d56a08fe2d212b7610b13919da00ec",
+      "source_version": "e4e95029f20cdd0afc1a484a2adf90926ec80e4ef982278ea3b8fa52a6e7fd62",
+      "reviewer_type": "agent",
+      "at": "2026-10-11T02:11:50+00:00"
+    },
+    {
+      "by": "Codex",
+      "locator": "第 5.5 节 Boundaries，首段；失败率对照在第 5.2 节 Table 2，评估定义在第 4.1–4.3 节",
+      "quote": "The personalization overshoot is shared by both designs. Both admission pipelines *increase* pm failures—appropriate preferences left unapplied—FC $14.7\\%\\to 22.3\\%$ ($p=.0022$) and PS $14.7\\%\\to 20.0\\%$ ($p=.0365$), with pm accuracy dropping $66.3\\%\\to 57.0\\%$ (FC) and $\\to 60.3\\%$ (PS). Two structurally different designs overshooting on the same task is a shared observation; our design does not isolate whether the cost is inherent to the admission move or to shared pipeline components. The preregistered gate is not met. The PS gate demanded pooled improvement $\\geq 10$pp *and* no task accuracy drop $>3$pp; measured: $8.8$pp ($1.2$pp below the threshold) and $-6.0$pp pm accuracy (beyond the permitted $3$pp decrease).",
+      "rationale": "原文同时报告 FC/PS 合并失败率下降与个性化失败率上升；FC 个性化失败由 14.7% 升至 22.3%，PS 升至 20.0%，PS 个性化准确率下降 6.0 个百分点且未达到预注册双门槛，支持 Wiki 的权衡表述。作者明确未隔离该代价来自准入本身还是共享管线，因此不能归因为所有严格过滤的必然后果。外部基准只使用一个生成模型，判断来自单一外部 LLM 评审，外部任务 rubric 未进行人工验证；本核查仅确认 Wiki 忠实表达该研究报告，不是对实验结论的真实有效性认证或独立复现。",
+      "claim_id": "memory-tradeoff",
+      "source_id": "accd5feccfb2c025",
+      "verdict": "supported",
+      "page_version": "555dcad7bf8307234662bd370a46359c7539ec9c2a8169e4cd6b499328bca823",
+      "claim_version": "17abc9dfd1b0edd67832411c8fab3b2d764f5028ab405e69d34b16b29781d014",
+      "source_version": "e4e95029f20cdd0afc1a484a2adf90926ec80e4ef982278ea3b8fa52a6e7fd62",
+      "reviewer_type": "agent",
+      "at": "2026-10-11T02:11:50+00:00"
+    },
+    {
+      "by": "Codex",
+      "locator": "第 3.1 节 Problem Formulation；第 3.3 节 Channel vs. Permission-Note Rendering（已存 HTML 全文对应标题）",
+      "quote": "At generation time an agent retrieves the top-$k$ memories $M=\\{m_{1},\\dots,m_{k}\\}$ for query $q$. Governance composes two maps. *Admission* $A$ maps each retrieved entry $m$ to typed units $U(m)$—with $U(m){=}\\{m\\}$ when the design judges whole entries, as in FC—and selects which of them reach the working context; *presentation* $P$ decides the surface form of the prompt that encodes the admitted units. The deployed default injects everything retrieved verbatim. Both levers act at inference time—no retraining, no deletion, no edit of stored content (Figure 1).",
+      "rationale": "第 3.1 节直接把 admission 定义为选择进入工作上下文的记忆单元，把 presentation 定义为表达已准入单元的提示表面形式。第 3.3 节比较固定裁定和准入内容下的 PN/CH 标签与组织方式，因此 Wiki 将两者视为不同控制与原文相符。这是论文的控制分解框架，不代表所有记忆系统均实现两阶段流程，也不等于所有措辞影响已经被排除。",
+      "claim_id": "admission-presentation",
+      "source_id": "accd5feccfb2c025",
+      "verdict": "supported",
+      "page_version": "555dcad7bf8307234662bd370a46359c7539ec9c2a8169e4cd6b499328bca823",
+      "claim_version": "72bb167597e2d823e284ba3dee74799db2d56a08fe2d212b7610b13919da00ec",
+      "source_version": "888157ff9247a5ba05ad4d9d57add2e400c4b4f962f53f21a32c245893f6ebda",
+      "reviewer_type": "agent",
+      "at": "2026-10-11T02:23:23+00:00"
+    },
+    {
+      "by": "Codex",
+      "locator": "第 5.5 节 Boundaries，首段；失败率对照在第 5.2 节 Table 2，评估定义在第 4.1–4.3 节",
+      "quote": "The personalization overshoot is shared by both designs. Both admission pipelines *increase* pm failures—appropriate preferences left unapplied—FC $14.7\\%\\to 22.3\\%$ ($p=.0022$) and PS $14.7\\%\\to 20.0\\%$ ($p=.0365$), with pm accuracy dropping $66.3\\%\\to 57.0\\%$ (FC) and $\\to 60.3\\%$ (PS). Two structurally different designs overshooting on the same task is a shared observation; our design does not isolate whether the cost is inherent to the admission move or to shared pipeline components. The preregistered gate is not met. The PS gate demanded pooled improvement $\\geq 10$pp *and* no task accuracy drop $>3$pp; measured: $8.8$pp ($1.2$pp below the threshold) and $-6.0$pp pm accuracy (beyond the permitted $3$pp decrease).",
+      "rationale": "原文同时报告 FC/PS 合并失败率下降与个性化失败率上升；FC 个性化失败由 14.7% 升至 22.3%，PS 升至 20.0%，PS 个性化准确率下降 6.0 个百分点且未达到预注册双门槛，支持 Wiki 的权衡表述。作者明确未隔离该代价来自准入本身还是共享管线，因此不能归因为所有严格过滤的必然后果。外部基准只使用一个生成模型，判断来自单一外部 LLM 评审，外部任务 rubric 未进行人工验证；本核查仅确认 Wiki 忠实表达该研究报告，不是对实验结论的真实有效性认证或独立复现。",
+      "claim_id": "memory-tradeoff",
+      "source_id": "accd5feccfb2c025",
+      "verdict": "supported",
+      "page_version": "555dcad7bf8307234662bd370a46359c7539ec9c2a8169e4cd6b499328bca823",
+      "claim_version": "17abc9dfd1b0edd67832411c8fab3b2d764f5028ab405e69d34b16b29781d014",
+      "source_version": "888157ff9247a5ba05ad4d9d57add2e400c4b4f962f53f21a32c245893f6ebda",
+      "reviewer_type": "agent",
+      "at": "2026-10-11T02:23:23+00:00"
+    }
+  ]
+}

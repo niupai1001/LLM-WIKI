@@ -14,6 +14,19 @@ ATOM = b'''<feed xmlns="http://www.w3.org/2005/Atom" xmlns:arxiv="http://arxiv.o
 
 
 class BibliographyTests(unittest.TestCase):
+    def test_published_original_displays_publication_date_without_losing_preprint(self):
+        record={'id':SID,'title':'Tool paper','kind':'paper','asset_path':'formal.pdf','bibliography':{
+            'arxiv_id':'2301.12345','arxiv_version':3,'original_version':'published','publication_status':'published',
+            'first_published':'2023-01-10','publication_date':'2024-05-31','preprint_pdf_path':'old.pdf',
+            'authors':[{'name':'Formal Author'}],'publication_record':{'status':'verified-on-official-site','venue':'ICLR','date':'2024-05-31','year':2024}}}
+        rendered=web.bibliography_html(record)
+        self.assertIn('ICLR · 正式发表版本',rendered)
+        self.assertIn('正式发表 2024-05-31',rendered)
+        self.assertIn('首次公开日期（预印本）',rendered)
+        self.assertNotIn('归档为 arXiv 版本',rendered)
+        _,entries=citations.prepare_citations(f'[S:{SID}]',[],lambda _:record)
+        self.assertEqual(entries[0].published,'2024-05-31')
+
     def test_atom_dates_versions_missing_doi_and_preprint_status_are_explicit(self):
         metadata = bibliography.parse_arxiv_atom(ATOM, 'https://export.arxiv.org/api/query')["2610.12345"]
         self.assertEqual(metadata['arxiv_version'], 2)

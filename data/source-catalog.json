@@ -2,6 +2,161 @@
   "description": "公开来源书目快照；原文、PDF与运行状态在本地保存。",
   "sources": [
     {
+      "id": "016c52ff81dd4b3c",
+      "title": "SOTOPIA: Interactive Evaluation for Social Intelligence in Language Agents",
+      "url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/b3075b88e583a0e98d8b24338a613060-Abstract-Conference.html",
+      "kind": "paper",
+      "category": "agents",
+      "captured_at": "2026-10-11T02:08:48+00:00",
+      "published": "",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Xuhui Zhou",
+            "affiliations": []
+          },
+          {
+            "name": "Hao Zhu",
+            "affiliations": []
+          },
+          {
+            "name": "Leena Mathur",
+            "affiliations": []
+          },
+          {
+            "name": "Ruohong Zhang",
+            "affiliations": []
+          },
+          {
+            "name": "Haofei Yu",
+            "affiliations": []
+          },
+          {
+            "name": "Zhengyang Qi",
+            "affiliations": []
+          },
+          {
+            "name": "Louis-Philippe Morency",
+            "affiliations": []
+          },
+          {
+            "name": "Yonatan Bisk",
+            "affiliations": []
+          },
+          {
+            "name": "Daniel Fried",
+            "affiliations": []
+          },
+          {
+            "name": "Graham Neubig",
+            "affiliations": []
+          },
+          {
+            "name": "Maarten Sap",
+            "affiliations": []
+          }
+        ],
+        "publisher": "ICLR",
+        "doi": "",
+        "first_published": "2024-05-31",
+        "updated": "",
+        "journal_ref": "International Conference on Learning Representations",
+        "title": "SOTOPIA: Interactive Evaluation for Social Intelligence in Language Agents",
+        "publication_status": "published",
+        "original_version": "published",
+        "publication_record": {
+          "venue": "ICLR",
+          "journal": "International Conference on Learning Representations",
+          "year": 2024,
+          "date": "2024-05-31",
+          "date_precision": "day",
+          "url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/b3075b88e583a0e98d8b24338a613060-Abstract-Conference.html",
+          "pdf_url": "https://proceedings.iclr.cc/paper_files/paper/2024/file/b3075b88e583a0e98d8b24338a613060-Paper-Conference.pdf",
+          "status": "verified-on-official-site",
+          "authors": [
+            "Xuhui Zhou",
+            "Hao Zhu",
+            "Leena Mathur",
+            "Ruohong Zhang",
+            "Haofei Yu",
+            "Zhengyang Qi",
+            "Louis-Philippe Morency",
+            "Yonatan Bisk",
+            "Daniel Fried",
+            "Graham Neubig",
+            "Maarten Sap"
+          ],
+          "doi": "",
+          "checked_at": "2026-10-11T02:08:49+00:00"
+        },
+        "publication_date": "2024-05-31",
+        "doi_status": "not-provided-on-official-site",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided-on-official-site",
+        "metadata_status": "verified",
+        "method": "official-publication-page",
+        "metadata_source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/b3075b88e583a0e98d8b24338a613060-Abstract-Conference.html",
+        "original_url": "https://proceedings.iclr.cc/paper_files/paper/2024/file/b3075b88e583a0e98d8b24338a613060-Paper-Conference.pdf",
+        "checked_at": "2026-10-11T02:08:49+00:00",
+        "field_sources": {
+          "title": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/b3075b88e583a0e98d8b24338a613060-Abstract-Conference.html"
+          },
+          "authors": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/b3075b88e583a0e98d8b24338a613060-Abstract-Conference.html"
+          },
+          "publisher": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/b3075b88e583a0e98d8b24338a613060-Abstract-Conference.html"
+          },
+          "journal_ref": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/b3075b88e583a0e98d8b24338a613060-Abstract-Conference.html"
+          },
+          "publication_date": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/b3075b88e583a0e98d8b24338a613060-Abstract-Conference.html"
+          },
+          "publication_record": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/b3075b88e583a0e98d8b24338a613060-Abstract-Conference.html"
+          },
+          "doi": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/b3075b88e583a0e98d8b24338a613060-Abstract-Conference.html"
+          },
+          "publication_doi": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/b3075b88e583a0e98d8b24338a613060-Abstract-Conference.html"
+          },
+          "publication_status": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/b3075b88e583a0e98d8b24338a613060-Abstract-Conference.html"
+          },
+          "original_version": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/b3075b88e583a0e98d8b24338a613060-Abstract-Conference.html"
+          },
+          "first_published": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/b3075b88e583a0e98d8b24338a613060-Abstract-Conference.html"
+          }
+        },
+        "metadata_snapshot": "source_metadata/016c52ff81dd4b3c-publication.html",
+        "arxiv_id": "2310.11667",
+        "preprint_url": "https://arxiv.org/abs/2310.11667",
+        "same_work_key": "arxiv:2310.11667"
+      },
+      "selection": {
+        "status": "正式发表参考",
+        "reason": "已从正式出版页面核实作者、出版信息与公开全文；记录同一作品的版本关系，不把版本数量作为独立研究数量。",
+        "limitations": "正式发表与元数据核实不等于实验结论已复现；Wiki 的具体断言仍需逐条核对原文与适用条件。",
+        "checked_at": "2026-10-11T02:08:53+00:00"
+      }
+    },
+    {
       "id": "0b44ee6389202cb6",
       "title": "Error-Propagation Modeling for Failure Attribution in LLM-Based Multi-Agent Systems",
       "url": "https://arxiv.org/abs/2610.11600",
@@ -142,10 +297,6 @@
             "affiliations": []
           },
           {
-            "name": "Edward Berman",
-            "affiliations": []
-          },
-          {
             "name": "Ashwin Gopinath",
             "affiliations": []
           },
@@ -159,34 +310,34 @@
           }
         ],
         "affiliations": [],
-        "publisher": "arXiv",
-        "original_url": "https://arxiv.org/abs/2303.11366",
+        "publisher": "NeurIPS",
+        "original_url": "https://proceedings.neurips.cc/paper_files/paper/2023/file/1b44b878bb782e6954cd888628510e90-Paper-Conference.pdf",
         "arxiv_id": "2303.11366",
         "arxiv_version": 4,
-        "doi": "",
-        "doi_status": "not-provided",
+        "doi": "10.52202/075280-0377",
+        "doi_status": "verified-on-official-site",
         "first_published": "2023-03-20T18:08:50Z",
         "updated": "2023-10-10T05:21:45Z",
         "captured_at": "2026-10-10T05:42:16+00:00",
         "source_type": "paper",
-        "publication_status": "arxiv-preprint",
-        "journal_ref": "",
+        "publication_status": "published",
+        "journal_ref": "Advances in Neural Information Processing Systems",
         "metadata_status": "verified",
-        "method": "arxiv-api",
-        "metadata_source_url": "https://export.arxiv.org/api/query?id_list=2303.11366v4&max_results=1",
-        "checked_at": "2026-10-10T05:42:17+00:00",
+        "method": "official-publication-page",
+        "metadata_source_url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html",
+        "checked_at": "2026-10-11T02:08:41+00:00",
         "acquisition_method": "public-download",
         "text_acquisition_method": "pdf",
         "content_status": "full-text",
         "announced_at": "",
         "field_sources": {
           "title": {
-            "method": "arxiv-api",
-            "source_url": "https://export.arxiv.org/api/query?id_list=2303.11366v4&max_results=1"
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html"
           },
           "authors": {
-            "method": "arxiv-api",
-            "source_url": "https://export.arxiv.org/api/query?id_list=2303.11366v4&max_results=1"
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html"
           },
           "first_published": {
             "method": "arxiv-api",
@@ -205,29 +356,49 @@
             "source_url": "https://export.arxiv.org/api/query?id_list=2303.11366v4&max_results=1"
           },
           "doi": {
-            "method": "arxiv-api",
-            "source_url": "https://export.arxiv.org/api/query?id_list=2303.11366v4&max_results=1"
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html"
           },
           "journal_ref": {
-            "method": "arxiv-api",
-            "source_url": "https://export.arxiv.org/api/query?id_list=2303.11366v4&max_results=1"
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html"
           },
           "arxiv_doi": {
             "method": "arxiv-abs-page",
             "source_url": "https://arxiv.org/abs/2303.11366"
           },
           "publication_record": {
-            "method": "verified-on-official-site",
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html"
+          },
+          "publisher": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html"
+          },
+          "publication_date": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html"
+          },
+          "publication_doi": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html"
+          },
+          "publication_status": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html"
+          },
+          "original_version": {
+            "method": "official-publication-page",
             "source_url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html"
           }
         },
-        "title": "Reflexion: Language Agents with Verbal Reinforcement Learning",
+        "title": "Reflexion: language agents with verbal reinforcement learning",
         "arxiv_categories": [
           "cs.AI",
           "cs.CL",
           "cs.LG"
         ],
-        "metadata_snapshot": "source_metadata/arxiv-2026-10-10-07fd83166bf939ff.atom.xml",
+        "metadata_snapshot": "source_metadata/3fb5d6b0a837235b-publication.html",
         "last_query_at": "2026-10-10T05:42:17+00:00",
         "arxiv_doi": "10.48550/arXiv.2303.11366",
         "arxiv_doi_status": "verified-on-arxiv",
@@ -235,8 +406,12 @@
         "arxiv_doi_checked_at": "2026-10-10T10:53:52+00:00",
         "publication_record": {
           "venue": "NeurIPS",
+          "journal": "Advances in Neural Information Processing Systems",
           "year": 2023,
+          "date": "2023-12-15",
+          "date_precision": "day",
           "url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/1b44b878bb782e6954cd888628510e90-Abstract-Conference.html",
+          "pdf_url": "https://proceedings.neurips.cc/paper_files/paper/2023/file/1b44b878bb782e6954cd888628510e90-Paper-Conference.pdf",
           "status": "verified-on-official-site",
           "authors": [
             "Noah Shinn",
@@ -246,14 +421,21 @@
             "Shunyu Yao"
           ],
           "doi": "10.52202/075280-0377",
-          "checked_at": "2026-10-10T10:55:23+00:00"
-        }
+          "checked_at": "2026-10-11T02:08:41+00:00"
+        },
+        "original_version": "published",
+        "publication_date": "2023-12-15",
+        "publication_doi": "10.52202/075280-0377",
+        "publication_doi_status": "verified-on-official-site",
+        "preprint_url": "https://arxiv.org/abs/2303.11366",
+        "preprint_pdf_path": "3fb5d6b0a837235b.pdf",
+        "same_work_key": "arxiv:2303.11366"
       },
       "selection": {
-        "status": "基础参考",
-        "reason": "补足 Agent 推理与行动、工具学习、反馈记忆和编程评测的基础方法；有公开原文及发表记录可追溯。",
-        "limitations": "归档版本是 arXiv 版本；正式发表版本可能不同。尚未逐项复现实验，不能替现有近期方法作独立验证。",
-        "checked_at": "2026-10-10T10:53:52+00:00"
+        "status": "正式发表参考",
+        "reason": "已从正式出版页面核实作者、出版信息与公开全文；记录同一作品的版本关系，不把版本数量作为独立研究数量。",
+        "limitations": "正式发表与元数据核实不等于实验结论已复现；Wiki 的具体断言仍需逐条核对原文与适用条件。",
+        "checked_at": "2026-10-11T02:08:43+00:00"
       }
     },
     {
@@ -275,7 +457,7 @@
             "affiliations": []
           },
           {
-            "name": "Roberto Dessì",
+            "name": "Roberto Dessi",
             "affiliations": []
           },
           {
@@ -284,6 +466,10 @@
           },
           {
             "name": "Maria Lomeli",
+            "affiliations": []
+          },
+          {
+            "name": "Eric Hambro",
             "affiliations": []
           },
           {
@@ -300,34 +486,34 @@
           }
         ],
         "affiliations": [],
-        "publisher": "arXiv",
-        "original_url": "https://arxiv.org/abs/2302.04761",
+        "publisher": "NeurIPS",
+        "original_url": "https://proceedings.neurips.cc/paper_files/paper/2023/file/d842425e4bf79ba039352da0f658a906-Paper-Conference.pdf",
         "arxiv_id": "2302.04761",
         "arxiv_version": 1,
-        "doi": "",
-        "doi_status": "not-provided",
+        "doi": "10.52202/075280-2997",
+        "doi_status": "verified-on-official-site",
         "first_published": "2023-02-09T16:49:57Z",
         "updated": "2023-02-09T16:49:57Z",
         "captured_at": "2026-10-10T05:42:13+00:00",
         "source_type": "paper",
-        "publication_status": "arxiv-preprint",
-        "journal_ref": "",
+        "publication_status": "published",
+        "journal_ref": "Advances in Neural Information Processing Systems",
         "metadata_status": "verified",
-        "method": "arxiv-api",
-        "metadata_source_url": "https://export.arxiv.org/api/query?id_list=2302.04761v1&max_results=1",
-        "checked_at": "2026-10-10T05:42:14+00:00",
+        "method": "official-publication-page",
+        "metadata_source_url": "https://proceedings.nips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html",
+        "checked_at": "2026-10-11T02:08:38+00:00",
         "acquisition_method": "public-download",
         "text_acquisition_method": "pdf",
         "content_status": "full-text",
         "announced_at": "",
         "field_sources": {
           "title": {
-            "method": "arxiv-api",
-            "source_url": "https://export.arxiv.org/api/query?id_list=2302.04761v1&max_results=1"
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.nips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html"
           },
           "authors": {
-            "method": "arxiv-api",
-            "source_url": "https://export.arxiv.org/api/query?id_list=2302.04761v1&max_results=1"
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.nips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html"
           },
           "first_published": {
             "method": "arxiv-api",
@@ -346,19 +532,39 @@
             "source_url": "https://export.arxiv.org/api/query?id_list=2302.04761v1&max_results=1"
           },
           "doi": {
-            "method": "arxiv-api",
-            "source_url": "https://export.arxiv.org/api/query?id_list=2302.04761v1&max_results=1"
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.nips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html"
           },
           "journal_ref": {
-            "method": "arxiv-api",
-            "source_url": "https://export.arxiv.org/api/query?id_list=2302.04761v1&max_results=1"
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.nips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html"
           },
           "arxiv_doi": {
             "method": "arxiv-abs-page",
             "source_url": "https://arxiv.org/abs/2302.04761"
           },
           "publication_record": {
-            "method": "verified-on-official-site",
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.nips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html"
+          },
+          "publisher": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.nips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html"
+          },
+          "publication_date": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.nips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html"
+          },
+          "publication_doi": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.nips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html"
+          },
+          "publication_status": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.nips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html"
+          },
+          "original_version": {
+            "method": "official-publication-page",
             "source_url": "https://proceedings.nips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html"
           }
         },
@@ -366,7 +572,7 @@
         "arxiv_categories": [
           "cs.CL"
         ],
-        "metadata_snapshot": "source_metadata/arxiv-2026-10-10-fae3cddc4ac58a22.atom.xml",
+        "metadata_snapshot": "source_metadata/4a3710e0ff43d563-publication.html",
         "last_query_at": "2026-10-10T05:42:14+00:00",
         "arxiv_doi": "10.48550/arXiv.2302.04761",
         "arxiv_doi_status": "verified-on-arxiv",
@@ -374,8 +580,12 @@
         "arxiv_doi_checked_at": "2026-10-10T10:53:47+00:00",
         "publication_record": {
           "venue": "NeurIPS",
+          "journal": "Advances in Neural Information Processing Systems",
           "year": 2023,
+          "date": "2023-12-15",
+          "date_precision": "day",
           "url": "https://proceedings.nips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html",
+          "pdf_url": "https://proceedings.neurips.cc/paper_files/paper/2023/file/d842425e4bf79ba039352da0f658a906-Paper-Conference.pdf",
           "status": "verified-on-official-site",
           "authors": [
             "Timo Schick",
@@ -389,14 +599,21 @@
             "Thomas Scialom"
           ],
           "doi": "10.52202/075280-2997",
-          "checked_at": "2026-10-10T10:55:23+00:00"
-        }
+          "checked_at": "2026-10-11T02:08:38+00:00"
+        },
+        "original_version": "published",
+        "publication_date": "2023-12-15",
+        "publication_doi": "10.52202/075280-2997",
+        "publication_doi_status": "verified-on-official-site",
+        "preprint_url": "https://arxiv.org/abs/2302.04761",
+        "preprint_pdf_path": "4a3710e0ff43d563.pdf",
+        "same_work_key": "arxiv:2302.04761"
       },
       "selection": {
-        "status": "基础参考",
-        "reason": "补足 Agent 推理与行动、工具学习、反馈记忆和编程评测的基础方法；有公开原文及发表记录可追溯。",
-        "limitations": "归档版本是 arXiv 版本；正式发表版本可能不同。尚未逐项复现实验，不能替现有近期方法作独立验证。",
-        "checked_at": "2026-10-10T10:53:47+00:00"
+        "status": "正式发表参考",
+        "reason": "已从正式出版页面核实作者、出版信息与公开全文；记录同一作品的版本关系，不把版本数量作为独立研究数量。",
+        "limitations": "正式发表与元数据核实不等于实验结论已复现；Wiki 的具体断言仍需逐条核对原文与适用条件。",
+        "checked_at": "2026-10-11T02:08:40+00:00"
       }
     },
     {
@@ -525,6 +742,44 @@
         "reason": "Agent 专题关键词与近期发布时间匹配，全文和原件已取得；支持页中明确范围内的新进展记录。",
         "limitations": "近期预印本，同行评审与独立复现尚未核实；同一批发现不构成多方验证。",
         "checked_at": "2026-10-10T10:53:55+00:00"
+      }
+    },
+    {
+      "id": "84d839e63c28ec29",
+      "title": "2603.22148v1",
+      "url": "https://notes.local.invalid/84d839e63c28ec29",
+      "kind": "paper",
+      "category": "agents",
+      "captured_at": "2026-10-11T01:49:27+00:00",
+      "published": "2026-10-11T01:49:27+00:00",
+      "bibliography": {
+        "authors": [],
+        "affiliations": [],
+        "publisher": "",
+        "original_url": "https://notes.local.invalid/84d839e63c28ec29",
+        "arxiv_id": "",
+        "arxiv_version": null,
+        "doi": "",
+        "doi_status": "unverified",
+        "publication_doi": "",
+        "publication_doi_status": "unverified",
+        "arxiv_doi": "",
+        "arxiv_doi_status": "unverified",
+        "first_published": "",
+        "updated": "",
+        "captured_at": "2026-10-11T01:49:27+00:00",
+        "source_type": "paper",
+        "publication_status": "unverified",
+        "journal_ref": "",
+        "metadata_status": "unverified",
+        "method": "record-only",
+        "metadata_source_url": "",
+        "checked_at": "",
+        "acquisition_method": "local-file",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "2026-10-11T01:49:27+00:00",
+        "field_sources": {}
       }
     },
     {
@@ -762,7 +1017,7 @@
       "bibliography": {
         "authors": [
           {
-            "name": "Carlos E. Jimenez",
+            "name": "Carlos E Jimenez",
             "affiliations": []
           },
           {
@@ -791,34 +1046,34 @@
           }
         ],
         "affiliations": [],
-        "publisher": "arXiv",
-        "original_url": "https://arxiv.org/abs/2310.06770",
+        "publisher": "ICLR",
+        "original_url": "https://proceedings.iclr.cc/paper_files/paper/2024/file/edac78c3e300629acfe6cbe9ca88fb84-Paper-Conference.pdf",
         "arxiv_id": "2310.06770",
         "arxiv_version": 3,
         "doi": "",
-        "doi_status": "not-provided",
+        "doi_status": "not-provided-on-official-site",
         "first_published": "2023-10-10T16:47:29Z",
         "updated": "2024-11-11T23:05:04Z",
         "captured_at": "2026-10-10T05:42:20+00:00",
         "source_type": "paper",
-        "publication_status": "arxiv-preprint",
-        "journal_ref": "",
+        "publication_status": "published",
+        "journal_ref": "International Conference on Learning Representations",
         "metadata_status": "verified",
-        "method": "arxiv-api",
-        "metadata_source_url": "https://export.arxiv.org/api/query?id_list=2310.06770v3&max_results=1",
-        "checked_at": "2026-10-10T05:42:21+00:00",
+        "method": "official-publication-page",
+        "metadata_source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/edac78c3e300629acfe6cbe9ca88fb84-Abstract-Conference.html",
+        "checked_at": "2026-10-11T02:08:44+00:00",
         "acquisition_method": "public-download",
         "text_acquisition_method": "pdf",
         "content_status": "full-text",
         "announced_at": "",
         "field_sources": {
           "title": {
-            "method": "arxiv-api",
-            "source_url": "https://export.arxiv.org/api/query?id_list=2310.06770v3&max_results=1"
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/edac78c3e300629acfe6cbe9ca88fb84-Abstract-Conference.html"
           },
           "authors": {
-            "method": "arxiv-api",
-            "source_url": "https://export.arxiv.org/api/query?id_list=2310.06770v3&max_results=1"
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/edac78c3e300629acfe6cbe9ca88fb84-Abstract-Conference.html"
           },
           "first_published": {
             "method": "arxiv-api",
@@ -837,29 +1092,49 @@
             "source_url": "https://export.arxiv.org/api/query?id_list=2310.06770v3&max_results=1"
           },
           "doi": {
-            "method": "arxiv-api",
-            "source_url": "https://export.arxiv.org/api/query?id_list=2310.06770v3&max_results=1"
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/edac78c3e300629acfe6cbe9ca88fb84-Abstract-Conference.html"
           },
           "journal_ref": {
-            "method": "arxiv-api",
-            "source_url": "https://export.arxiv.org/api/query?id_list=2310.06770v3&max_results=1"
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/edac78c3e300629acfe6cbe9ca88fb84-Abstract-Conference.html"
           },
           "arxiv_doi": {
             "method": "arxiv-abs-page",
             "source_url": "https://arxiv.org/abs/2310.06770"
           },
           "publication_record": {
-            "method": "verified-on-official-site",
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/edac78c3e300629acfe6cbe9ca88fb84-Abstract-Conference.html"
+          },
+          "publisher": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/edac78c3e300629acfe6cbe9ca88fb84-Abstract-Conference.html"
+          },
+          "publication_date": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/edac78c3e300629acfe6cbe9ca88fb84-Abstract-Conference.html"
+          },
+          "publication_doi": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/edac78c3e300629acfe6cbe9ca88fb84-Abstract-Conference.html"
+          },
+          "publication_status": {
+            "method": "official-publication-page",
+            "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/edac78c3e300629acfe6cbe9ca88fb84-Abstract-Conference.html"
+          },
+          "original_version": {
+            "method": "official-publication-page",
             "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/edac78c3e300629acfe6cbe9ca88fb84-Abstract-Conference.html"
           }
         },
-        "title": "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?",
+        "title": "SWE-bench: Can Language Models Resolve Real-world Github Issues?",
         "arxiv_categories": [
           "cs.CL",
           "cs.AI",
           "cs.SE"
         ],
-        "metadata_snapshot": "source_metadata/arxiv-2026-10-10-89cd9b4ea10ec42d.atom.xml",
+        "metadata_snapshot": "source_metadata/b36ffb44e7a44c44-publication.html",
         "last_query_at": "2026-10-10T05:42:21+00:00",
         "arxiv_doi": "10.48550/arXiv.2310.06770",
         "arxiv_doi_status": "verified-on-arxiv",
@@ -867,8 +1142,12 @@
         "arxiv_doi_checked_at": "2026-10-10T10:53:48+00:00",
         "publication_record": {
           "venue": "ICLR",
+          "journal": "International Conference on Learning Representations",
           "year": 2024,
+          "date": "2024-05-31",
+          "date_precision": "day",
           "url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/edac78c3e300629acfe6cbe9ca88fb84-Abstract-Conference.html",
+          "pdf_url": "https://proceedings.iclr.cc/paper_files/paper/2024/file/edac78c3e300629acfe6cbe9ca88fb84-Paper-Conference.pdf",
           "status": "verified-on-official-site",
           "authors": [
             "Carlos E Jimenez",
@@ -880,14 +1159,21 @@
             "Karthik Narasimhan"
           ],
           "doi": "",
-          "checked_at": "2026-10-10T10:55:23+00:00"
-        }
+          "checked_at": "2026-10-11T02:08:44+00:00"
+        },
+        "original_version": "published",
+        "publication_date": "2024-05-31",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided-on-official-site",
+        "preprint_url": "https://arxiv.org/abs/2310.06770",
+        "preprint_pdf_path": "b36ffb44e7a44c44.pdf",
+        "same_work_key": "arxiv:2310.06770"
       },
       "selection": {
-        "status": "基础参考",
-        "reason": "补足 Agent 推理与行动、工具学习、反馈记忆和编程评测的基础方法；有公开原文及发表记录可追溯。",
-        "limitations": "归档版本是 arXiv 版本；正式发表版本可能不同。尚未逐项复现实验，不能替现有近期方法作独立验证。",
-        "checked_at": "2026-10-10T10:53:48+00:00"
+        "status": "正式发表参考",
+        "reason": "已从正式出版页面核实作者、出版信息与公开全文；记录同一作品的版本关系，不把版本数量作为独立研究数量。",
+        "limitations": "正式发表与元数据核实不等于实验结论已复现；Wiki 的具体断言仍需逐条核对原文与适用条件。",
+        "checked_at": "2026-10-11T02:08:48+00:00"
       }
     },
     {
