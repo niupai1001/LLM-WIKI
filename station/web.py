@@ -7,6 +7,7 @@ import os
 import re
 import tempfile
 from pathlib import Path
+from difflib import unified_diff
 from urllib.parse import quote, urlsplit
 
 from fastapi import FastAPI, HTTPException, Request
@@ -17,7 +18,7 @@ from starlette.concurrency import run_in_threadpool
 from .common import ASSETS, PENDING, RAW, WIKI, connect, load_json, safe_slug
 from .citations import prepare_citations, evidence_html, evidence_jump, _external_url, _date
 from .knowledge import categories, category_name, graph_data, wiki_pages, validate_category
-from .wiki import approve, prepare, reject
+from .wiki import approve, prepare, prepare_rewrite, reject, proposal_key, page_body
 
 app = FastAPI(title='LLM Wiki')
 app.mount('/static', StaticFiles(directory=Path(__file__).parent / 'static'), name='static')
@@ -143,7 +144,7 @@ def home(q: str = '', category: str = ''):
     if pending_pages:
         body += '<div class="section-heading"><h2>新生成的知识 · 待审核</h2><a class="text-link" href="/drafts">核查与发布 →</a></div><div class="wiki-grid">'
         for draft in pending_pages:
-            body += f'<a class="wiki-card" href="/drafts#draft-{E(draft["source_id"])}"><span class="tag warning">LLM 草稿</span><h3>{E(draft["title"])}</h3><p>{E(knowledge_excerpt(draft["body_markdown"]))}</p><div class="card-foot">{len(draft.get("source_ids",[]))} 份原始证据 <span>阅读全文 →</span></div></a>'
+            body += f'<a class="wiki-card" href="/drafts#draft-{E(proposal_key(draft))}"><span class="tag warning">LLM 草稿</span><h3>{E(draft["title"])}</h3><p>{E(knowledge_excerpt(draft["body_markdown"]))}</p><div class="card-foot">{len(draft.get("source_ids",[]))} 份原始证据 <span>阅读全文 →</span></div></a>'
         body += '</div>'
     return layout('知识 Wiki', body)
 
@@ -158,7 +159,7 @@ def page(slug: str):
     current = matches[0]
     backlinks = [p for p in wiki_pages() if slug in p.get('related_slugs', []) or re.search(r'\[\[' + re.escape(slug) + r'(?:\||\]\])', p['body'])]
     page_kind = "主题入口" if current.get("page_kind") == "topic" else "概念条目"
-    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><p>{len(current.get("source_ids", []))} 份证据 · 已发布知识 · <a href="#fact-check">逐项事实核查 ↓</a></p></div><a class="button" href="/graph">在图谱中探索 ↗</a></div><article class="prose">{md_render(current["body"], current.get("source_ids", []), evidence_prefix="wiki-" + slug)}</article>'
+    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><p>{len(current.get("source_ids", []))} 份证据 · 已发布知识 · <a href="#fact-check">逐项事实核查 ↓</a></p></div><div class="button-row"><button class="button" data-rewrite="{E(slug)}">生成表达改写稿</button><a class="button" href="/graph">在图谱中探索 ↗</a></div></div><article class="prose">{md_render(current["body"], current.get("source_ids", []), evidence_prefix="wiki-" + slug)}</article>'
     from .evidence import knowledge_evidence
     from .fact_checks import render as fact_checks_html
     body += f'<link rel="stylesheet" href="/static/fact-checks.css?v={ASSET_VERSIONS["fact-checks.css"]}">'
@@ -346,17 +347,50 @@ def drafts():
     if not items:
         body += empty('没有待审草稿', '导入原文后，点击“编写 Wiki 草稿”。只有原文已获取的资料会参与编写。', '<a class="button" href="/sources">查看原始资料</a>')
     for d in items:
-        sid = d['source_id']
-        body += f'<section class="draft-panel" id="draft-{sid}"><div class="draft-header"><div><span class="tag">{E(category_name(d.get("category","other")))}</span><span class="tag subtle">{"更新页面" if d["action"] == "update" else "新建知识"}</span><h2>{E(d["title"])}</h2></div><div class="button-row"><button class="button danger" data-reject="{sid}">退回重写</button><button class="button primary" data-approve="{sid}">核实并发布 Wiki</button></div></div>'
-        if d['action'] == 'update':
-            body += f'<a class="text-link" href="/page/{E(d["slug"])}" target="_blank">查看当前 Wiki，核对更新内容 ↗</a>'
+        pid = proposal_key(d)
+        rewrite = d.get('mode') == 'rewrite'
+        label = '表达改写' if rewrite else ('知识更新' if d['action'] == 'update' else '新建知识')
+        body += f'<section class="draft-panel" id="draft-{E(pid)}"><div class="draft-header"><div><span class="tag">{E(category_name(d.get("category","other")))}</span><span class="tag subtle">{label}</span><h2>{E(d["title"])}</h2></div><button class="button danger" data-reject="{E(pid)}">退回草稿</button></div>'
+        if d.get('editorial_notes'):
+            body += f'<div class="editorial-notes"><strong>编辑说明</strong><p>{E(d["editorial_notes"])}</p></div>'
         issues = d.get('writing_issues', [])
         issues = [issue for issue in issues if isinstance(issue, str) and issue.strip()] if isinstance(issues, list) else []
+        if d.get('editorial_reviewed') is False:
+            issues.append(d.get('editorial_error') or '第二遍编辑未完成，请退回重新生成。')
+        if d.get('needs_fact_review'):
+            issues.append('存在待核查疑点，发布前须记录处理说明。')
         if issues:
             body += '<aside class="writing-check notice warning"><strong>编写检查提示</strong><ul>' + ''.join(f'<li>{E(issue)}</li>' for issue in issues) + '</ul></aside>'
-        body += f'<article class="prose">{md_render(d["body_markdown"], d.get("source_ids", [sid]), evidence_prefix="draft-" + sid)}</article></section>'
-        from .evidence import proposal_evidence
-        body += proposal_evidence(d)
+        base = d.get('base_body')
+        if base is None and d['action'] == 'update':
+            target = WIKI / (d['slug'] + '.md')
+            base = target.read_text(encoding='utf-8') if target.is_file() else ''
+        if d['action'] == 'update':
+            old = page_body(base or '')
+            new = page_body(d['body_markdown'])
+            body += '<div class="draft-comparison"><section><h3>原正文</h3><article class="prose">' + md_render(old, d.get('source_ids', []), evidence_prefix='old-' + pid) + '</article></section>'
+            body += '<section><h3>新稿 · 待审核</h3><article class="prose">' + md_render(new, d.get('source_ids', []), evidence_prefix='new-' + pid) + '</article></section></div>'
+            diff = '\n'.join(unified_diff(old.splitlines(), new.splitlines(), fromfile='原正文', tofile='待审稿', lineterm=''))
+            body += f'<details class="draft-diff"><summary>查看正文差异</summary><pre>{E(diff or "正文未变化")}</pre></details>'
+        else:
+            body += f'<article class="prose">{md_render(d["body_markdown"], d.get("source_ids", [d.get("source_id")]), evidence_prefix="draft-" + pid)}</article>'
+        body += '<div class="draft-source-links"><strong>原始资料</strong> ' + ' · '.join(f'<a href="/source/{E(sid)}" target="_blank" rel="noopener">{E(load_json(RAW/(sid+".json")).get("title", sid) if (RAW/(sid+".json")).is_file() else sid)}</a>' for sid in d.get('source_ids', [])) + '</div>'
+        if rewrite and isinstance(d.get('pilot_evaluation'), dict):
+            review = d['pilot_evaluation']
+            body += '<details class="draft-review-questions"><summary>试点评阅 · Codex</summary><p>' + E(review.get('fact_invariance', '')) + '</p><ul>' + ''.join('<li>' + E(item) + '</li>' for item in review.get('questions', []) if isinstance(item, str)) + '</ul><p>阅读改善：' + ('较明显' if review.get('readability_improved') else '有限') + ' · 等待人工审核</p></details>'
+        if rewrite:
+            body += '<details class="draft-review-questions"><summary>四个审核问题</summary><ul><li>开头能否看懂？</li><li>机制能否复述？</li><li>例子或场景是否有帮助？</li><li>事实和适用范围是否改变？</li></ul></details>'
+        body += f'<form class="draft-approval" data-approve-form="{E(pid)}">'
+        if rewrite:
+            body += '<label class="checkbox-label"><input type="checkbox" name="fact_invariance_confirmed" required> 我已对照正文与原始资料，确认事实含义与适用范围未改变</label>'
+        if rewrite or d.get('needs_fact_review'):
+            required = 'required' if d.get('needs_fact_review') else ''
+            body += f'<label>审核说明{ "（须说明疑点处理）" if required else "（可选）"}<textarea name="fact_review_note" rows="3" maxlength="4000" {required}></textarea></label>'
+        disabled = 'disabled' if d.get('editorial_reviewed') is False else ''
+        body += f'<button class="button primary" type="submit" {disabled}>批准并发布</button></form></section>'
+        if not rewrite:
+            from .evidence import proposal_evidence
+            body += proposal_evidence(d)
     return layout('编写与审核', body, 'drafts')
 
 
@@ -559,16 +593,24 @@ async def api_compile(request: Request):
     return {'count': count, 'url': '/drafts' if count else None, 'message': f'已生成 {count} 份知识草稿' if count else '未生成草稿：请确认存在待编写的原文，并检查模型接口。'}
 
 
+@app.post('/api/pages/{slug}/rewrite')
+async def api_rewrite(slug: str):
+    pid = await operation(prepare_rewrite, slug)
+    return {'proposal_id': pid, 'url': '/drafts#draft-' + pid, 'message': '表达改写稿已生成，请对照审核'}
+
+
 @app.post('/api/drafts/{sid}/approve')
-async def api_approve(sid: str):
-    slug = await operation(approve, sid)
+async def api_approve(sid: str, request: Request):
+    payload = await read_payload(request)
+    slug = await operation(approve, sid, fact_invariance_confirmed=payload.get('fact_invariance_confirmed') is True,
+                           fact_review_note=payload.get('fact_review_note', ''))
     return {'message':'知识页面已发布', 'url':'/page/' + slug}
 
 
 @app.post('/api/drafts/{sid}/reject')
 async def api_reject(sid: str):
     await operation(reject, sid)
-    return {'message':'草稿已退回，原始资料可重新编写', 'url':'/drafts'}
+    return {'message':'草稿已退回', 'url':'/drafts'}
 
 
 @app.post('/api/sources/{sid}/refresh')

@@ -18,3 +18,7 @@ data/source_metadata/
 
 config/.settings.lock
 data/claim_reviews/.lock
+
+data/pending/.lock
+data/proposal_history/
+data/publication_backups/

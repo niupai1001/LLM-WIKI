@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 from .collector import add_note, ingest
 from .common import PENDING, connect, load_json
-from .wiki import approve, prepare
+from .wiki import approve, prepare, prepare_rewrite, proposal_key
 
 
 def main():
@@ -16,9 +16,13 @@ def main():
     draft = sub.add_parser("prepare")
     draft.add_argument("--limit", type=int, default=3)
     draft.add_argument("--category")
+    rewrite = sub.add_parser("rewrite", help="Generate an expression-only draft for an existing Wiki")
+    rewrite.add_argument("slug")
     sub.add_parser("drafts")
     accept = sub.add_parser("approve")
-    accept.add_argument("source_id")
+    accept.add_argument("proposal_id")
+    accept.add_argument("--confirm-facts", action="store_true", help="Confirm unchanged factual meaning and scope for rewrite")
+    accept.add_argument("--fact-review-note", default="")
     note = sub.add_parser("add-note")
     note.add_argument("--title", required=True)
     note.add_argument("--file", required=True)
@@ -32,7 +36,7 @@ def main():
     url.add_argument("--title")
     url.add_argument("--category", default="other")
     decline = sub.add_parser("reject")
-    decline.add_argument("source_id")
+    decline.add_argument("proposal_id")
     sub.add_parser("stats")
     args = p.parse_args()
     if args.action == "ingest":
@@ -40,7 +44,9 @@ def main():
     elif args.action == "prepare":
         print(f"Created {prepare(max(1, min(args.limit, 20)), category=args.category)} drafts")
     elif args.action == "approve":
-        approve(args.source_id)
+        approve(args.proposal_id, fact_invariance_confirmed=args.confirm_facts, fact_review_note=args.fact_review_note)
+    elif args.action == "rewrite":
+        print("Rewrite proposal:", prepare_rewrite(args.slug))
     elif args.action == "add-note":
         print("Archived note:", add_note(args.title, args.file, category=args.category))
     elif args.action == "import-file":
@@ -51,12 +57,12 @@ def main():
         print("Archived original:", import_url(args.url, category=args.category, title=args.title))
     elif args.action == "reject":
         from .wiki import reject
-        reject(args.source_id)
+        reject(args.proposal_id)
     elif args.action == "drafts":
         connect().close()
         for f in sorted(PENDING.glob("*.json")):
             p = load_json(f)
-            print(f"{p['source_id']}  {p['action']}  {p['slug']}  {p['title']}  ({f})")
+            print(f"{proposal_key(p)}  {p.get('mode', 'update')}/{p['action']}  {p['slug']}  {p['title']}  ({f})")
     elif args.action == "stats":
         db = connect()
         print({r["stage"]: r["n"] for r in db.execute("SELECT stage, count(*) n FROM sources GROUP BY stage")})

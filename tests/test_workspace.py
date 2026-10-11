@@ -26,6 +26,9 @@ from station import wiki
 
 def llm(messages):
     import json
+    if '第二遍只优化' in messages[0]['content']:
+        draft = json.loads(messages[-2]['content'].split('：\n', 1)[1])
+        return {**draft, 'needs_fact_review': False}
     context = json.loads(messages[-1]['content'].split('JSON数据：\n', 1)[1])
     ids = [s['source_id'] for s in context['sources']]
     assert len(ids) == 2, 'same-category originals must be synthesized together'
@@ -97,7 +100,7 @@ uvicorn.run('station.web:app', host='127.0.0.1', port=int(os.environ['TEST_PORT'
                 draft = json.loads(pending.read_text())
                 self.assertEqual(set(draft['source_ids']),set(ids))
                 self.assertIn('2 份原文', request('/drafts'))
-                approved = request('/api/drafts/'+draft['source_id']+'/approve', {})
+                approved = request('/api/drafts/'+draft['proposal_id']+'/approve', {})
                 page = request(approved['url'])
                 self.assertIn('证据综合',page)
                 for sid in ids:
@@ -134,12 +137,12 @@ wiki.call_llm = lambda messages: {'action':'create','slug':'test-topic','title':
 assert wiki.prepare() == 1
 (common.WIKI/'test-topic.md').write_text('# 人工并行创建的页面\n保留现有内容')
 try:
-    wiki.approve(sid)
+    wiki.approve(next(common.PENDING.glob('*.json')).stem)
     raise AssertionError('stale draft must fail')
 except ValueError:
     pass
 assert '保留现有内容' in (common.WIKI/'test-topic.md').read_text()
-wiki.reject(sid)
+wiki.reject(next(common.PENDING.glob('*.json')).stem)
 with common.connect() as db:
     assert db.execute('SELECT stage FROM sources WHERE id=?',(sid,)).fetchone()[0]=='new'
 print('STATE_AND_CONFLICT_OK')
@@ -184,7 +187,7 @@ def retry_model(messages):
     return {'action':'create','slug':'long-topic','title':'综合主题','body_markdown':'综合多份长资料时，每份证据都有阅读预算，并保留来源和不确定性。'*3}
 wiki.call_llm=retry_model
 assert wiki.prepare()==1
-assert len(attempts)==2
+assert len(attempts)==3, 'JSON retry plus mandatory editor'
 assert len(common.load_json(next(common.PENDING.glob('*.json')))['source_ids'])==8
 print('BUDGET_CLAIM_AND_CITATIONS_OK')
 '''
@@ -200,9 +203,9 @@ import os
 root=Path(os.environ['STATION_DATA'])
 p=root/'one.md';p.write_text('第一份完整原文，讨论主题证据与不确定性。'*6)
 sid=collector.add_note('第一份原文',p,category='ai')
-wiki.call_llm=lambda messages:{'action':'create','slug':'evidence-topic','title':'主题','body_markdown':'现有资料只提供作者观点，需要更多验证，不能将其当作共识。'*3}
+wiki.call_llm=lambda messages:{'needs_fact_review':False,'action':'create','slug':'evidence-topic','title':'主题','body_markdown':'现有资料只提供作者观点，需要更多验证，不能将其当作共识。'*3}
 assert wiki.prepare()==1
-wiki.approve(sid)
+wiki.approve(next(common.PENDING.glob('*.json')).stem)
 p=root/'two.md';p.write_text('第二份完整原文，提供后续实验证据并讨论新的不确定性。'*6)
 sid2=collector.add_note('第二份原文',p,category='ai')
 def model(messages):
@@ -212,7 +215,7 @@ def model(messages):
 wiki.call_llm=model
 assert wiki.prepare()==1
 try:
-    wiki.approve(sid2)
+    wiki.approve(next(common.PENDING.glob('*.json')).stem)
     raise AssertionError('concurrent edit must invalidate old draft')
 except ValueError:
     pass

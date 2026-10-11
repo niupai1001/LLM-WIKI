@@ -50,9 +50,9 @@ from station.common import connect
 p=Path('note-mvp-test.txt'); p.write_text('这是一个个人想法：关注森林冠层的季节变化，不是已证实结论。',encoding='utf-8')
 try:
     sid=add_note('森林物候监测思路',str(p))
-    wiki.call_llm=lambda messages: {'action':'create','slug':'forest-phenology', 'title':'森林物候观测', 'body_markdown':'这是一个来源于个人笔记的研究设想，需要后续实验验证。\n\n可以探索森林冠层随季节变化的趋势及潜在影响。'}
+    wiki.call_llm=lambda messages: {'needs_fact_review':False,'action':'create','slug':'forest-phenology', 'title':'森林物候观测', 'body_markdown':'这是一个来源于个人笔记的研究设想，需要后续实验验证。\n\n可以探索森林冠层随季节变化的趋势及潜在影响。'}
     assert wiki.prepare(limit=1)==1
-    wiki.approve(sid)
+    wiki.approve(next(wiki.PENDING.glob('*.json')).stem)
     page=(Path(__import__('os').environ['STATION_DATA'])/'wiki'/'forest-phenology.md').read_text(encoding='utf-8')
     assert sid in page and '需要后续实验验证' in page
     assert connect().execute('SELECT stage FROM sources WHERE id=?',(sid,)).fetchone()[0]=='approved'

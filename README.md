@@ -158,3 +158,18 @@ RSS 只用于发现候选材料。当前保留 AI Agent 论文订阅，已移除
 正式公开论文页面可自动解析完整 PDF 与书目，支持 ACL Anthology、NeurIPS、ICLR proceedings 和 JMLR；原始下载仍限 15 MB。若官方全文获取失败，保留失败状态，不能用摘要页面冒充完整论文。ReAct 的 OpenReview 原件目前受 403 限制，仍展示预印本。手动补充这批基础参考可运行 `.venv/bin/python -m station.published_seed`，会保留版本并写本地备份。
 
 界面下拉采用视口内弹层，支持键盘、Esc 和外点关闭；返回按钮跟随上一页面，直接进入详情时返回所属列表。同页保存不叠加返回步骤，设置保存恢复展开卡片与操作位置。
+
+### 表达改写与知识更新
+
+页面的“生成表达改写稿”使用已有 Wiki 和归档原文，正常执行两遍 LLM 调用。第一遍重新组织解释，第二遍只改善表达。断言、冲突、来源、分类、页面身份与关联记录由程序冻结，来源的采集和审批状态不变。新资料仍通过原有“编写 Wiki 草稿”流程生成知识更新提案。
+
+在“编写与审核”中查看新旧正文、差异、编辑说明和原始资料。表达改写需要明确确认事实含义与适用范围不变；出现 `needs_fact_review` 疑点时还须填写处理说明。第二遍未完成不能发布。需要修正事实的稿件应退回，进入知识更新，而不是借表达改写修改知识记录。发布批准不计作逐项事实认证，正文变化仍使旧核查记录失效，历史保留。
+
+```bash
+.venv/bin/python -m station.cli rewrite react-reasoning-acting-loop
+.venv/bin/python -m station.cli drafts
+.venv/bin/python -m station.cli approve <proposal-id> --confirm-facts --fact-review-note '对照原文确认结论和范围未改变'
+.venv/bin/python -m station.cli reject <proposal-id>
+```
+
+所有新草稿使用 `p_` 开头的独立提案 ID；旧来源 ID 命名的草稿仍可审核。同一页面仅保留一个待审提案。批准/退回结果保存在 `data/proposal_history/`，发布前正文与元数据备份保存在 `data/publication_backups/`，均不提交 Git。普通发布写入失败会恢复正式文件；这不是断电恢复或完整版本管理系统。

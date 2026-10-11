@@ -3,7 +3,7 @@ LIMIT ?= 3
 MINUTES ?= 30
 CATEGORY ?=
 
-.PHONY: setup test web collector ingest stats drafts prepare approve
+.PHONY: setup test web collector ingest stats drafts prepare rewrite approve
 
 setup:
 	@test -f .env || cp .env.example .env
@@ -32,5 +32,9 @@ prepare:
 	$(PYTHON) -m station.cli prepare --limit $(LIMIT) --category "$(CATEGORY)"
 
 approve:
-	@test -n "$(ID)" || (echo 'Usage: make approve ID=<source-id>'; exit 1)
+	@test -n "$(ID)" || (echo 'Usage: make approve ID=<proposal-id>'; exit 1)
 	$(PYTHON) -m station.cli approve "$(ID)"
+
+rewrite:
+	@test -n "$(SLUG)" || (echo 'Usage: make rewrite SLUG=<wiki-slug>'; exit 1)
+	$(PYTHON) -m station.cli rewrite "$(SLUG)"
