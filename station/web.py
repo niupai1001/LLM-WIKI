@@ -159,7 +159,7 @@ def page(slug: str):
     current = matches[0]
     backlinks = [p for p in wiki_pages() if slug in p.get('related_slugs', []) or re.search(r'\[\[' + re.escape(slug) + r'(?:\||\]\])', p['body'])]
     page_kind = "主题入口" if current.get("page_kind") == "topic" else "概念条目"
-    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><p>{len(current.get("source_ids", []))} 份证据 · 已发布知识 · <a href="#fact-check">逐项事实核查 ↓</a></p></div><div class="button-row"><button class="button" data-rewrite="{E(slug)}">生成表达改写稿</button><a class="button" href="/graph">在图谱中探索 ↗</a></div></div><article class="prose">{md_render(current["body"], current.get("source_ids", []), evidence_prefix="wiki-" + slug)}</article>'
+    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><p>{len(current.get("source_ids", []))} 份证据 · 已发布知识 · <a href="#fact-check">逐项事实核查 ↓</a></p></div><div class="button-row"><label class="checkbox-label"><input type="checkbox" data-second-pass> 额外润色（+1 次调用）</label><button class="button" data-rewrite="{E(slug)}">生成表达改写稿</button><a class="button" href="/graph">在图谱中探索 ↗</a></div></div><article class="prose">{md_render(current["body"], current.get("source_ids", []), evidence_prefix="wiki-" + slug)}</article>'
     from .evidence import knowledge_evidence
     from .fact_checks import render as fact_checks_html
     body += f'<link rel="stylesheet" href="/static/fact-checks.css?v={ASSET_VERSIONS["fact-checks.css"]}">'
@@ -296,6 +296,11 @@ def source(sid: str):
         body += f'<a class="button" href="/source/{sid}/original?version=preprint" target="_blank">预印本原件 ↗</a>'
     topic_active = any(c['id'] == row['category'] and c['enabled'] for c in categories())
     if complete and row['stage'] == 'new' and topic_active:
+        targets = [p for p in wiki_pages() if p['category'] == row['category'] and p['page_kind'] == 'concept']
+        if targets:
+            options = '<option value="">自动选择 / 新建</option>' + ''.join(f'<option value="{E(p["slug"])}">{E(p["title"])}</option>' for p in targets)
+            body += f'<label>归入 Wiki <select data-compile-target>{options}</select></label>'
+        body += '<label class="checkbox-label"><input type="checkbox" data-second-pass> 额外润色（+1 次调用）</label>'
         body += f'<button class="button primary" data-source-compile="{sid}">生成 Wiki 草稿</button>'
     elif row['stage'] == 'drafted':
         body += '<a class="button primary" href="/drafts">审核关联草稿 →</a>'
@@ -351,14 +356,14 @@ def drafts():
         rewrite = d.get('mode') == 'rewrite'
         label = '表达改写' if rewrite else ('知识更新' if d['action'] == 'update' else '新建知识')
         body += f'<section class="draft-panel" id="draft-{E(pid)}"><div class="draft-header"><div><span class="tag">{E(category_name(d.get("category","other")))}</span><span class="tag subtle">{label}</span><h2>{E(d["title"])}</h2></div><button class="button danger" data-reject="{E(pid)}">退回草稿</button></div>'
-        if d.get('editorial_notes'):
-            body += f'<div class="editorial-notes"><strong>编辑说明</strong><p>{E(d["editorial_notes"])}</p></div>'
         issues = d.get('writing_issues', [])
         issues = [issue for issue in issues if isinstance(issue, str) and issue.strip()] if isinstance(issues, list) else []
-        if d.get('editorial_reviewed') is False:
+        if d.get('generation_complete') is False or d.get('editorial_reviewed') is False:
             issues.append(d.get('editorial_error') or '第二遍编辑未完成，请退回重新生成。')
         if d.get('needs_fact_review'):
             issues.append('存在待核查疑点，发布前须记录处理说明。')
+            if d.get('fact_review_issues'):
+                issues.append(d['fact_review_issues'])
         if issues:
             body += '<aside class="writing-check notice warning"><strong>编写检查提示</strong><ul>' + ''.join(f'<li>{E(issue)}</li>' for issue in issues) + '</ul></aside>'
         base = d.get('base_body')
@@ -386,7 +391,7 @@ def drafts():
         if rewrite or d.get('needs_fact_review'):
             required = 'required' if d.get('needs_fact_review') else ''
             body += f'<label>审核说明{ "（须说明疑点处理）" if required else "（可选）"}<textarea name="fact_review_note" rows="3" maxlength="4000" {required}></textarea></label>'
-        disabled = 'disabled' if d.get('editorial_reviewed') is False else ''
+        disabled = 'disabled' if d.get('generation_complete') is False or d.get('editorial_reviewed') is False else ''
         body += f'<button class="button primary" type="submit" {disabled}>批准并发布</button></form></section>'
         if not rewrite:
             from .evidence import proposal_evidence
@@ -589,13 +594,21 @@ async def api_compile(request: Request):
     sid = p.get('source_id') or None
     if sid:
         source_record(sid)
-    count = await operation(prepare, limit=3, category=category, source_id=sid)
+    second_pass = p.get('second_pass', False)
+    if not isinstance(second_pass, bool):
+        raise HTTPException(400, '额外润色选项必须为布尔值')
+    count = await operation(prepare, limit=3, category=category, source_id=sid,
+                            target_slug=p.get('target_slug') or None, second_pass=second_pass)
     return {'count': count, 'url': '/drafts' if count else None, 'message': f'已生成 {count} 份知识草稿' if count else '未生成草稿：请确认存在待编写的原文，并检查模型接口。'}
 
 
 @app.post('/api/pages/{slug}/rewrite')
-async def api_rewrite(slug: str):
-    pid = await operation(prepare_rewrite, slug)
+async def api_rewrite(slug: str, request: Request):
+    p = await read_payload(request)
+    second_pass = p.get('second_pass', False)
+    if not isinstance(second_pass, bool):
+        raise HTTPException(400, '额外润色选项必须为布尔值')
+    pid = await operation(prepare_rewrite, slug, second_pass=second_pass)
     return {'proposal_id': pid, 'url': '/drafts#draft-' + pid, 'message': '表达改写稿已生成，请对照审核'}
 
 

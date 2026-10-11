@@ -35,7 +35,7 @@ def llm(messages):
     assert all('text' in s for s in context['sources'])
     assert not any(s['is_excerpt'] for s in context['sources']), 'originals fitting the budget must be passed in full'
     return {'action':'create','slug':'evidence-synthesis','title':'证据综合',
-            'related_slugs':[], 'body_markdown':'综合两份原始资料来组织可维护的主题知识。来源相互补充，但仍需实验验证。\n\n证据依据：' + ''.join('[S:'+sid+']' for sid in ids)}
+            'related_slugs':[], 'needs_fact_review':False, 'body_markdown':'综合两份原始资料来组织可维护的主题知识。来源相互补充，但仍需实验验证。\n\n证据依据：' + ''.join('[S:'+sid+']' for sid in ids)}
 wiki.call_llm = llm
 import uvicorn
 uvicorn.run('station.web:app', host='127.0.0.1', port=int(os.environ['TEST_PORT']), log_level='error')
@@ -187,7 +187,7 @@ def retry_model(messages):
     return {'action':'create','slug':'long-topic','title':'综合主题','body_markdown':'综合多份长资料时，每份证据都有阅读预算，并保留来源和不确定性。'*3}
 wiki.call_llm=retry_model
 assert wiki.prepare()==1
-assert len(attempts)==3, 'JSON retry plus mandatory editor'
+assert len(attempts)==2, 'JSON retry only; no automatic editorial call'
 assert len(common.load_json(next(common.PENDING.glob('*.json')))['source_ids'])==8
 print('BUDGET_CLAIM_AND_CITATIONS_OK')
 '''

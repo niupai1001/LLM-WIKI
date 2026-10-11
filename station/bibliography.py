@@ -92,10 +92,49 @@ def html_metadata(data):
     values = parser.values
     first = lambda *keys: next((values[k][0] for k in keys if values.get(k)), '')
     authors = [{'name': name, 'affiliations': []} for name in values.get('citation_author', values.get('dc.creator', values.get('author', [])))]
-    return {'authors': authors, 'publisher': first('citation_publisher', 'dc.publisher', 'og:site_name'),
+    result = {'authors': authors, 'publisher': first('citation_publisher', 'dc.publisher', 'og:site_name'),
             'doi': normalize_doi(first('citation_doi', 'dc.identifier')), 'first_published': first('citation_date', 'citation_publication_date', 'article:published_time', 'dc.date'),
             'updated': first('article:modified_time', 'citation_online_date'), 'journal_ref': first('citation_journal_title'),
             'title': first('citation_title', 'og:title', 'dc.title')}
+    # Official engineering blogs often declare dates/authors only in JSON-LD.
+    import json
+    from lxml import html
+    try:
+        page = html.fromstring(data)
+        for raw in page.xpath('//script[@type="application/ld+json"]/text()')[:20]:
+            if len(raw) > 100000:
+                continue
+            try:
+                value = json.loads(raw)
+            except (ValueError, TypeError):
+                continue
+            nodes = value if isinstance(value, list) else value.get('@graph', [value]) if isinstance(value, dict) else []
+            for node in nodes:
+                if not isinstance(node, dict):
+                    continue
+                types = node.get('@type', [])
+                types = [types] if isinstance(types, str) else types
+                if not isinstance(types, list) or not set(types) & {'Article', 'NewsArticle', 'BlogPosting', 'ScholarlyArticle'}:
+                    continue
+                for key, field in [('title', 'headline'), ('first_published', 'datePublished'), ('updated', 'dateModified')]:
+                    if not result[key] and isinstance(node.get(field), str):
+                        result[key] = clean_text(node[field])
+                publisher = node.get('publisher')
+                if not result['publisher'] and isinstance(publisher, dict) and isinstance(publisher.get('name'), str):
+                    result['publisher'] = clean_text(publisher['name'])
+                creators = node.get('author', [])
+                creators = [creators] if isinstance(creators, (str, dict)) else creators
+                if not result['authors'] and isinstance(creators, list):
+                    result['authors'] = [{'name': clean_text(a if isinstance(a, str) else a['name']), 'affiliations': []}
+                        for a in creators if isinstance(a, str) or isinstance(a, dict) and isinstance(a.get('name'), str)]
+                break
+        if not result['first_published']:
+            dates = page.xpath('(//main//time[@datetime])[1]/@datetime')
+            if dates:
+                result['first_published'] = clean_text(dates[0])
+    except (ValueError, TypeError):
+        pass
+    return result
 
 
 def arxiv_doi_metadata(data, source_url):
@@ -152,7 +191,7 @@ def build_bibliography(record, authoritative=None, archived_html=None):
         for key, value in declared.items():
             if value and not result.get(key):
                 result[key] = value
-                result['field_sources'][key] = {'method': 'archived-html-head', 'source_url': html_url}
+                result['field_sources'][key] = {'method': 'archived-html-declared', 'source_url': html_url}
         by_author, affiliations = html_affiliations(archived_html)
         result['affiliations'] = list(dict.fromkeys(result.get('affiliations', []) + affiliations))
         if affiliations:

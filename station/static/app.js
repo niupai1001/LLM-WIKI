@@ -32,10 +32,10 @@ async function action(button, work, pending='处理中…') {
   finally {button.disabled=false; button.textContent=old;}
 }
 document.querySelectorAll('[data-compile]').forEach(button=>button.addEventListener('click',()=>action(button,()=>post('/api/compile',{category:button.dataset.categoryFrom ? document.getElementById(button.dataset.categoryFrom).value : ''}),'LLM 正在综合证据…')));
-document.querySelectorAll('[data-source-compile]').forEach(button=>button.addEventListener('click',()=>action(button,()=>post('/api/compile',{source_id:button.dataset.sourceCompile}),'LLM 正在编写…')));
+document.querySelectorAll('[data-source-compile]').forEach(button=>button.addEventListener('click',()=>action(button,()=>post('/api/compile',{source_id:button.dataset.sourceCompile,target_slug:button.closest('.source-toolbar')?.querySelector('[data-compile-target]')?.value || '',second_pass:button.closest('.source-toolbar')?.querySelector('[data-second-pass]')?.checked === true}),'LLM 正在编写…')));
 for(const name of ['reject']) document.querySelectorAll(`[data-${name}]`).forEach(button=>button.addEventListener('click',()=>action(button,()=>post(`/api/drafts/${button.dataset[name]}/${name}`))));
 document.querySelectorAll('[data-source-category]').forEach(select=>select.addEventListener('change',async()=>{select.disabled=true;try{const result=await post(`/api/sources/${select.dataset.sourceCategory}/category`,{category:select.value});toast(result.message);window.location.reload();}catch(error){toast(error.message);}finally{select.disabled=false;}}));
-document.querySelectorAll('[data-rewrite]').forEach(button => button.addEventListener('click', () => action(button, () => post(`/api/pages/${encodeURIComponent(button.dataset.rewrite)}/rewrite`), '正在改写表达…')));
+document.querySelectorAll('[data-rewrite]').forEach(button => button.addEventListener('click', () => action(button, () => post(`/api/pages/${encodeURIComponent(button.dataset.rewrite)}/rewrite`,{second_pass:button.closest('.button-row')?.querySelector('[data-second-pass]')?.checked === true}), '正在改写表达…')));
 document.querySelectorAll('[data-approve-form]').forEach(form => form.addEventListener('submit', event => {
   event.preventDefault();
   const payload = {fact_invariance_confirmed: form.elements.fact_invariance_confirmed?.checked === true,

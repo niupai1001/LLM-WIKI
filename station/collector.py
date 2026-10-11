@@ -129,6 +129,18 @@ def _pdf_text(data):
 
 def _html_text(data):
     from trafilatura import extract
+    from lxml import html as document_html
+    try:
+        page = document_html.fromstring(data)
+        # Remove clearly named subscription widgets; preserve archived HTML bytes.
+        # Do not filter article passages merely for containing "newsletter".
+        for widget in page.xpath('//*[contains(@class,"NewsletterSubscribe") or @data-component="newsletter-signup"]'):
+            parent = widget.getparent()
+            if parent is not None:
+                parent.remove(widget)
+        data = document_html.tostring(page)
+    except (ValueError, TypeError):
+        pass
     return (extract(data, output_format="markdown", include_comments=False, include_tables=True) or "").strip()
 
 

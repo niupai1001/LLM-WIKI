@@ -16,8 +16,12 @@ def main():
     draft = sub.add_parser("prepare")
     draft.add_argument("--limit", type=int, default=3)
     draft.add_argument("--category")
+    draft.add_argument("--target", help="Merge evidence into this existing Wiki page")
+    draft.add_argument("--source-id", help="Compile this original only")
+    draft.add_argument("--second-pass", action="store_true", help="Request one extra expression-only edit")
     rewrite = sub.add_parser("rewrite", help="Generate an expression-only draft for an existing Wiki")
     rewrite.add_argument("slug")
+    rewrite.add_argument("--second-pass", action="store_true", help="Request one extra expression-only edit")
     sub.add_parser("drafts")
     accept = sub.add_parser("approve")
     accept.add_argument("proposal_id")
@@ -42,11 +46,11 @@ def main():
     if args.action == "ingest":
         ingest()
     elif args.action == "prepare":
-        print(f"Created {prepare(max(1, min(args.limit, 20)), category=args.category)} drafts")
+        print(f"Created {prepare(max(1, min(args.limit, 20)), category=args.category, source_id=args.source_id, target_slug=args.target, second_pass=args.second_pass)} drafts")
     elif args.action == "approve":
         approve(args.proposal_id, fact_invariance_confirmed=args.confirm_facts, fact_review_note=args.fact_review_note)
     elif args.action == "rewrite":
-        print("Rewrite proposal:", prepare_rewrite(args.slug))
+        print("Rewrite proposal:", prepare_rewrite(args.slug, second_pass=args.second_pass))
     elif args.action == "add-note":
         print("Archived note:", add_note(args.title, args.file, category=args.category))
     elif args.action == "import-file":

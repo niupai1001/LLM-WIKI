@@ -45,7 +45,7 @@ class RewriteTests(unittest.TestCase):
         output = {**self.output, **changes}
         with patch.object(wiki, 'call_llm', return_value=output) as model:
             pid = wiki.prepare_rewrite('concept')
-        self.assertEqual(model.call_count, 2)
+        self.assertEqual(model.call_count, 1)
         return pid
 
     def status(self):
@@ -148,7 +148,7 @@ class RewriteTests(unittest.TestCase):
 
     def test_second_pass_failure_keeps_incomplete_draft_and_blocks_publication(self):
         with patch.object(wiki, 'call_llm', side_effect=[self.output, RuntimeError('upstream unavailable')]):
-            pid = wiki.prepare_rewrite('concept')
+            pid = wiki.prepare_rewrite('concept', second_pass=True)
         draft = common.load_json(wiki.PENDING/(pid+'.json'))
         self.assertFalse(draft['editorial_reviewed'])
         self.assertTrue(draft['needs_fact_review'])
