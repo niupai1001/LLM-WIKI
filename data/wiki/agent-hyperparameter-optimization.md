@@ -26,13 +26,22 @@ AgentHPO提供配置—实验—反馈的实现，AgentHPOBench提供受控的�
 
 AgentHPOBench还对中间反馈、训练预算和执行框架做了消融。结果提示，同一个模型的表现会受到运行条件影响；判断收益时应同时查看实验轨迹、失败原因及资源消耗，不能只按语言模型名称或最终分数归因。[S:d7eeabd9156ed311]
 
+## 跨研究的机制联系
+
+本页与[[tool-creation-agent|工具创建]]都包含提出修改、运行、读反馈、再修改的闭环。AgentHPO修改参数配置，工具创建Agent修改脚本节点并检查运行和地学结果；回路相似，评价目标不同。HPOBench还固定数据、划分、指标与评估代码，确保收益来自允许的配置干预，不能把任意代码改写都归为调参。[S:94853529d326ac72][S:84d839e63c28ec29][S:d7eeabd9156ed311]
+
+[[agent-evaluation-layers|计划、轨迹与结果评价]]进一步解释为什么“方案看起来合理”“脚本无报错”和“目标指标改善”必须分开记录。
+
 ## 相关知识
 
+- [[agent-evaluation-layers]]
 - [[scientific-automl-agent-workflows]]
+- [[tool-creation-agent]]
 
 ---
 
 ## 原始证据
 
+- [OpenEarth-Agent: From Tool Calling to Tool Creation for Open-Environment Earth Observation](/source/84d839e63c28ec29) · 来源ID `84d839e63c28ec29`
 - [Large Language Model Agent for Hyper-Parameter Optimization](/source/94853529d326ac72) · 来源ID `94853529d326ac72`
 - [AgentHPOBench: A Benchmark For Evaluating LLM Agents as Sequential Hyperparameter Optimizers](/source/d7eeabd9156ed311) · 来源ID `d7eeabd9156ed311`

@@ -24,9 +24,24 @@ HTAM强调领域任务的前置依赖，HieraPlan同时强调异构工具的组�
 
 GeoPlan-bench含1244个任务，HTAM/EarthAgent的该实验评估生成的工具序列与规划质量，不能把其成绩当成完整工具执行成功率。TerraLogic含545个光学、SAR和红外任务，任务要求定量或拓扑判断，并以可执行工具链和结果检查约束数据构建；长流程仍会因工具参数、感知和格式错误降低最终答案正确率。两个基准侧重点与评分不同，不能直接比较分数。[S:cf1e618aae1ce2d6][S:8db3263052b0cab1]
 
+## 跨研究的机制联系
+
+HTAM的领域依赖层和GeoFlow为具体任务生成的DAG都显式表示前置关系，约束位置不同；HieraPlan的功能/模态层又是另一种工具组织。共享解释放在[[agent-task-decomposition-dependencies|任务分解与依赖约束]]，这里保留遥感实现与基准条件。[S:cf1e618aae1ce2d6][S:19f9b059cd25c958][S:8db3263052b0cab1]
+
+HieraPlan在ReAct式协议上增加工具层级编排，原文说明它补充而不改变该协议；因此[[react-reasoning-acting-loop|ReAct]]与HieraPlan不能简单视为互斥方法。HieraPlan保留验证前缀、重规划后缀，又与[[agent-plan-repair|Plan-and-Patch局部修补]]共享保留未受影响部分的思路，保留对象与修订边界不同。[S:8db3263052b0cab1][S:e504ba1ba9c3fffc][S:7d220dd5706f59fd]
+
+## 相关知识
+
+- [[agent-plan-repair]]
+- [[agent-task-decomposition-dependencies]]
+- [[react-reasoning-acting-loop]]
+
 ---
 
 ## 原始证据
 
+- [GeoFlow: Agentic Workflow Automation for Geospatial Tasks](/source/19f9b059cd25c958) · 来源ID `19f9b059cd25c958`
+- [Plan-and-Patch: Diffusion Language Models for Agentic Planning](/source/7d220dd5706f59fd) · 来源ID `7d220dd5706f59fd`
 - [TerraLogic: A Benchmark for Hierarchical Geospatial Reasoning in Earth Observation](/source/8db3263052b0cab1) · 来源ID `8db3263052b0cab1`
 - [Designing Domain-Specific Agents via Hierarchical Task Abstraction Mechanism](/source/cf1e618aae1ce2d6) · 来源ID `cf1e618aae1ce2d6`
+- [ReAct: Synergizing Reasoning and Acting in Language Models](/source/e504ba1ba9c3fffc) · 来源ID `e504ba1ba9c3fffc`

@@ -24,7 +24,7 @@ from .wiki import approve, prepare, prepare_rewrite, reject, proposal_key, page_
 
 app = FastAPI(title='LLM Wiki')
 app.mount('/static', StaticFiles(directory=Path(__file__).parent / 'static'), name='static')
-ASSET_VERSIONS = {name: str((Path(__file__).parent / "static" / name).stat().st_mtime_ns) for name in ("app.css", "app.js", "fact-checks.css", "fact-checks.js")}
+ASSET_VERSIONS = {name: str((Path(__file__).parent / "static" / name).stat().st_mtime_ns) for name in ("app.css", "app.js", "graph.js", "fact-checks.css", "fact-checks.js")}
 MAX_UPLOAD = 15 * 1024 * 1024
 E = lambda value: html.escape(str(value), quote=True)
 
@@ -76,7 +76,10 @@ def md_render(source, citation_source_ids=None, evidence_prefix="knowledge"):
         slug = slug.strip()
         if safe_slug(slug) != slug or not (WIKI / (slug + '.md')).is_file():
             return E(label or slug)
-        return f'<a href="/page/{quote(slug)}">{E(label or slug)}</a>'
+        if not label:
+            label = next((line[2:].strip() for line in (WIKI / (slug + '.md')).read_text(encoding='utf-8').splitlines()
+                          if line.startswith('# ')), slug)
+        return f'<a href="/page/{quote(slug)}">{E(label)}</a>'
     source = re.sub(r'\[\[([^\]\n]+)\]\]', wiki_link, source)
     raw = markdown.markdown(source, extensions=['tables', 'fenced_code'])
     allowed = ['p','h1','h2','h3','h4','h5','h6','strong','em','ul','ol','li','a','blockquote','code','pre','hr','table','thead','tbody','tr','th','td','br']
@@ -129,25 +132,35 @@ def home(q: str = '', category: str = ''):
     with connect() as db:
         total = db.execute('SELECT count(*) FROM sources').fetchone()[0]
         originals = db.execute("SELECT count(*) FROM sources WHERE content_status='full-text'").fetchone()[0]
+        source_categories = {r['id']: r['category'] for r in db.execute('SELECT id,category FROM sources').fetchall()}
     pages = wiki_pages()
-    visible = [p for p in pages if (not category or p.get('category') == category) and (not q or q.casefold() in p['body'].casefold())]
+    knowledge_count = sum(p.get('page_role') != 'source_collection' for p in pages)
+    visible = [p for p in pages if (not category or p.get('category') == category or
+               any(source_categories.get(sid) == category for sid in p.get('source_ids', []))) and
+               (not q or q.casefold() in p['body'].casefold())]
     drafts_count = len(list(PENDING.glob('*.json')))
     pending_pages = [load_json(p) for p in PENDING.glob('*.json')]
     pending_pages = [p for p in pending_pages if (not category or p.get('category') == category) and (not q or q.casefold() in (p['title'] + p['body_markdown']).casefold())]
     body = f'<div class="page-heading"><div><h1>知识 Wiki</h1></div><a class="button primary" href="/sources#import">＋ 导入资料</a></div>'
-    body += f'<div class="metrics"><div><strong>{len(pages)}</strong><span>知识页面</span></div><div><strong>{originals}</strong><span>可阅读原文</span></div><div><strong>{drafts_count}</strong><span>系统待处理</span></div><div><strong>{total-originals}</strong><span>待补原文</span></div></div>'
-    body += f'<div class="section-heading"><h2>全部知识 <span class="count-label">{len(visible)}</span></h2><button class="button" data-compile="" data-category-from="wiki-category">编写 Wiki</button></div><form class="filterbar"><input name="q" value="{E(q)}" placeholder="搜索知识页面…" aria-label="搜索知识页面"><select name="category" id="wiki-category" aria-label="知识主题">{category_options(category, True)}</select><button class="button">筛选</button></form>'
+    body += f'<div class="metrics"><div><strong>{knowledge_count}</strong><span>知识页面</span></div><div><strong>{originals}</strong><span>可阅读原文</span></div><div><strong>{drafts_count}</strong><span>系统待处理</span></div><div><strong>{total-originals}</strong><span>待补原文</span></div></div>'
+    body += f'<div class="section-heading"><h2>全部知识 <span class="count-label">{sum(p.get("page_role") != "source_collection" for p in visible)}</span></h2><button class="button" data-compile="" data-category-from="wiki-category">编写 Wiki</button></div><form class="filterbar"><input name="q" value="{E(q)}" placeholder="搜索知识页面…" aria-label="搜索知识页面"><select name="category" id="wiki-category" aria-label="知识主题">{category_options(category, True)}</select><button class="button">筛选</button></form>'
+    def cards(group):
+        result = '<div class="wiki-grid">'
+        for p in group:
+            title = p['title']
+            card_title = title if len(title) <= 54 else title[:53].rstrip() + '…'
+            result += f'<a class="wiki-card" href="/page/{quote(p["slug"])}"><span class="tag">{E(category_name(p.get("category", "other")))}</span><h3 title="{E(title)}">{E(card_title)}</h3><p>{E(knowledge_excerpt(p["body"]))}</p><div class="card-foot">{len(p.get("source_ids", []))} 份原始证据 <span>阅读 →</span></div></a>'
+        return result + '</div>'
+
+    collections = [p for p in visible if p.get('page_role') == 'source_collection']
     if visible:
-        for kind, heading in [('topic', '主题入口'), ('concept', '概念知识')]:
-            group = [p for p in visible if ('topic' if p.get('page_kind') == 'topic' else 'concept') == kind]
+        for kind, heading in [('topic', '主题入口'), ('concept', '概念知识'), ('comparison', '研究比较')]:
+            group = [p for p in visible if p.get('page_role') != 'source_collection' and
+                     ('comparison' if p.get('page_role') == 'comparison' else
+                      'topic' if p.get('page_kind') == 'topic' else 'concept') == kind]
             if not group:
                 continue
-            body += f'<div class="section-heading knowledge-group-heading"><h2>{heading} <span class="count-label">{len(group)}</span></h2></div><div class="wiki-grid">'
-            for p in group:
-                title = p['title']
-                card_title = title if len(title) <= 54 else title[:53].rstrip() + '…'
-                body += f'<a class="wiki-card" href="/page/{quote(p["slug"])}"><span class="tag">{E(category_name(p.get("category", "other")))}</span><h3 title="{E(title)}">{E(card_title)}</h3><p>{E(knowledge_excerpt(p["body"]))}</p><div class="card-foot">{len(p.get("source_ids", []))} 份原始证据 <span>阅读 →</span></div></a>'
-            body += '</div>'
+            body += f'<div class="section-heading knowledge-group-heading"><h2>{heading} <span class="count-label">{len(group)}</span></h2></div>' + cards(group)
     elif (q or category) and not pending_pages:
         body += empty('没有匹配的知识页面', '调整关键词或主题，查看其他页面。')
     elif not pending_pages:
@@ -157,6 +170,8 @@ def home(q: str = '', category: str = ''):
         for draft in pending_pages:
             body += f'<a class="wiki-card" href="/drafts#draft-{E(proposal_key(draft))}"><span class="tag warning">LLM 草稿</span><h3>{E(draft["title"])}</h3><p>{E(knowledge_excerpt(draft["body_markdown"]))}</p><div class="card-foot">{len(draft.get("source_ids",[]))} 份原始证据 <span>阅读全文 →</span></div></a>'
         body += '</div>'
+    if collections:
+        body += f'<details class="page-evidence-records"><summary>资料清单 <span class="count-label">{len(collections)}</span></summary>' + cards(collections) + '</details>'
     return layout('知识 Wiki', body)
 
 
@@ -169,7 +184,8 @@ def page(slug: str):
         raise HTTPException(404)
     current = matches[0]
     backlinks = [p for p in wiki_pages() if slug in p.get('related_slugs', []) or re.search(r'\[\[' + re.escape(slug) + r'(?:\||\]\])', p['body'])]
-    page_kind = "主题入口" if current.get("page_kind") == "topic" else "概念条目"
+    page_kind = {'comparison': '研究比较', 'source_collection': '资料清单'}.get(
+        current.get('page_role'), "主题入口" if current.get("page_kind") == "topic" else "概念条目")
     body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><p>{len(current.get("source_ids", []))} 份证据 · 已发布知识 · <a href="#fact-check">逐项事实核查 ↓</a></p></div><div class="button-row"><label class="checkbox-label"><input type="checkbox" data-second-pass> 额外润色（+1 次调用）</label><button class="button" data-rewrite="{E(slug)}">改写表达</button><a class="button" href="/graph">在图谱中探索 ↗</a></div></div><article class="prose">{md_render(current["body"], current.get("source_ids", []), evidence_prefix="wiki-" + slug)}</article>'
     connections = semantic_backlinks(slug)
     if connections:
@@ -419,7 +435,7 @@ def drafts():
 
 @app.get('/graph', response_class=HTMLResponse)
 def graph():
-    body = f'<div class="page-heading"><div><h1>知识图谱</h1></div><a class="button" href="/">回到知识库 →</a></div><div class="filterbar"><input id="graph-search" placeholder="查找节点…" aria-label="查找图谱节点"><select id="graph-category" aria-label="图谱主题">{category_options("",True)}</select><label class="checkbox-label"><input type="checkbox" id="graph-sources" checked>显示原始证据</label></div><section class="graph-panel"><div class="graph-legend"><span><i class="legend-wiki"></i>Wiki 知识</span><span><i class="legend-source"></i>原始证据</span><span><i class="legend-category"></i>主题分类</span></div><svg id="graph-canvas" tabindex="0" aria-label="知识图谱" role="img"></svg><div id="graph-empty" class="graph-empty">尚未形成知识图谱。导入资料并生成 Wiki 后，关系会在这里出现。</div><div id="graph-info" class="graph-info">拖动节点 · 滚轮缩放 · 选择节点查看关系</div></section><script src="/static/graph.js" defer></script>'
+    body = f'<div class="page-heading"><div><h1>知识图谱</h1></div><a class="button" href="/">回到知识库 →</a></div><div class="filterbar"><input id="graph-search" placeholder="查找节点…" aria-label="查找图谱节点"><select id="graph-category" aria-label="图谱主题">{category_options("",True)}</select><label class="checkbox-label"><input type="checkbox" id="graph-sources" checked>显示原始证据</label></div><section class="graph-panel"><div class="graph-legend"><span><i class="legend-wiki"></i>Wiki 知识</span><span><i class="legend-source"></i>原始证据</span><span><i class="legend-category"></i>主题分类</span></div><svg id="graph-canvas" tabindex="0" aria-label="知识图谱" role="img"></svg><div id="graph-empty" class="graph-empty">尚未形成知识图谱。导入资料并生成 Wiki 后，关系会在这里出现。</div><div id="graph-info" class="graph-info">拖动节点 · 滚轮缩放 · 选择节点查看关系</div></section><script src="/static/graph.js?v={ASSET_VERSIONS["graph.js"]}" defer></script>'
     return layout('知识图谱', body, 'graph')
 
 

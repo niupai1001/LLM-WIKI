@@ -24,9 +24,23 @@ GIS Copilot 的归档v4评测含110个任务，但正文与Table 1存在报告�
 
 GeoFlow 在GeoLLM-Engine的20个任务上报告74.2%的平均成功率和64.1%的正确率；工具调用或图生成正确不等于最终空间分析正确。作者指出这些任务多为线性依赖，更复杂的交互式多轮任务仍需验证。可编辑工作流界面属于论文讨论的后续方向，不能当成已完成的普遍能力。[S:19f9b059cd25c958]
 
+## 跨研究的机制联系
+
+本组研究同时参与多个知识问题：GeoGPT和GIS Copilot说明[[agent-tool-knowledge-selection|工具知识如何支持选择]]；GeoFlow说明[[agent-task-decomposition-dependencies|依赖图如何指导执行]]；GIS Copilot的代码调试与GeoFlow的图修订说明[[agent-plan-repair|不同层次的恢复]]。原件分类相同不意味着它们只能归入一个概念。
+
+GeoFlow与LLMCompiler都显式组织任务依赖，前者进一步指定子Agent的API目标与上下文；HTAM则先用领域依赖组织系统层。计划表示、具体执行与系统组织是不同层次，可分别对照[[plan-and-execute-agents|规划与执行]]及层级设计。[S:19f9b059cd25c958][S:444b00f9850c9716][S:cf1e618aae1ce2d6]
+
+GIS Copilot监控真实代码执行，AutoML-Agent前期则先用提示方式产生候选方案，后由Operation Agent实际实现和验证。候选计划与运行结果需要分开记录，见[[agent-evaluation-layers|分层评价]]，不能把预测指标作为实验测量。[S:8cabb777c9bc6fe9][S:5d666092726c8b5f]
+
 ## 相关知识
 
+- [[agent-evaluation-layers]]
+- [[agent-plan-repair]]
+- [[agent-task-decomposition-dependencies]]
+- [[agent-tool-knowledge-selection]]
 - [[geospatial-hierarchical-planning-agents]]
+- [[plan-and-execute-agents]]
+- [[scientific-automl-agent-workflows]]
 
 ---
 
@@ -34,4 +48,7 @@ GeoFlow 在GeoLLM-Engine的20个任务上报告74.2%的平均成功率和64.1%�
 
 - [GeoFlow: Agentic Workflow Automation for Geospatial Tasks](/source/19f9b059cd25c958) · 来源ID `19f9b059cd25c958`
 - [GeoGPT: Understanding and Processing Geospatial Tasks through An Autonomous GPT](/source/3bdb54f327d29558) · 来源ID `3bdb54f327d29558`
+- [Plan-and-Execute Agents](/source/444b00f9850c9716) · 来源ID `444b00f9850c9716`
+- [AutoML-Agent: A Multi-Agent LLM Framework for Full-Pipeline AutoML](/source/5d666092726c8b5f) · 来源ID `5d666092726c8b5f`
 - [GIS Copilot: Towards an Autonomous GIS Agent for Spatial Analysis](/source/8cabb777c9bc6fe9) · 来源ID `8cabb777c9bc6fe9`
+- [Designing Domain-Specific Agents via Hierarchical Task Abstraction Mechanism](/source/cf1e618aae1ce2d6) · 来源ID `cf1e618aae1ce2d6`

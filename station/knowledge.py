@@ -5,6 +5,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 from .common import META, WIKI, connect
+from .relations import RELATION_LABELS, validate_relations
 
 _CONFIG = Path(__file__).resolve().parent.parent / "config" / "categories.json"
 _SLUG = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?")
@@ -71,6 +72,8 @@ def wiki_pages():
         result.append({"slug": slug, "title": title if isinstance(title, str) and title.strip() else heading,
                        "body": body, "category": category if isinstance(category, str) and category in valid_categories else "other",
                        "page_kind": 'topic' if meta.get('page_kind') == 'topic' else 'concept',
+                       "page_role": meta.get('page_role') if meta.get('page_role') in {'comparison', 'source_collection'} else 'knowledge',
+                       "relations": meta.get('relations', []) if isinstance(meta.get('relations'), list) else [],
                        "source_ids": _string_list(meta.get("source_ids")),
                        "related_slugs": _string_list(meta.get("related_slugs")),
                        "updated_at": meta.get("updated_at", "") if isinstance(meta.get("updated_at", ""), str) else ""})
@@ -123,7 +126,7 @@ def semantic_backlinks(slug, pages=None):
 
 def graph_data():
     """No model-inferred or dangling relations: every endpoint must exist locally."""
-    pages = wiki_pages()
+    pages = [p for p in wiki_pages() if p.get('page_role') != 'source_collection']
     db = connect()
     try:
         sources = db.execute("SELECT id,title,category,stage FROM sources ORDER BY id").fetchall()
@@ -137,10 +140,10 @@ def graph_data():
             nodes.append({"id": key, "label": label, "type": kind, "category": category, "url": url})
             node_ids.add(key)
 
-    def edge(source, target, kind, label):
+    def edge(source, target, kind, label, **details):
         key = (source, target, kind)
         if source != target and source in node_ids and target in node_ids and key not in edge_keys:
-            edges.append({"source": source, "target": target, "type": kind, "label": label})
+            edges.append({"source": source, "target": target, "type": kind, "label": label, **details})
             edge_keys.add(key)
 
     def membership(key, category):
@@ -164,7 +167,22 @@ def graph_data():
         for sid in page["source_ids"]:
             if sid in source_by_id and source_by_id[sid]["stage"] == "approved":
                 edge(key, "source:" + sid, "evidence", "原始证据")
-        for slug in sorted(set(page["related_slugs"]) | _wikilinks(page["body"])):
+        typed_targets = set()
+        meta_path = META / (page['slug'] + '.json')
+        try:
+            meta = json.loads(meta_path.read_text()) if meta_path.is_file() else {}
+            relations = validate_relations(page.get('relations', []), meta.get('claims', []),
+                                           set(page['source_ids']), slugs, page['slug'])
+        except (ValueError, TypeError, KeyError, AttributeError, OSError):
+            relations = []
+        for relation in relations:
+            target = relation['target_slug']
+            typed_targets.add(target)
+            label, reverse = RELATION_LABELS[relation['kind']]
+            edge(key, 'wiki:' + target, relation['kind'], label, reverse_label=reverse,
+                 description=relation['summary'] + ' 适用范围：' + relation['scope'],
+                 source_ids=relation['source_ids'], claim_ids=relation['claim_ids'])
+        for slug in sorted((set(page["related_slugs"]) | _wikilinks(page["body"])) - typed_targets):
             if slug in slugs:
                 edge(key, "wiki:" + slug, "related", "知识链接")
     for source in sources:

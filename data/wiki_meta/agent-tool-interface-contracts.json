@@ -1,0 +1,141 @@
+{
+  "slug": "agent-tool-interface-contracts",
+  "title": "工具接口与中间产物契约",
+  "category": "agents",
+  "source_ids": [
+    "1a874e5d2226c159",
+    "a58012192462df16",
+    "e0c0d198c4709cc7",
+    "f8a9212514d96b57"
+  ],
+  "page_kind": "concept",
+  "claims": [
+    {
+      "text": "Earth-Agent 在 MCP 之上集成 104 个专家工具，分为 Index、Inversion、Perception、Analysis、Statistics 五个工具包，用 ReAct 式循环动态调用，从而把 RGB 感知扩展到 Spectrum 与 Products 模态并支持多步定量分析。",
+      "scope": "Earth-Agent 框架设计，ICLR 2026 会议论文",
+      "source_ids": [
+        "1a874e5d2226c159"
+      ],
+      "id": "earth-agent-mcp-toolkit",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "1a874e5d2226c159",
+          "locator": "提取文本字符 11242–12842",
+          "quote": "planning,calculatethedifference\nbetweentheharborareasofthe\ntwoimages(GSD:A=0.50m/px,B=\n0.30m/px).\nA.10000\nSpectrum Products RGB\nget_filelist compute_tvdi\ncalc_batch_\nimage_mean\ncount_spikes\n_from_values\nFinalAnswer:B\nget_filelist calc_batch_\nimage_mean\ncompute_\nlinear_trend\nFinal Answer: \nB\nB.15000C.20000D.30000\nget_filelist SM3Det\nSAM2\ncalculate_area\nFinalAnswer:D\ndifference\nFigure 2: Earth-Agent solving tasks across Spectrum, Products, and RGB data through multi-step\nreasoning with expert tool calls.\nTo address these questions and unlock the full landscape of EO, we proposeEarth-Agent, an agen-\ntic framework that unifies perceptual and spectral EO data within a single architecture in section 3.\nBy coupling LLM reasoning with a structured toolkit in 3.2, Earth-Agent supports diverse modali-\nties and complex multi-step analysis, enabling agents to tackle real-world geoscientific tasks beyond\nthe limits of existing MLLMs and EO agents. Concretely, Earth-Agent integrates 104 specialized\ntools, built upon theModel Context Protocol (MCP)(Hou et al., 2025; Ray, 2025) for interop-\nerability, and grouped into five domain-specific tool kits:Index,Inversion,Perception,Analysis,\nandStatistics. This structured design not only enables the agent to go beyond classical percep-\ntual tasks toward quantitative analysis and spatiotemporal reasoning, but also makes the framework\neasily extensible with additional domain-specific tools. To systematically evaluate its effectiveness,\nwe further introduceEarth-Agent Benchmark (Earth-Bench)in section 4, which reflects real-\nistic EO workflows and s",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "OpenEarthAgent 把视觉、光谱、GIS 与地理参考栅格操作统一到一致的可调用 schema（JSON 契约），由中央编排器解析模型生成的工具调用、校验参数、执行并把返回结果追加到工作记忆；中间产物（矢量图层、栅格子集、指数图、几何）存入工具执行缓存，供同一轨迹后续调用复用并支持确定性重放。",
+      "scope": "OpenEarthAgent 框架设计，ECCV 2026 接收的 arXiv 预印本",
+      "source_ids": [
+        "a58012192462df16"
+      ],
+      "id": "openearthagent-unified-tool-registry",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "a58012192462df16",
+          "locator": "提取文本字符 28653–30140",
+          "quote": "d\nraster data), the agent generates multi-step reasoning trajectories that interleave\ninternal thoughts with explicit tool invocations and their returned outputs (see\nFig. 5). At each step, the agent maintains a short-term working memory that\ncontains: instructions, observations, prior tool calls, spatial metadata, and con-\ntextual feedback from previous executions, which enable iterative reasoning and\nconsistent spatial grounding. Training follows a supervised fine-tuning procedure\non validated reasoning traces, improving syntactic validity, spatial consistency,\nand multi-step reasoning coherence across diverse geospatial contexts.\nUnified Tool Registry:To standardize the diverse operators used in EO rea-\nsoning, we construct a unified tool registry that abstracts heterogeneous visual,\nspectral, and GIS operations through a consistent callable schema:\nMj = (xin,yout,ψj), (1)\nwherex in denotes structured input arguments,yout denotes structured outputs,\nψj :x in7→y out is the executable function implementing the operation. All tools\nfollow standardized JSON-based contracts to ensure consistent serialization and\nvalidation across training and inference. A central orchestrator parses model-\ngenerated tool calls, validates arguments, executesψj, and appends returned\noutputs to the working memory. During execution, a predicted tool invocation\nst with arguments ˆxt is evaluated asyt =ψ st (ˆxt), and the returned outputyt\nbecomes part of the updated reasoning context.",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "a58012192462df16",
+          "locator": "提取文本字符 30140–31133",
+          "quote": "10 A. Shabbir et al.\nTo ensure efficiency and consistency, intermediate outputs (e.g., derived vec-\ntor layers, raster subsets, index maps, computed geometries) are stored in a\ntool execution cache memory. This cache includes geospatial archives and vec-\ntor/raster layers that can be reused by subsequent tool calls within the same\ntrajectory. Caching prevents redundant computation and ensures determinis-\ntic replay of reasoning steps. New tools can be integrated by registering their\nschemaM j without retraining the backbone model, ensuring extensibility while\nmaintaining interface consistency. We outline the tool categories:\na) Perceptual Tools.ground language into image-space entities.TextToBbox,\nObjectDetection,andRegionAttributeDescriptionconvertfree-formqueries\ninto spatial primitives such as bounding boxes and semantic tags.CountGiven\nObjectandSegmentObjectPixelssupport object counting and pixel-level area\nestimation.ChangeDetectionanalyzes multi-date imagery to detect stru",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "PhenoAssistant的工具函数提供名称、说明、参数和输入输出格式，使管理者理解能力并组织工作流。",
+      "scope": "该系统的函数schema；不将其等同于MCP协议。",
+      "source_ids": [
+        "f8a9212514d96b57"
+      ],
+      "id": "pheno-tool-schema",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "f8a9212514d96b57",
+          "locator": "归档提取文本字符 48134–48392",
+          "quote": "The toolkit consists of Python-based functions, each accom-\npanied by structured schema (name, description, parameters, input/\noutput format). This enables the manager agent to understand the\ntools’capabilities and compose them properly into valid work ﬂows.",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "NOMOS在运行时根据工具、参数和结构性来源事实决定放行或阻断，Agent自己宣称的事实不能进入事实库。",
+      "scope": "策略门控处理授权与政策条件，参数格式合法不代表得到授权。",
+      "source_ids": [
+        "e0c0d198c4709cc7"
+      ],
+      "id": "policy-versus-tool-format",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "e0c0d198c4709cc7",
+          "locator": "归档提取文本字符 29104–29635",
+          "quote": "At runtime the gate exposes a single decision function $\\textsc{check}(\\textit{tool},\\textit{args},\\textit{facts})\\rightarrow\\{\\textsc{allow},\\textsc{block}(r)\\}$.\nThe fact store is updated exclusively from two structural sources: fields of real tool results, and the user’s own turns.\nClaims made by the agent itself never enter the store; this *structural provenance* rule is what makes the gate robust to injected instructions that assert false context (“the user has approved this transfer”), because assertions are not facts.",
+          "proposed_by": "LLM"
+        }
+      ]
+    }
+  ],
+  "conflicts": [],
+  "related_slugs": [
+    "agent-task-decomposition-dependencies",
+    "agent-tool-call-gates",
+    "remote-sensing-tool-augmented-agents",
+    "scientific-automl-agent-workflows"
+  ],
+  "relations": [
+    {
+      "id": "shared-mechanism-scientific-automl-agent-workflows",
+      "target_slug": "scientific-automl-agent-workflows",
+      "kind": "shared_mechanism",
+      "summary": "PhenoAssistant的函数schema与OpenEarthAgent的JSON契约都明确工具输入输出，具体协议和编排实现不同。",
+      "scope": "工具接口思想的跨领域归纳，不声称同协议或效果已比较。",
+      "claim_ids": [
+        "openearthagent-unified-tool-registry",
+        "pheno-tool-schema"
+      ],
+      "source_ids": [
+        "a58012192462df16",
+        "f8a9212514d96b57"
+      ]
+    },
+    {
+      "id": "contrast-agent-tool-call-gates",
+      "target_slug": "agent-tool-call-gates",
+      "kind": "contrast",
+      "summary": "工具调用参数格式校验与NOMOS授权/政策门控处理不同条件。",
+      "scope": "合法序列化不意味着策略允许，门控不能替代结果验证。",
+      "claim_ids": [
+        "openearthagent-unified-tool-registry",
+        "policy-versus-tool-format"
+      ],
+      "source_ids": [
+        "a58012192462df16",
+        "e0c0d198c4709cc7"
+      ]
+    }
+  ],
+  "page_role": "knowledge",
+  "content_review": {},
+  "review_history": [],
+  "updated_at": "2026-10-12T15:05:54+00:00",
+  "writing_guide_version": "6",
+  "publication": {
+    "by": "agent",
+    "policy": "automatic",
+    "at": "2026-10-12T15:05:54+00:00"
+  }
+}

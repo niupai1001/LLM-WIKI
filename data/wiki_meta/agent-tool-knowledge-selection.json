@@ -1,0 +1,190 @@
+{
+  "slug": "agent-tool-knowledge-selection",
+  "title": "工具知识、选择与流程复用",
+  "category": "agents",
+  "source_ids": [
+    "3bdb54f327d29558",
+    "8cabb777c9bc6fe9",
+    "d97a83738e867ba8",
+    "e80b94c99e711343",
+    "f8a9212514d96b57"
+  ],
+  "page_kind": "concept",
+  "claims": [
+    {
+      "text": "RS-Agent 用 LLM 中央控制器把用户查询先推断为预定义任务类型，再据此从 Solution Space 检索专家编写的解题流程，最后编排工具链执行；消融显示任务推断与流程检索单独使用收益有限，二者结合时单工具准确率 93.53%、多工具准确率 90.62%，而基线分别为 69.06% 与 9.42%。",
+      "scope": "RS-Agent 在自建任务规划数据集上的消融实验，工具集在各变体间相同，骨干为 Qwen2.5 32B-Instruct 等",
+      "source_ids": [
+        "d97a83738e867ba8"
+      ],
+      "id": "rs-agent-solution-space-task-aware-retrieval",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "d97a83738e867ba8",
+          "locator": "提取文本字符 51184–52784",
+          "quote": "Evaluation tasks.We test two task categories: single-tool tasks requiring one tool, and multi-tool tasks coupling\nseveral tools to assess complex workflows.\nMetric.Task planning accuracy is reported asSingle-Tool Accuracy(whether the correct tool is selected for\nsingle-tool tasks) andMulti-Tool Accuracy(whether all required tools are invoked in a valid order for multi-tool\ntasks). We additionally report end-to-end task success rates based on final-answer correctness in the Supplementary\n\nSci China Inf Sci13\nFile (Table S1).\nResults.As shown in Table 6, the Baseline achieves 69.06% single-tool accuracy but only 9.42% multi-tool task\nplanning accuracy, as it frequently fails to invoke the correct tools (e.g., 10.53% on Object Counting). Adding Task\nInference or Solution Retrieval alone yields moderate single-tool gains (82.01% and 73.38%) with limited multi-tool\nimprovement (10.87% and 11.38%). Combining both achieves the best performance: 93.53% single-tool and 90.62%\nmulti-tool accuracy, confirming a strong synergistic effect. Notably, the underlying toolset is identical across all\nvariants; the gains are entirely attributable to the orchestration mechanism. Multi-tool end-to-end task success\nrates are reported in Table S1 (Supplementary File), and representative case studies are provided in Table 7.\nTo provide deeper insight into the roles of Task Inference and Solution Retrieval, we present representative case\nstudies in Table 7. Each case compares the MLLM baseline (GeoChat [6]) with the four RS-Agent ablation variants.\nThese cases further illustrate that the core value",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "RS-Agent 的 Knowledge Space 用 DualRAG 做加权双路检索（整体查询语义检索与关键词分解检索），以缓解遥感查询中传感器类型、分辨率等关键约束被通用词稀释的问题；作者报告在 RSaircraft 与 Mix 数据集上其胜率高于 LightRAG。",
+      "scope": "作者自建知识检索对比，LightRAG 为对照，属作者报告结果",
+      "source_ids": [
+        "d97a83738e867ba8"
+      ],
+      "id": "rs-agent-dualrag-knowledge",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "d97a83738e867ba8",
+          "locator": "提取文本字符 55907–56327",
+          "quote": "Sci China Inf Sci14\nT able 8Win rates of LightRAG v.s. RS-Agent with DualRAG across two datasets and four evaluation dimensions.\nMode Dimensions RSaircraft Mix\nLightRAGRS-Agent(Ours)LightRAGRS-Agent(Ours)\nLocal\nComprehensiveness 41.00%58.00%48.40%51.60%\nDiversity 43.40%56.40%50.00%50.00%\nEmpowerment 43.40%56.40% 50.80%49.20%\nOverall 42.80%57.20% 50.80%49.20%\nGlobal\nComprehensiveness 40.40%59.60%48.80%51.20%\nDiversity",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "GIS Copilot 的工具箱文档来自 QGIS 帮助文档，包含工具描述、参数与代码示例，用于引导 LLM 为选定工具生成 PyQGIS 代码。当前实现系统整理了 390 个 QGIS 原生与 GDAL 工具；框架以即插即用方式支持用户注册自定义工具（如用 geopandas、scipy、rasterio 实现核密度估计）。",
+      "scope": "GIS Copilot 当前实现，文档以 TOML 结构组织",
+      "source_ids": [
+        "8cabb777c9bc6fe9"
+      ],
+      "id": "giscopilot-toolbox-documentation",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "8cabb777c9bc6fe9",
+          "locator": "提取文本字符 17167–18767",
+          "quote": "6 \n \nalgorithms (e.g., 'native:buffer' for buffering and 'qgis:selectbyattribute' for attribute selection) \nand external providers like GDAL (e.g., 'gdal:slope' for slope analysis). The customized \ngeoprocessing tools, developed using external libraries like GeoPandas, PySAL, and Matplotlib. \nThese customized tools enable statistical analysis (e.g., correlation analysis), customized charts \n(e.g., bar plot, scatter plot), and thematic map generation, offering flexibility in spatial analysis \nworkflows. \n3.1.2 Toolbox documentation \nThe GIS Copilot is equipped with documentation of QGIS tools, allowing it to generate \nPyQGIS code for specific geoprocessing tasks. Derived from the QGIS help documents, the \ntoolbox documentation primarily consists of tool descriptions, parameters, and code examples, \nserving as a guide for the agent in generating code for selected tools. For instance, the QGIS \nnative \"Clip\" tool requires parameters such as the Input Layer (the dataset to be clipped), \nOverlay (the boundary layer for clipping), and Output File (the path for saving the clipped data) \n(Appendix 1). By specifying these parameters and providing a code example, the system is able \nto generate more accurate and reliable code for the task. \nIn our current implementation, 390 native QGIS and GDAL tools have been systematically \ncompiled with reference to the resources available on the official QGIS documentation website \n(QGIS, 2024b). In addition, this framework is not limited to QGIS tools and is designed to be \nextensible in a plug-and-play style to allow users to add new customi",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "8cabb777c9bc6fe9",
+          "locator": "提取文本字符 18767–20367",
+          "quote": "zed tools to meet specific \ntasks. For example, a tool used for performing kernel density estimation can be customized using \ngeopandas, scipy, and rasterio Python libraries and registered to the GIS Copilot (Appendix 2).  \n3.1.3 Data understanding module \nThe data understanding module enables the agent to extract and interpret the structure and \nattributes of spatial data before being used for any analysis. It functions similarly as the initial \nstep a human analyst would take when approaching a spatial analysis task -understanding the \ndata to be analyzed. Specifically, it collects a wide range of critical information of the data for \nspatial analysis, such as file format, field names of the attribute table, coordinate reference \nsystem, data extent, and raster resolution. This information provides the GIS Copilot with a \nthorough overview and understanding of the data inputs, which guides it in selecting appropriate \ntools for the task and the right attributes for performing geospatial operations. As a result, users \nare not required to specify data details such as field names in their task requests, making the \nCopilot more user-friendly. \n3.1.4 Code review/debugging module \nThe code review/debugging module is an essential component designed to enhance the \nreliability and accuracy of generated code. This module enables the GIS Copilot to actively \nreview the generated code and monitor the execution of the generated code in real-time to \ncapture any errors that may arise. Upon detecting an error, it attempts to correct the error \nautomatically and re-generate the code f",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "GeoGPT 的工具池按三类组织：数据采集（按关键词/多边形取 POI、按矩形取路网、按省市与时间取遥感影像）、本地数据加载（地铁、酒店、工厂、超市等）、空间分析与制图（Buffer、Clip、Intersect、Erase、土地利用分类、栅格转矢量、制图等）。工具描述同时充当 LLM 选择工具的依据。",
+      "scope": "GeoGPT 论文中为验证框架而实现的工具集合，作者说明可扩展",
+      "source_ids": [
+        "3bdb54f327d29558"
+      ],
+      "id": "geogpt-tool-pool-scope",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3bdb54f327d29558",
+          "locator": "提取文本字符 15268–16722",
+          "quote": "Figure 3. The prompt used in our experiments to specifies the format of GeoGPT to\nunderstand and process geospatial tasks. In this prompt, GeoGPT is guided to call\ndifferent GIS tools to solve corresponding geospatial tasks based on the understanding\nof both users’ demands and tools’ descriptions.\nTable 1. Tools implemented in GeoGPT.\nTools Description\nData Collection Tools\nGet POI By Keywords Use this tool when you need to get POI data\nfor a Chinese city by POI keywords. The input\nof this tool must at least provide the city name,\nafter which the user can provide multiple POI\ncategories or none. City names and each POI\ncategory are separated by commas.\nGet POI By Polygon Use this tool when you need to get POI data\nwithin a polygonal area. Input a longitude-\nlatitude coordinate pair representing the area of\nthe polygon. Longitude and latitude are sepa-\nrated by ”,”, and the coordinate pairs are sepa-\nrated by ”| ”. The first and last coordinate pairs\nneed to be the same.\nGet Road Network By Rectangle Use this tool when you need to get road network\ndata within a rectangular area. Input a comma-\nseparated string of four-tuples, representing two\nlongitude ranges x1, x2 enclosed in a rectangle,\nand two latitude ranges y1, y2 enclosed in a rect-\nangle.\nGet Remote Sensing Image Input parameters, in order of province, city,\nstart time and end time, in comma-separated\nstrings\nData Loader Tools (Load data locally)\nContinued on next page\n6",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "3bdb54f327d29558",
+          "locator": "提取文本字符 16722–18322",
+          "quote": "Load Subway Data Load the dataset of subway stations, return the\nfile path of subway stations.\nLoad Hotel Data Load the dataset of hotels, return the file path\nof hotels.\nLoad Factory Data Load the dataset of factories, return the file path\nof factories.\nLoad Supermarket Data Load the dataset of supermarkets, return the file\npath of supermarkets.\nLoad Remote Sensing Image Data Load the dataset of remote sensing image, re-\nturn the file path of RS image.\nLoad Wuhan Main Urban Data Load the dataset of Wuhan main urban, return\nthe file path of Wuhan main urban.\nSpatial Analysis Tools\nObtain location Input a place name, return its location. Use it\nwhen you need to find unknown locations.\nBuffer Input ”shapefile, number”, return the neighbor-\ning range around this shapefile.\nIntersect Input two shapefiles, retain objects meanwhile\nwithin (inside) both shapefiles.\nClip Input two shapefiles ”A, B”, return (keep) ob-\njects of A only within (inside) the range of B.\nErase Input two shapefiles ”A, B”, remove (erase) ob-\njects of A only within (inside) the range of B.\nTools for RS Image Processing\nCrop Remote Sensing Image Use this tool when you need to crop an image\nof Remote Sensing. Input a tif file storing re-\nmote sensing and a shapefile storing the crop-\nping area, which are separated by a comma.\nLandUse Classification Use this tool when you need to perform land\nuse classification on remote sensing imagery in\na tif file. Input a tif file storing remote sensing\nimage, and output a raster file (tif format) after\nland use classification.\nRaster to Vector Use this tool when you need",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "Remote Sensing ChatGPT 把用户请求与遥感图像交给 ChatGPT，按提示模板生成、任务规划、任务执行与响应生成四步运行：ChatGPT 决定是否调用工具，工具处理图像产生输出，输出再作为新观察回传 ChatGPT 决定是否继续调用，直到不再需要工具时汇总所有已执行任务输出生成最终回答。",
+      "scope": "Remote Sensing ChatGPT 的系统工作流描述，基于 ChatGPT 与多个遥感模型，论文为 arXiv 预印本（IGARSS 2024 投稿）",
+      "source_ids": [
+        "e80b94c99e711343"
+      ],
+      "id": "rscgpt-workflow-four-steps",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "e80b94c99e711343",
+          "locator": "提取文本字符 4800–6400",
+          "quote": "per, we propose Remote Sensing ChatGPT, a \nChatGPT-like system that is capable of understanding users’ \nrequests, planning remote sensing interpretation tasks, and \ngenerating final products and responses to users. We built \nRemote Sensing ChatGPT base d on ChatGPT and multiple \nAI-based remote sensing models that support various \ninterpretation tasks. We expect that Remote Sensing \nChatGPT can push forward the accessibility of remote \nsensing interpretation techniques to non-experts, people who \nare workin g on the applications of multiple fields such as \n\nurbanization and deforestation but are not remote sensing \nexperts. Furthermore, it is a meaningful attempt to automate \nremote sensing task planning , one key step toward the \nrealization of fully automatic remote sensing image \ninterpretation. Quantitative and qualitative evaluations are \nperformed to explore the performance of Remote Sensing \nChatGPT under different LLM backbones. We also discuss \nthe limitations and future directions of designing a ChatGPT-\nlike system for remote sensing. \n \n2. REMOTE SENSING CAHTGPT \nRemote Sensing ChatGPT is capable of solving remote \nsensing tasks with ChatGPT and remote sensing \ninterpretation models. With Remote Sensing ChatGPT, users \ncan simply send a remote sensing image with the \ncorresponding language request, and get the interpretation \nresults and language feedback. The workflow of Remote \nSensing ChatGPT is shown in Fig.1, which includes prompt \ntemplate generation, task planning, task execution, and \nresponse generation, which wil l be introduced in the \nfollowing subse",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "e80b94c99e711343",
+          "locator": "提取文本字符 7795–9395",
+          "quote": "available benchmarks. It should be noted that more tasks and \nmore sophisticated models can be applied to further improve \nthe performance of Remote Sensing ChatGPT \nIn this part, given the defined task library, the descriptions \nof the task functions, supported categories, input and output \ndata format, and task dependencies are generated to \nsupplement the prompt template. Furthermore, some \nexamples of each task are prov ided to perform in -context \nlearning and thus further improve the model’s understanding \nof user inputs. The complete prompt is then fed into ChatGPT \nto perform task planning.  \n2.3 Task Execution and Response Generation \n The output of ChatGPT determines whether and which tools \nshould be used. The determined tool is applied to the pre -\nprocess remote sensing image and generates the \ncorresponding output. The output is then fed to ChatGPT as \na new observation to determine whether new tools should be \nused to further solve the users’ requests. If no more tools \nshould be used, the output of all executed tasks will be sent \nto ChatGPT, which will generate the final response for the \nuser. \n3. EXPERIMENTS \nConsidering that Remote Sensing ChatGPT can be easily \nextended to more tasks with advanced methods such as \nfoundation models, our experiments focus on whether \nChatGPT correctly plans the interpretation task rather than \nthe interpretation accuracy. To this e nd, we collect 138 user \nqueries from multiple users. Then, we label the corresponding \ntasks based on the queries. Considering that ChatGPT can call \nmore tasks to assist the reasoning proces",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "PhenoAssistant的Pipeline Reproducer从聊天历史中抽取实际执行的函数与代码，排除失败片段，整理为可复用Python函数。",
+      "scope": "论文已实现的流水线复现模块；不据此声称已自动检索历史流程规划新任务。",
+      "source_ids": [
+        "f8a9212514d96b57"
+      ],
+      "id": "pheno-executed-flow-reuse",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "f8a9212514d96b57",
+          "locator": "归档提取文本字符 54558–54862",
+          "quote": "5. Pipeline reproducer: extracts executed function calls and code\nfrom a chat history, organising them into a new Python function\nthat can be reused in the future. Its system prompt instructs it to\nextract only the functions and code snippets that were actually\nexecuted, while excluding the failed ones.",
+          "proposed_by": "LLM"
+        }
+      ]
+    }
+  ],
+  "conflicts": [],
+  "related_slugs": [
+    "agent-tool-experience-learning",
+    "agent-tool-interface-contracts",
+    "remote-sensing-tool-augmented-agents",
+    "scientific-automl-agent-workflows",
+    "tool-creation-agent"
+  ],
+  "relations": [
+    {
+      "id": "implementation-remote-sensing-tool-augmented-agents",
+      "target_slug": "remote-sensing-tool-augmented-agents",
+      "kind": "implementation",
+      "summary": "RS-Agent通过任务分类、专家流程与领域知识检索约束运行时工具选择。",
+      "scope": "RS-Agent归档v4的Solution/Knowledge Space实现。",
+      "claim_ids": [
+        "rs-agent-dualrag-knowledge",
+        "rs-agent-solution-space-task-aware-retrieval"
+      ],
+      "source_ids": [
+        "d97a83738e867ba8"
+      ]
+    },
+    {
+      "id": "contrast-scientific-automl-agent-workflows",
+      "target_slug": "scientific-automl-agent-workflows",
+      "kind": "contrast",
+      "summary": "RS-Agent事先构建专家流程，PhenoAssistant从成功执行历史抽取可复用函数。",
+      "scope": "流程产生方式不同，不据此断言自动检索或权重学习。",
+      "claim_ids": [
+        "pheno-executed-flow-reuse",
+        "rs-agent-solution-space-task-aware-retrieval"
+      ],
+      "source_ids": [
+        "d97a83738e867ba8",
+        "f8a9212514d96b57"
+      ]
+    }
+  ],
+  "page_role": "knowledge",
+  "content_review": {},
+  "review_history": [],
+  "updated_at": "2026-10-12T15:05:54+00:00",
+  "writing_guide_version": "6",
+  "publication": {
+    "by": "agent",
+    "policy": "automatic",
+    "at": "2026-10-12T15:05:54+00:00"
+  }
+}

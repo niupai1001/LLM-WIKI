@@ -1272,7 +1272,7 @@
     },
     {
       "id": "84d839e63c28ec29",
-      "title": "2603.22148v1",
+      "title": "OpenEarth-Agent: From Tool Calling to Tool Creation for Open-Environment Earth Observation",
       "url": "https://notes.local.invalid/84d839e63c28ec29",
       "kind": "paper",
       "category": "agents",
@@ -1305,7 +1305,14 @@
         "text_acquisition_method": "pdf",
         "content_status": "full-text",
         "announced_at": "2026-10-11T01:49:27+00:00",
-        "field_sources": {}
+        "field_sources": {
+          "title": {
+            "method": "archived-pdf-title",
+            "source_url": "",
+            "checked_at": "2026-10-12T15:10:48+00:00"
+          }
+        },
+        "title": "OpenEarth-Agent: From Tool Calling to Tool Creation for Open-Environment Earth Observation"
       }
     },
     {

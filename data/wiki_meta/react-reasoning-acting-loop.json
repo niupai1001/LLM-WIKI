@@ -3,10 +3,13 @@
   "title": "ReAct 推理与行动循环",
   "category": "agents",
   "source_ids": [
-    "e504ba1ba9c3fffc"
+    "444b00f9850c9716",
+    "8db3263052b0cab1",
+    "e504ba1ba9c3fffc",
+    "e80b94c99e711343"
   ],
   "page_kind": "concept",
-  "writing_guide_version": "2",
+  "writing_guide_version": "6",
   "claims": [
     {
       "text": "ReAct 让语言模型交替生成推理轨迹与任务动作，并把环境观察接回上下文。",
@@ -37,6 +40,122 @@
       "id": "decision-making-gain",
       "status": "单源支持",
       "proposed_by": "LLM"
+    },
+    {
+      "text": "ReAct 能在交互推理轨迹中拟订和更新计划；Plan-and-Execute 显式分开多步规划与执行。",
+      "scope": "原论文与工程实现的机制对比，没有直接效果排名。",
+      "source_ids": [
+        "444b00f9850c9716",
+        "e504ba1ba9c3fffc"
+      ],
+      "id": "planning-granularity-comparison",
+      "status": "范围差异",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "e504ba1ba9c3fffc",
+          "locator": "提取文本字符 856–1094",
+          "quote": "reasoning\ntraces help the model induce, track, and update action plans as well as handle\nexceptions, while actions allow it to interface with and gather additional information\nfrom external sources such as knowledge bases or environments.",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "e504ba1ba9c3fffc",
+          "locator": "提取文本字符 14112–14324",
+          "quote": "For the tasks where reasoning is\nof primary importance (Figure 1(1)), we alternate the generation of thoughts and actions so that the\ntask-solving trajectory consists of multiple thought-action-observation steps.",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "444b00f9850c9716",
+          "locator": "提取文本字符 2932–3147",
+          "quote": "1. A **planner**, which prompts an LLM to generate a multi-step plan to complete a large task.\n2. **Executor**(s), which accept the user query and a step in the plan and invoke 1 or more tools to complete that task.",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "两种方法都把语言模型的任务规划与实际工具执行连接起来。",
+      "scope": "共同机制描述，不代表独立复现或普遍性能优势。",
+      "source_ids": [
+        "444b00f9850c9716",
+        "e504ba1ba9c3fffc"
+      ],
+      "id": "shared-planning-tool-interface",
+      "status": "多源一致",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "e504ba1ba9c3fffc",
+          "locator": "提取文本字符 856–1094",
+          "quote": "reasoning\ntraces help the model induce, track, and update action plans as well as handle\nexceptions, while actions allow it to interface with and gather additional information\nfrom external sources such as knowledge bases or environments.",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "444b00f9850c9716",
+          "locator": "提取文本字符 2932–3147",
+          "quote": "1. A **planner**, which prompts an LLM to generate a multi-step plan to complete a large task.\n2. **Executor**(s), which accept the user query and a step in the plan and invoke 1 or more tools to complete that task.",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "ReAct的推理轨迹可以生成、跟踪和更新计划，行动从外部环境获得信息。",
+      "scope": "ReAct原论文机制；不把思考步当成无计划动作。",
+      "source_ids": [
+        "e504ba1ba9c3fffc"
+      ],
+      "id": "react-plans-with-observation",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "e504ba1ba9c3fffc",
+          "locator": "归档提取文本字符 856–1094",
+          "quote": "reasoning\ntraces help the model induce, track, and update action plans as well as handle\nexceptions, while actions allow it to interface with and gather additional information\nfrom external sources such as knowledge bases or environments.",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "Remote Sensing ChatGPT 把用户请求与遥感图像交给 ChatGPT，按提示模板生成、任务规划、任务执行与响应生成四步运行：ChatGPT 决定是否调用工具，工具处理图像产生输出，输出再作为新观察回传 ChatGPT 决定是否继续调用，直到不再需要工具时汇总所有已执行任务输出生成最终回答。",
+      "scope": "Remote Sensing ChatGPT 的系统工作流描述，基于 ChatGPT 与多个遥感模型，论文为 arXiv 预印本（IGARSS 2024 投稿）",
+      "source_ids": [
+        "e80b94c99e711343"
+      ],
+      "id": "rscgpt-workflow-four-steps",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "e80b94c99e711343",
+          "locator": "提取文本字符 4800–6400",
+          "quote": "per, we propose Remote Sensing ChatGPT, a \nChatGPT-like system that is capable of understanding users’ \nrequests, planning remote sensing interpretation tasks, and \ngenerating final products and responses to users. We built \nRemote Sensing ChatGPT base d on ChatGPT and multiple \nAI-based remote sensing models that support various \ninterpretation tasks. We expect that Remote Sensing \nChatGPT can push forward the accessibility of remote \nsensing interpretation techniques to non-experts, people who \nare workin g on the applications of multiple fields such as \n\nurbanization and deforestation but are not remote sensing \nexperts. Furthermore, it is a meaningful attempt to automate \nremote sensing task planning , one key step toward the \nrealization of fully automatic remote sensing image \ninterpretation. Quantitative and qualitative evaluations are \nperformed to explore the performance of Remote Sensing \nChatGPT under different LLM backbones. We also discuss \nthe limitations and future directions of designing a ChatGPT-\nlike system for remote sensing. \n \n2. REMOTE SENSING CAHTGPT \nRemote Sensing ChatGPT is capable of solving remote \nsensing tasks with ChatGPT and remote sensing \ninterpretation models. With Remote Sensing ChatGPT, users \ncan simply send a remote sensing image with the \ncorresponding language request, and get the interpretation \nresults and language feedback. The workflow of Remote \nSensing ChatGPT is shown in Fig.1, which includes prompt \ntemplate generation, task planning, task execution, and \nresponse generation, which wil l be introduced in the \nfollowing subse",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "e80b94c99e711343",
+          "locator": "提取文本字符 7795–9395",
+          "quote": "available benchmarks. It should be noted that more tasks and \nmore sophisticated models can be applied to further improve \nthe performance of Remote Sensing ChatGPT \nIn this part, given the defined task library, the descriptions \nof the task functions, supported categories, input and output \ndata format, and task dependencies are generated to \nsupplement the prompt template. Furthermore, some \nexamples of each task are prov ided to perform in -context \nlearning and thus further improve the model’s understanding \nof user inputs. The complete prompt is then fed into ChatGPT \nto perform task planning.  \n2.3 Task Execution and Response Generation \n The output of ChatGPT determines whether and which tools \nshould be used. The determined tool is applied to the pre -\nprocess remote sensing image and generates the \ncorresponding output. The output is then fed to ChatGPT as \na new observation to determine whether new tools should be \nused to further solve the users’ requests. If no more tools \nshould be used, the output of all executed tasks will be sent \nto ChatGPT, which will generate the final response for the \nuser. \n3. EXPERIMENTS \nConsidering that Remote Sensing ChatGPT can be easily \nextended to more tasks with advanced methods such as \nfoundation models, our experiments focus on whether \nChatGPT correctly plans the interpretation task rather than \nthe interpretation accuracy. To this e nd, we collect 138 user \nqueries from multiple users. Then, we label the corresponding \ntasks based on the queries. Considering that ChatGPT can call \nmore tasks to assist the reasoning proces",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "TerraLogic中的HieraPlan在ReAct式协议下评测，层级编排补充该协议，步骤指标与端到端指标分别记录。",
+      "scope": "论文的ReAct评测设置，不宣称所有ReAct实现均已有层级工具编排。",
+      "source_ids": [
+        "8db3263052b0cab1"
+      ],
+      "id": "hiera-react-protocol",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "8db3263052b0cab1",
+          "locator": "归档提取文本字符 23517–24115",
+          "quote": "We evaluateHieraPlanon theTerraLogic benchmarkunder\na ReAct-style [52] protocol with bothstep-by-stepandend-to-end\nsettings. The step-by-step metrics—InstAcc, ToolAcc, ArgAcc, and\nSummAcc—measure instruction following, tool selection, argument\ncorrectness, and summary generation, respectively. The end-to-end\nscores—P, O, and L—assess tool-augmented predictions on thePer-\nception,Spatial-Statistics, andSpatial-Relationstoolkits. Within this\nsetup, HieraPlan complements rather than alters the ReAct pro-\ntocol, providing hierarchical orchestration while preserving the\nsame evaluation criteria.",
+          "proposed_by": "LLM"
+        }
+      ]
     }
   ],
   "conflicts": [],
@@ -45,7 +164,49 @@
   "related_slugs": [
     "agent-context-memory-governance",
     "agent-plan-repair",
-    "agent-tool-call-gates"
+    "agent-task-decomposition-dependencies",
+    "agent-tool-call-gates",
+    "geospatial-hierarchical-planning-agents",
+    "plan-and-execute-agents",
+    "remote-sensing-perception-outputs"
   ],
-  "updated_at": "2026-10-11T02:11:40+00:00"
+  "updated_at": "2026-10-12T15:10:48+00:00",
+  "publication": {
+    "by": "agent",
+    "policy": "automatic",
+    "at": "2026-10-12T15:10:48+00:00"
+  },
+  "relations": [
+    {
+      "id": "shared-mechanism-remote-sensing-perception-outputs",
+      "target_slug": "remote-sensing-perception-outputs",
+      "kind": "shared_mechanism",
+      "summary": "Remote Sensing ChatGPT把视觉工具输出作为新观察，具体化了ReAct的观察反馈回路。",
+      "scope": "比较控制回路；规划正确率不等于视觉结果正确。",
+      "claim_ids": [
+        "react-plans-with-observation",
+        "rscgpt-workflow-four-steps"
+      ],
+      "source_ids": [
+        "e504ba1ba9c3fffc",
+        "e80b94c99e711343"
+      ]
+    },
+    {
+      "id": "shared-mechanism-geospatial-hierarchical-planning-agents",
+      "target_slug": "geospatial-hierarchical-planning-agents",
+      "kind": "shared_mechanism",
+      "summary": "HieraPlan保留ReAct式协议，并增加工具层级编排；协议与领域组织可以处于不同层。",
+      "scope": "TerraLogic论文的实际设置，不泛化到所有ReAct Agent。",
+      "claim_ids": [
+        "hiera-react-protocol",
+        "react-plans-with-observation"
+      ],
+      "source_ids": [
+        "8db3263052b0cab1",
+        "e504ba1ba9c3fffc"
+      ]
+    }
+  ],
+  "page_role": "knowledge"
 }

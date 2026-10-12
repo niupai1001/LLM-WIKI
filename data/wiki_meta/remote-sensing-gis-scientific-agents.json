@@ -1,6 +1,6 @@
 {
   "slug": "remote-sensing-gis-scientific-agents",
-  "title": "遥感、GIS与自主实验 Agent",
+  "title": "遥感、GIS与自主实验资料清单",
   "category": "topic-2c016a4f38e2401d",
   "source_ids": [
     "014cdafa93ee999c",
@@ -23,20 +23,22 @@
   "claims": [],
   "conflicts": [],
   "related_slugs": [
-    "remote-sensing-perception-to-agent",
-    "llm-gis-workflow-generation",
+    "agent-hyperparameter-optimization",
     "geospatial-hierarchical-planning-agents",
+    "llm-gis-workflow-generation",
+    "remote-sensing-perception-to-agent",
     "remote-sensing-tool-augmented-agents",
-    "scientific-automl-agent-workflows",
-    "agent-hyperparameter-optimization"
+    "scientific-automl-agent-workflows"
   ],
   "content_review": {},
   "review_history": [],
-  "updated_at": "2026-10-12T14:07:17+00:00",
-  "writing_guide_version": "5",
+  "updated_at": "2026-10-12T15:10:49+00:00",
+  "writing_guide_version": "6",
   "publication": {
     "by": "agent",
-    "policy": "agent",
-    "at": "2026-10-12T14:07:17+00:00"
-  }
+    "policy": "automatic",
+    "at": "2026-10-12T15:10:49+00:00"
+  },
+  "relations": [],
+  "page_role": "source_collection"
 }

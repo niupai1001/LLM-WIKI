@@ -4,9 +4,11 @@
   "category": "topic-2c016a4f38e2401d",
   "source_ids": [
     "1a874e5d2226c159",
+    "4a3710e0ff43d563",
     "a58012192462df16",
     "cf1e618aae1ce2d6",
-    "d97a83738e867ba8"
+    "d97a83738e867ba8",
+    "f8a9212514d96b57"
   ],
   "page_kind": "concept",
   "claims": [
@@ -263,6 +265,42 @@
           "proposed_by": "LLM"
         }
       ]
+    },
+    {
+      "text": "Toolformer 通过采样候选 API 调用、执行、按损失筛选、再用筛选后的数据微调模型，实现自监督的工具使用学习。",
+      "scope": "论文第 2 节方法流程；基于 GPT-J 与 CCNet 子集的实验设置。",
+      "source_ids": [
+        "4a3710e0ff43d563"
+      ],
+      "id": "self-supervised-pipeline",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "4a3710e0ff43d563",
+          "locator": "提取文本字符 7357–8957",
+          "quote": "Your task is to add calls to a Question Answering API to a piece of text. The questions should help you get information required \nto complete the text. You can call the API by writing \"[QA(question)]\" where \"question\" is the question you want to ask. Here are \nsome examples of API calls:\nInput: Joe Biden was born in Scranton, Pennsylvania.\nOutput: Joe Biden was born in [QA(\"Where was Joe Biden born?\")] Scranton, [QA(\"In which state is Scranton?\")] \nPennsylvania.\nInput: Coca-Cola, or Coke, is a carbonated soft drink manufactured by the Coca-Cola Company.\nOutput: Coca-Cola, or [QA(\"What other name is Coca-Cola known by?\")] Coke, is a carbonated soft drink manufactured by \n[QA(\"Who manufactures Coca-Cola?\")] the Coca-Cola Company.\nInput: x\nOutput:\nFigure 3: An exemplary promptP (x) used to generate API calls for the question answering tool.\nGiven a datasetC ={x1,..., x|C|} of plain texts, we first convert this dataset into a dataset C∗\naugmented with API calls. This is done in three steps, illustrated in Figure 2: First, we exploit the\nin-context learning ability ofM to sample a large number of API calls. We then execute them and\nfinally check whether the obtained responses are helpful for predicting future tokens; this is used as a\nfiltering criterion. After filtering, we merge API calls for different tools, resulting in the augmented\ndatasetC∗, and finetuneM itself on this dataset. Each step is described in more detail below.\nSampling API Calls For each API, we write a promptP (x) that encourages the LM to annotate an\nexample x =x1,...,x n with API calls. An example of such",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "PhenoAssistant的Pipeline Reproducer从聊天历史中抽取实际执行的函数与代码，排除失败片段，整理为可复用Python函数。",
+      "scope": "论文已实现的流水线复现模块；不据此声称已自动检索历史流程规划新任务。",
+      "source_ids": [
+        "f8a9212514d96b57"
+      ],
+      "id": "pheno-executed-flow-reuse",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "f8a9212514d96b57",
+          "locator": "归档提取文本字符 54558–54862",
+          "quote": "5. Pipeline reproducer: extracts executed function calls and code\nfrom a chat history, organising them into a new Python function\nthat can be reused in the future. Its system prompt instructs it to\nextract only the functions and code snippets that were actually\nexecuted, while excluding the failed ones.",
+          "proposed_by": "LLM"
+        }
+      ]
     }
   ],
   "conflicts": [
@@ -287,20 +325,42 @@
         }
       ],
       "status": "待核查",
-      "handling": "正文更新后需复核。原处理记录：引用时须区分两个同名系统：Earth-Agent 指 MCP+ReAct 单智能体框架，EarthAgent 指 HTAM 分层多智能体实现；核对具体论文与版本，避免混用其工具数量、架构与评测结果。",
+      "handling": "正文更新后需复核。原处理记录：正文更新后需复核。原处理记录：引用时须区分两个同名系统：Earth-Agent 指 MCP+ReAct 单智能体框架，EarthAgent 指 HTAM 分层多智能体实现；核对具体论文与版本，避免混用其工具数量、架构与评测结果。",
       "proposed_by": "LLM"
     }
   ],
   "related_slugs": [
-    "geospatial-hierarchical-planning-agents"
+    "agent-tool-experience-learning",
+    "agent-tool-interface-contracts",
+    "agent-tool-knowledge-selection",
+    "geospatial-hierarchical-planning-agents",
+    "toolformer-self-supervised-tool-use-training"
   ],
   "content_review": {},
   "review_history": [],
-  "updated_at": "2026-10-12T13:57:56+00:00",
-  "writing_guide_version": "5",
+  "updated_at": "2026-10-12T15:10:49+00:00",
+  "writing_guide_version": "6",
   "publication": {
     "by": "agent",
     "policy": "automatic",
-    "at": "2026-10-12T13:57:56+00:00"
-  }
+    "at": "2026-10-12T15:10:49+00:00"
+  },
+  "relations": [
+    {
+      "id": "contrast-toolformer-self-supervised-tool-use-training",
+      "target_slug": "toolformer-self-supervised-tool-use-training",
+      "kind": "contrast",
+      "summary": "Toolformer筛选API调用的语言建模帮助，OpenEarthAgent验证完整轨迹后做监督训练。",
+      "scope": "单位、目标与任务条件不同，不统称相同自监督方案。",
+      "claim_ids": [
+        "openearthagent-deterministic-replay-validation",
+        "self-supervised-pipeline"
+      ],
+      "source_ids": [
+        "4a3710e0ff43d563",
+        "a58012192462df16"
+      ]
+    }
+  ],
+  "page_role": "comparison"
 }

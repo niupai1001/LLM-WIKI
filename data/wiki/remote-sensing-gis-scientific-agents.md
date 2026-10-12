@@ -1,4 +1,4 @@
-# 遥感、GIS与自主实验 Agent
+# 遥感、GIS与自主实验资料清单
 
 本组资料收录15项工作的完整PDF，按遥感感知、GIS工作流、领域规划、工具轨迹和自主实验组织阅读。GeoAgentic-RAG的公开PDF暂未成功获取，未用摘要代替全文编写。
 
@@ -41,12 +41,12 @@ GeoAgentic-RAG：DOI为`10.1016/j.jag.2026.105195`，正式文章身份已核对
 
 ## 相关知识
 
-- [[remote-sensing-perception-to-agent]]
-- [[llm-gis-workflow-generation]]
+- [[agent-hyperparameter-optimization]]
 - [[geospatial-hierarchical-planning-agents]]
+- [[llm-gis-workflow-generation]]
+- [[remote-sensing-perception-to-agent]]
 - [[remote-sensing-tool-augmented-agents]]
 - [[scientific-automl-agent-workflows]]
-- [[agent-hyperparameter-optimization]]
 
 ---
 

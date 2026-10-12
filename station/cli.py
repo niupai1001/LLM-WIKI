@@ -18,6 +18,8 @@ def main():
     draft.add_argument("--category")
     draft.add_argument("--target", help="Merge evidence into this existing Wiki page")
     draft.add_argument("--source-id", help="Compile this original only")
+    draft.add_argument("--revisit", action="store_true", help="Reuse an approved original for another knowledge question")
+    draft.add_argument("--topic", help="Knowledge mechanism or question to explain")
     draft.add_argument("--second-pass", action="store_true", help="Request one extra expression-only edit")
     draft.add_argument("--draft-only", action="store_true", help="Development preview without publication")
     rewrite = sub.add_parser("rewrite", help="Generate an expression-only draft for an existing Wiki")
@@ -48,7 +50,9 @@ def main():
     if args.action == "ingest":
         ingest()
     elif args.action == "prepare":
-        options = dict(limit=max(1, min(args.limit, 20)), category=args.category, source_id=args.source_id, target_slug=args.target, second_pass=args.second_pass)
+        options = dict(limit=max(1, min(args.limit, 20)), category=args.category, source_id=args.source_id, target_slug=args.target,
+                       topic=args.topic, revisit=args.revisit, source_ids=[args.source_id] if args.revisit and args.source_id else None,
+                       second_pass=args.second_pass)
         print(prepare(**options) if args.draft_only else compile_and_publish(**options))
     elif args.action == "approve":
         approve(args.proposal_id, fact_invariance_confirmed=args.confirm_facts, fact_review_note=args.fact_review_note)

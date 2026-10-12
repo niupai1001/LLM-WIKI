@@ -1,0 +1,211 @@
+{
+  "slug": "remote-sensing-perception-outputs",
+  "title": "遥感感知输出怎样成为后续操作的输入",
+  "category": "agents",
+  "source_ids": [
+    "014cdafa93ee999c",
+    "863bccdceb2db4eb",
+    "a58012192462df16",
+    "e80b94c99e711343"
+  ],
+  "page_kind": "concept",
+  "claims": [
+    {
+      "text": "由于 ChatGPT 是语言模型、无法直接感知遥感图像中的视觉概念，Remote Sensing ChatGPT 引入 BLIP 模型为遥感图像生成描述，作为视觉线索注入 ChatGPT，使其更好地理解图像。",
+      "scope": "Remote Sensing ChatGPT 的提示模板生成步骤，BLIP 用于图像描述",
+      "source_ids": [
+        "e80b94c99e711343"
+      ],
+      "id": "rscgpt-visual-cues-blip",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "e80b94c99e711343",
+          "locator": "提取文本字符 6400–7795",
+          "quote": "ctions. \n2.1 Prompt Template Generation \nGiven a user’s language input, the first step of Remote \nSensing ChatGPT is to generate a prompt template as a \nsystem principle for ChatGPT to understand instruct, execute \nreasoning, and output results correctly. For example, in the \nsystem principle part, C hatGPT is required to use tools to \nfinish following tasks, rather than directly imagine from the \ndescription. In the task calling and output format part, \nChatGPT is told to be strict with the file name and will never \nfabricate nonexistent files. A template  is also provided to \nChatGPT to regulate tool names, input files, and output tool \nobservations. Furthermore, considering that ChatGPT is a \nlanguage model and cannot directly access images, we \nintroduce the BLIP model[11] to caption the remote sensing \nimage and thus provide visual cues for ChatGPT to better \nunderstand the image. \n2.2 Task Planning \nRemote Sensing ChatGPT currently supports calling \ndifferent remote sensing tasks, such as scene classification, \nland use classification, object detection, image captioning, \nedge detection, polygonization, and object counting. The \ndetails of these tasks and  their corresponding models are \nlisted in Table I. We selected the widely used network \narchitecture for each task and trained the models on publicly \n \nFig.1. Workflow of the proposed Remote Sensing ChatGPT.",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "Remote Sensing ChatGPT 把用户请求与遥感图像交给 ChatGPT，按提示模板生成、任务规划、任务执行与响应生成四步运行：ChatGPT 决定是否调用工具，工具处理图像产生输出，输出再作为新观察回传 ChatGPT 决定是否继续调用，直到不再需要工具时汇总所有已执行任务输出生成最终回答。",
+      "scope": "Remote Sensing ChatGPT 的系统工作流描述，基于 ChatGPT 与多个遥感模型，论文为 arXiv 预印本（IGARSS 2024 投稿）",
+      "source_ids": [
+        "e80b94c99e711343"
+      ],
+      "id": "rscgpt-workflow-four-steps",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "e80b94c99e711343",
+          "locator": "提取文本字符 4800–6400",
+          "quote": "per, we propose Remote Sensing ChatGPT, a \nChatGPT-like system that is capable of understanding users’ \nrequests, planning remote sensing interpretation tasks, and \ngenerating final products and responses to users. We built \nRemote Sensing ChatGPT base d on ChatGPT and multiple \nAI-based remote sensing models that support various \ninterpretation tasks. We expect that Remote Sensing \nChatGPT can push forward the accessibility of remote \nsensing interpretation techniques to non-experts, people who \nare workin g on the applications of multiple fields such as \n\nurbanization and deforestation but are not remote sensing \nexperts. Furthermore, it is a meaningful attempt to automate \nremote sensing task planning , one key step toward the \nrealization of fully automatic remote sensing image \ninterpretation. Quantitative and qualitative evaluations are \nperformed to explore the performance of Remote Sensing \nChatGPT under different LLM backbones. We also discuss \nthe limitations and future directions of designing a ChatGPT-\nlike system for remote sensing. \n \n2. REMOTE SENSING CAHTGPT \nRemote Sensing ChatGPT is capable of solving remote \nsensing tasks with ChatGPT and remote sensing \ninterpretation models. With Remote Sensing ChatGPT, users \ncan simply send a remote sensing image with the \ncorresponding language request, and get the interpretation \nresults and language feedback. The workflow of Remote \nSensing ChatGPT is shown in Fig.1, which includes prompt \ntemplate generation, task planning, task execution, and \nresponse generation, which wil l be introduced in the \nfollowing subse",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "e80b94c99e711343",
+          "locator": "提取文本字符 7795–9395",
+          "quote": "available benchmarks. It should be noted that more tasks and \nmore sophisticated models can be applied to further improve \nthe performance of Remote Sensing ChatGPT \nIn this part, given the defined task library, the descriptions \nof the task functions, supported categories, input and output \ndata format, and task dependencies are generated to \nsupplement the prompt template. Furthermore, some \nexamples of each task are prov ided to perform in -context \nlearning and thus further improve the model’s understanding \nof user inputs. The complete prompt is then fed into ChatGPT \nto perform task planning.  \n2.3 Task Execution and Response Generation \n The output of ChatGPT determines whether and which tools \nshould be used. The determined tool is applied to the pre -\nprocess remote sensing image and generates the \ncorresponding output. The output is then fed to ChatGPT as \na new observation to determine whether new tools should be \nused to further solve the users’ requests. If no more tools \nshould be used, the output of all executed tasks will be sent \nto ChatGPT, which will generate the final response for the \nuser. \n3. EXPERIMENTS \nConsidering that Remote Sensing ChatGPT can be easily \nextended to more tasks with advanced methods such as \nfoundation models, our experiments focus on whether \nChatGPT correctly plans the interpretation task rather than \nthe interpretation accuracy. To this e nd, we collect 138 user \nqueries from multiple users. Then, we label the corresponding \ntasks based on the queries. Considering that ChatGPT can call \nmore tasks to assist the reasoning proces",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "GeoChat 用任务标识 token 区分任务类型：`[grounding]` 用于带定位的对话、`[identify]` 用于区域描述、`[refer]` 用于指代表达理解；视觉问答与场景分类则直接要求模型输出单词或短语。空间位置以文本格式表示，边界框写作 `{bx left, by top, bx right, by bottom|θ}`，坐标归一化到 [0,100]，区域位置可同时出现在模型输入与输出中。",
+      "scope": "GeoChat 的任务 token 与空间位置表示设计",
+      "source_ids": [
+        "863bccdceb2db4eb"
+      ],
+      "id": "geochat-task-tokens-and-spatial",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "863bccdceb2db4eb",
+          "locator": "提取文本字符 13721–15321",
+          "quote": "ptioning 40k [identify]{bx left,b y top,b x right,b y bottom|θ}\nReferring Expression 45k [refer]<p> Object</p>\nTable 1. Instruction following data used to train GeoChat. Instruc-\ntion types and format are shown. We use a 308k set for training\nand a separate 10k instruction-set for testing.\ninputs. Further, the original LLaV A can not reason about\nremote sensing images which is enabled via our domain-\nspecific dataset. We describe each component in the archi-\ntecture as follows:\nTask Token: The unique quality of GeoChat is its abil-\nity to easily switch between different types of remote sens-\ning visual interpretation tasks. To eliminate uncertainty\namong tasks, our approach assigns a unique task identifi-\ncation to each one. We suggest three distinct task identities,\nt∈{ grounding, identify, refer}, each for grounded con-\nversations, region captioning and referring expression com-\nprehension. As for the case of visual question answering\nand scene classification, we directly ask the model to out-\nput the answer in a single word or phrase, as shown in Ta-\nble 1. Our approach does not employ any task identifica-\ntion tokens for vision-irrelevant commands. This unified\napproach is supported by a modular design that efficiently\nintegrates spatial data, giving the model flexibility in its rea-\nsoning about visual content.\nSpatial Location Representation. Our model must pre-\ncisely identify the spatial position of the referenced items\nfor tasks such as grounded conversations, referring expres-\nsion generation, and comprehension. To this end, we repre-\nsent the box locations in a t",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "863bccdceb2db4eb",
+          "locator": "提取文本字符 15321–16320",
+          "quote": "extual format to express the ge-\nographical position: b ={bx left,b y top,b x right,b y bottom|θ}.\nHere, bx left,b y top denote the top left corner point of box\nwhile the bx right,b y bottom represent the bottom right corner\ncoordinates. The angleθ represents the angle of rotation for\nthe bounding box, from the lower edge. Numerical values\nnormalised within the interval [0, 100] are used to represent\nthe x and y coordinates. Region locations in this format are\nused to interact with the model via its inputs and outputs.\nVisual Backbone. GeoChat adapts the pretrained vision\nbackbone of CLIP-ViT(L-14) [28], which has an input res-\nolution of 336×336. This results in effectively 576 patches\nper image. Since this resolution is not sufficient to un-\nderstand details presented in remote sensing imagery (e.g.,\nsmall objects and object details), we interpolate the posi-\ntional encoding in the transformer-based CLIP [28] model\nto scale with input image sizes of 504×504. Although this\n3\n27833",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "GeoChat 在自建定位基准上整体表现仍低：小目标与需要预测多个框时性能较差，作者指出该复杂任务仍有显著改进空间；区域级描述任务上 GeoChat 的 ROUGE 与 METEOR 明显高于 MiniGPT-4-v2。",
+      "scope": "GeoChat 自建定位基准（7593 refer、560 grounding、495 grounding description、2793 region captioning）与区域描述评测",
+      "source_ids": [
+        "863bccdceb2db4eb"
+      ],
+      "id": "geochat-grounding-limits",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "863bccdceb2db4eb",
+          "locator": "提取文本字符 35851–37451",
+          "quote": "count. We omitted\narea and count questions during evaluation because the re-\nsponses are numerical and quantifiable into numerous cat-\negories. In the RSVQA-LRBEN [20] dataset, for exam-\nple, counting questions are quantified into five categories:\n0, between 1 and 10, between 11 and 100, between 101 and\n1000, and greater than 1000. For evaluation, we use the test\nset of RSVQA-LRBEN [20] with 7k question-answer pairs.\nResults. To constrain the answers to a simple yes/no and\nfor rural/urban question types, we add a suitable prompt at\nthe end of each question. GeoChat performs close to the\nSOTA specialist models on RSVQA-LRBEN test set, which\nis RSGPT [12], finetuned on the target dataset for 5 itera-\ntions in comparison. For RSVQA-HRBEN, GeoChat out-\nperforms other VLM’s in zero-shot setting on average ac-\ncuracy by 3.9%, while beating the Comparison subset by\n15.9% on LLaV A-v1.5 [17], as shown in Table 8.\n5.4. Visual Grounding\nDatasets for evaluation. For the evaluation of grounding\ntasks, we propose a new benchmark that contains different\nreferring and grounding tasks. We use the validation set\nfrom [31] and used the same dataset creation pipeline as in\nSec. 4 to construct the test benchmark. There are a total\nof 7593 [refer], 560 [grounding], and 495 grounding de-\nscription questions, as well as 2793 for region captioning.\nWe use accuracy@0.5 as the evaluation metric. Accuracy is\ncalculated if the predicted box has an overlap of more than\nModel acc@0.5 acc@.25 METEOR\nMiniGPTv2[4] 10.8 30.9 16.4\nGeoChat 11.7 33.9 48.9\nTable 9. Results on grounding description task.\nModel R",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "863bccdceb2db4eb",
+          "locator": "提取文本字符 37451–39051",
+          "quote": "OUGE-1 ROUGE-L METEOR\nMiniGPTv2[4] 32.1 31.2 10.0\nGeoChat 87.3 87.2 83.9\nTable 10. Region level captioning performance.\n0.5 IoU with the ground-truth box.\nResults. Table 7 shows the performance of our method\nand MiniGPT-4-v2 [4] on the proposed benchmark. Over-\nall, the model performance is low on small objects or when\nit has to predict multiple boxes. Compared to MiniGPT-4-\nv2[4], our model works better on medium size images. On\nthe grounding description task, we calculate both, the IoU\nfor the multiple bounding boxes generated as well as the\ntext answer generated. Our model provides a better descrip-\ntion with slightly better box accuracy than MiniGPT-4-v2\n[4] (Table 9). As for region-level captioning, we evaluate\nboth models based on the text accuracy with ground truth\nregion-level captions (Table 10). Our model significantly\noutperforms MiniGPT-4-v2 in terms of ROUGE and ME-\nTEOR score.\n6. Conclusion\nAlthough recent advancements in large Vision-Language\nModels (VLMs) have shown promise in nature image do-\nmains, their performance in Remote Sensing (RS) scenar-\nios is still limited due to the unique domain-specific chal-\nlenges. Addressing this gap, we present GeoChat, the\nfirst unified remote sensing VLM that excels in multitask\nconversational capabilities with high-resolution RS images.\nGeoChat not only answers image-level queries but also en-\ngages in region-specific dialogue, grounding responses with\nprecise spatial coordinates. We create a novel RS mul-\ntimodal instruction-following dataset comprising of 318k\nimage-instruction pairs with a diverse multitask format.",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "Change-Agent 把多层级变化解释（MCI）模型作为“眼睛”、LLM 作为“大脑”；MCI 模型含像素级变化检测与语义级变化描述两个分支，用 BI-temporal Iterative Interaction（BI3）层（含局部感知增强 LPE 与全局差异融合注意力 GDFA）增强判别性特征表示，可同时输出变化掩膜与变化描述。",
+      "scope": "Change-Agent 与 MCI 模型设计，IEEE TGRS 2024",
+      "source_ids": [
+        "014cdafa93ee999c"
+      ],
+      "id": "change-agent-mci-dual-branch",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "014cdafa93ee999c",
+          "locator": "提取文本字符 0–1600",
+          "quote": "1\n\nChange-Agent: Towards Interactive Comprehensive\nRemote Sensing Change Interpretation and Analysis\nChenyang Liu, Keyan Chen, Haotian Zhang, Zipeng Qi, Zhengxia Zou, Member, IEEE,\nand Zhenwei Shi∗ , Senior Member, IEEE\n\narXiv:2403.19646v3 [cs.CV] 16 Jul 2024\n\nBeihang University\n\nAbstract—Monitoring changes in the Earth’s surface is crucial\nfor understanding natural processes and human impacts, necessitating precise and comprehensive interpretation methodologies.\nRemote sensing satellite imagery offers a unique perspective for\nmonitoring these changes, leading to the emergence of remote\nsensing image change interpretation (RSICI) as a significant\nresearch focus. Current RSICI technology encompasses change\ndetection and change captioning, each with its limitations in providing comprehensive interpretation. To address this, we propose\nan interactive Change-Agent, which can follow user instructions\nto achieve comprehensive change interpretation and insightful\nanalysis, such as change detection and change captioning, change\nobject counting, change cause analysis, etc. The Change-Agent\nintegrates a multi-level change interpretation (MCI) model as\nthe eyes and a large language model (LLM) as the brain.\nThe MCI model contains two branches of pixel-level change\ndetection and semantic-level change captioning, in which the BItemporal Iterative Interaction (BI3) layer is proposed to enhance\nthe model’s discriminative feature representation capabilities. To\nsupport the training of the MCI model, we build the LEVIRMCI dataset with a large number of change masks and captions\nof changes.",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "014cdafa93ee999c",
+          "locator": "提取文本字符 6556–8156",
+          "quote": "The road change map have been saved.\n\nLarge Language Model\n\nb) Change-Agent\n\nFig. 1. The comparison between previous single technology and our Change-Agent. Our Change-Agent can simultaneously achieve precise pixel-level change\ndetection and semantic-level change captioning. Besides, it boasts interactive capabilities, enabling users to communicate their queries on surface changes.\n\nChange-Agent can adeptly interpret changes according to user\nneeds, intelligently analyze and process the change interpretation information, and ultimately deliver tailored outcomes\naligning with user expectations. The interactive Change-Agent\nbridges the gap between users and remote sensing expertise.\nAs illustrated in Fig.1 (b), the MCI model is a pivotal\ncornerstone toward the realization of the Change-Agent. It\nenables the Change-Agent to perceive visual changes comprehensively, serving as the change perception foundation of\nthe Change-Agent. However, there has been no prior work\ninvestigating the multi-task learning of change detection and\nchange captioning. To address this gap, we built the LEVIRMCI dataset. Each pair of bi-temporal remote sensing images\nin this dataset contains both pixel-level change detection masks\nand semantic-level change descriptions. Building upon this\ndataset, we propose a novel MCI model with two branches\nof change detection and change captioning. Within the two\nbranches, we propose BI-temporal Iterative Interaction (BI3)\nlayers utilizing Local Perception Enhancement (LPE) and\nthe Global Difference Fusion Attention (GDFA) modules\nto enhance the model’s discriminat",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "Change-Agent 的 LLM 依据用户指令规划任务，并自主编写 Python 程序，由 Python 解释器执行；工具集包括视觉特征提取骨干、变化检测分支、变化描述分支与相关 Python 库，可完成变化掩膜预测、变化描述、变化对象计数、掩膜后处理、交互案例中的变化原因与未来发展推测等。",
+      "scope": "Change-Agent 的 LLM 规划与 Python 工具执行机制；变化原因与未来变化的回答为论文交互案例中的语言模型推测，不应解释为因果或预测正确性已验证。",
+      "source_ids": [
+        "014cdafa93ee999c"
+      ],
+      "id": "change-agent-llm-python-tools",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "014cdafa93ee999c",
+          "locator": "提取文本字符 29370–30970",
+          "quote": "Planning &\nPrograming\n\nLLM\n\nPython Executor\nInterpretation & Processing\nChange Detection Mask\n\nKnowledge\n\nChange Description\n\nInspired by these developments, we harness the capabilities\nof LLMs as the cognitive core responsible for orchestrating\nthe scheduling of our Change-Agent. As depicted in Fig. 9,\nthe LLM meticulously plans task execution based on user\ninstructions. Despite excelling at text-related tasks, LLMs\nlack inherent visual perception capabilities. To bridge this\ngap and enable change interpretation and analysis akin to\nhuman capability, we equip our agent with a suite of Python\ntools. These tools include a visual feature extraction backbone, change detection branch, change captioning branch, and\nrelevant Python libraries. Leveraging these tools, the LLM\nautonomously crafts Python programs, subsequently executed\nby a Python interpreter to automatically accomplish tasks\nCode\nbeyond its intrinsic capabilities without the need for human\nintervention. Subsequently, the LLM processes the results\nand furnishes feedback to the user. In addition to furnishing\nchange masks and descriptions, our agent can implement\nobject counting, image processing, change cause estimation,\nprediction of future changes, and more. In short, the ChangeAgent adeptly provides users with pertinent information by\nleveraging the rich knowledge of the LLM and additional tools.\nTo facilitate the accurate generation of formatted Python\ncode and tool invocation by the LLM, a meticulously crafted\ntext prompt is essential. Inspired by the prompt utilized in [77],\nwe devised a text prompt instructing",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "014cdafa93ee999c",
+          "locator": "提取文本字符 30970–31819",
+          "quote": "the model on proper tool\nutilization. This prompt is input to the LLM in the role of a\nsystem instruction, as shown in Fig. 10.\nPY\n\nChange Object Counting\n\nTools\nPytorch\n\nVisual Backbone\n\nOpenCV\n\nCD Branch\n\nNumpy\n\nCC Branch\n\n......\n\nImage Processing\nChange Cause Estimation\nFuture Change Prediction\n\n......\n\nChange Impact Assessment\n\nFig. 9. The LLM plans how to complete the task according to the user’s\ninstructions. We provide a suite of Python tools. The LLM drafts Python\nprograms, subsequently executed by a Python interpreter to accomplish tasks\nbeyond its inherent capabilities.\n\nFor the input XTs 1 , XTs 2 (s = 1, 2, 3, 4), the CBF module ΦCBF (·)\ncan be represented as follows:\nΦCBF (XTs 1 , XTs 2 ) = conv1×1 (ReLU(BN(conv3×3 (F))))\n\n(12)\n\nF = concat([XTs 1 , S , XTs 2 ])\nS = conv3×3 (XTs 2 − XTs 1 ) + cos(XTs 1 , XTs 2 )\n\n(13)\n(14)",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "OpenEarthAgent 把视觉、光谱、GIS 与地理参考栅格操作统一到一致的可调用 schema（JSON 契约），由中央编排器解析模型生成的工具调用、校验参数、执行并把返回结果追加到工作记忆；中间产物（矢量图层、栅格子集、指数图、几何）存入工具执行缓存，供同一轨迹后续调用复用并支持确定性重放。",
+      "scope": "OpenEarthAgent 框架设计，ECCV 2026 接收的 arXiv 预印本",
+      "source_ids": [
+        "a58012192462df16"
+      ],
+      "id": "openearthagent-unified-tool-registry",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "a58012192462df16",
+          "locator": "提取文本字符 28653–30140",
+          "quote": "d\nraster data), the agent generates multi-step reasoning trajectories that interleave\ninternal thoughts with explicit tool invocations and their returned outputs (see\nFig. 5). At each step, the agent maintains a short-term working memory that\ncontains: instructions, observations, prior tool calls, spatial metadata, and con-\ntextual feedback from previous executions, which enable iterative reasoning and\nconsistent spatial grounding. Training follows a supervised fine-tuning procedure\non validated reasoning traces, improving syntactic validity, spatial consistency,\nand multi-step reasoning coherence across diverse geospatial contexts.\nUnified Tool Registry:To standardize the diverse operators used in EO rea-\nsoning, we construct a unified tool registry that abstracts heterogeneous visual,\nspectral, and GIS operations through a consistent callable schema:\nMj = (xin,yout,ψj), (1)\nwherex in denotes structured input arguments,yout denotes structured outputs,\nψj :x in7→y out is the executable function implementing the operation. All tools\nfollow standardized JSON-based contracts to ensure consistent serialization and\nvalidation across training and inference. A central orchestrator parses model-\ngenerated tool calls, validates arguments, executesψj, and appends returned\noutputs to the working memory. During execution, a predicted tool invocation\nst with arguments ˆxt is evaluated asyt =ψ st (ˆxt), and the returned outputyt\nbecomes part of the updated reasoning context.",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "a58012192462df16",
+          "locator": "提取文本字符 30140–31133",
+          "quote": "10 A. Shabbir et al.\nTo ensure efficiency and consistency, intermediate outputs (e.g., derived vec-\ntor layers, raster subsets, index maps, computed geometries) are stored in a\ntool execution cache memory. This cache includes geospatial archives and vec-\ntor/raster layers that can be reused by subsequent tool calls within the same\ntrajectory. Caching prevents redundant computation and ensures determinis-\ntic replay of reasoning steps. New tools can be integrated by registering their\nschemaM j without retraining the backbone model, ensuring extensibility while\nmaintaining interface consistency. We outline the tool categories:\na) Perceptual Tools.ground language into image-space entities.TextToBbox,\nObjectDetection,andRegionAttributeDescriptionconvertfree-formqueries\ninto spatial primitives such as bounding boxes and semantic tags.CountGiven\nObjectandSegmentObjectPixelssupport object counting and pixel-level area\nestimation.ChangeDetectionanalyzes multi-date imagery to detect stru",
+          "proposed_by": "LLM"
+        }
+      ]
+    }
+  ],
+  "conflicts": [],
+  "related_slugs": [
+    "agent-tool-interface-contracts",
+    "react-reasoning-acting-loop",
+    "remote-sensing-perception-to-agent"
+  ],
+  "relations": [
+    {
+      "id": "contrast-remote-sensing-perception-to-agent",
+      "target_slug": "remote-sensing-perception-to-agent",
+      "kind": "contrast",
+      "summary": "Remote Sensing ChatGPT使用描述与工具观察，GeoChat输出文本和对象位置，Change-Agent输出变化掩膜与描述。",
+      "scope": "比较输出表示和后续操作，不宣称已经验证组合系统。",
+      "claim_ids": [
+        "change-agent-mci-dual-branch",
+        "geochat-task-tokens-and-spatial",
+        "rscgpt-workflow-four-steps"
+      ],
+      "source_ids": [
+        "014cdafa93ee999c",
+        "863bccdceb2db4eb",
+        "e80b94c99e711343"
+      ]
+    }
+  ],
+  "page_role": "knowledge",
+  "content_review": {},
+  "review_history": [],
+  "updated_at": "2026-10-12T15:05:54+00:00",
+  "writing_guide_version": "6",
+  "publication": {
+    "by": "agent",
+    "policy": "automatic",
+    "at": "2026-10-12T15:05:54+00:00"
+  }
+}

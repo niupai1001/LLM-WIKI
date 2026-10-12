@@ -1,0 +1,176 @@
+{
+  "slug": "agent-tool-experience-learning",
+  "title": "工具使用经验怎样进入模型",
+  "category": "agents",
+  "source_ids": [
+    "4a3710e0ff43d563",
+    "84d839e63c28ec29",
+    "a58012192462df16",
+    "f8a9212514d96b57"
+  ],
+  "page_kind": "concept",
+  "claims": [
+    {
+      "text": "Toolformer 通过采样候选 API 调用、执行、按损失筛选、再用筛选后的数据微调模型，实现自监督的工具使用学习。",
+      "scope": "论文第 2 节方法流程；基于 GPT-J 与 CCNet 子集的实验设置。",
+      "source_ids": [
+        "4a3710e0ff43d563"
+      ],
+      "id": "self-supervised-pipeline",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "4a3710e0ff43d563",
+          "locator": "提取文本字符 7357–8957",
+          "quote": "Your task is to add calls to a Question Answering API to a piece of text. The questions should help you get information required \nto complete the text. You can call the API by writing \"[QA(question)]\" where \"question\" is the question you want to ask. Here are \nsome examples of API calls:\nInput: Joe Biden was born in Scranton, Pennsylvania.\nOutput: Joe Biden was born in [QA(\"Where was Joe Biden born?\")] Scranton, [QA(\"In which state is Scranton?\")] \nPennsylvania.\nInput: Coca-Cola, or Coke, is a carbonated soft drink manufactured by the Coca-Cola Company.\nOutput: Coca-Cola, or [QA(\"What other name is Coca-Cola known by?\")] Coke, is a carbonated soft drink manufactured by \n[QA(\"Who manufactures Coca-Cola?\")] the Coca-Cola Company.\nInput: x\nOutput:\nFigure 3: An exemplary promptP (x) used to generate API calls for the question answering tool.\nGiven a datasetC ={x1,..., x|C|} of plain texts, we first convert this dataset into a dataset C∗\naugmented with API calls. This is done in three steps, illustrated in Figure 2: First, we exploit the\nin-context learning ability ofM to sample a large number of API calls. We then execute them and\nfinally check whether the obtained responses are helpful for predicting future tokens; this is used as a\nfiltering criterion. After filtering, we merge API calls for different tools, resulting in the augmented\ndatasetC∗, and finetuneM itself on this dataset. Each step is described in more detail below.\nSampling API Calls For each API, we write a promptP (x) that encourages the LM to annotate an\nexample x =x1,...,x n with API calls. An example of such",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "Toolformer 无法链式使用工具，也无法交互式使用工具（如浏览多个搜索结果或改写查询）。",
+      "scope": "论文第 6 节限制；原因是各工具 API 调用独立生成，微调数据无链式示例。",
+      "source_ids": [
+        "4a3710e0ff43d563"
+      ],
+      "id": "no-chain-or-interactive-use",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "4a3710e0ff43d563",
+          "locator": "提取文本字符 33865–35465",
+          "quote": "eneration (He et al., 2020), few-shot text classification (Schick and Schütze, 2021a) and\nretrieval (Izacard and Grave, 2021) to reasoning (Zelikman et al., 2022). In a similar spirit, Toolformer\nis trained on its own predictions after applying a perplexity-based filtering step.\n6 Limitations\nWhile our approach enables LMs to learn how to use a variety of tools in a self-supervised way, there\nare some clear limitations to what can be achieved with our method in its current form. One such\nlimitation is the inability of Toolformer to use tools in a chain (i.e., using the output of one tool as an\ninput for another tool). This is due to the fact that API calls for each tool are generated independently;\nas a consequence, there are no examples of chained tool use in the finetuning dataset, since this would\nnecessitate multiple API calls per example. Our current approach also does not allow the LM to use a\ntool in an interactive way – especially for tools such as search engines, that could potentially return\nhundreds of different results, enabling a LM to browse through these results or to refine its search\nquery in a similar spirit to Nakano et al. (2021) can be crucial for certain applications. Beyond this,\nwe found models trained with Toolformer to often be sensitive to the exact wording of their input\nwhen deciding whether or not to call an API; this is perhaps unsurprising given that LMs are known to\nbe very sensitive to the prompt they are provided with in both zero- and few-shot settings (Jiang et al.,\n2020; Schick and Schütze, 2021a). Depending on the tool, our method is a",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "OpenEarthAgent 的数据构建用验证套件在实例入库前做自动与人工检查：解析工具调用检查语法（工具名、参数名、参数类型、文件引用），用工具控制器重放轨迹验证每步可执行且返回观测与下一步推理一致，再做坐标、几何、POI 图层、距离、面积与栅格指数输出的空间检查，失败实例被丢弃或重新生成。",
+      "scope": "OpenEarthAgent 数据集验证流程",
+      "source_ids": [
+        "a58012192462df16"
+      ],
+      "id": "openearthagent-deterministic-replay-validation",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "a58012192462df16",
+          "locator": "提取文本字符 109230–110704",
+          "quote": "20 A. Shabbir et al.\ndataset entry. Each entry contains the user query, associated image or geospa-\ntial files, serialized tool calls, intermediate observations, and final answer. The\nconstructor also records the task category, modality type, tool sequence, and\nreasoning length. This produces a standardized training or evaluation instance\nthat can be consumed directly by the OpenEarthAgent training pipeline. By pre-\nserving intermediate steps, the dataset supports supervision over the complete\nreasoning process rather than only the final answer.\nValidation Suite\nThe validation suite performs automatic and manual checks before an instance is\nadmitted into the final corpus. First, generated tool calls are parsed and checked\nfor syntactic validity, including tool names, argument names, argument types,\nand file references. Second, the trajectory is replayed with the tool controller\nto verify that each action can be executed and that the returned observation\nis consistent with the next reasoning step. Third, spatial checks are applied to\nvalidate coordinates, geometries, POI layers, distances, areas, and raster-index\noutputs. Instances that fail validation are discarded or regenerated. For the held-\noutevaluationsplit,additionalmanualinspectionisappliedtoremoveunrealistic\nmeasurements, ambiguous queries, and cases where the answer depends on in-\nvalid metadata. The resulting samples form the final OpenEarthAgent dataset\nused for training and benchmarking.",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "OpenEarthAgent 用监督微调在结构化推理轨迹上训练，基座为 Qwen3-4B-Instruct-2507，训练 1 个 epoch、学习率 2×10⁻⁵、批大小 16、最大序列长度 4096，采用仅对助手生成 token 计算损失的 response-only masking；数据含 14,538 训练与 1,169 评测实例、超过 107K 推理步骤。",
+      "scope": "OpenEarthAgent 训练配置与语料规模",
+      "source_ids": [
+        "a58012192462df16"
+      ],
+      "id": "openearthagent-sft-trajectories",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "a58012192462df16",
+          "locator": "提取文本字符 33968–35568",
+          "quote": "4 Experiments\nIn this section, we outline implementation details, describe the two evaluation\nmodes, define metrics used to quantify reasoning fidelity, tool effectiveness, and\ngeospatial accuracy, and discuss key experimental results and insights.\nImplementation Details:OpenEarthAgent is finetuned using Qwen3-4B-\nInstruct-2507 as the base model. Training was performed on LLM controller on\nfour NVIDIA A100 GPUs (40 GB). The base model is loaded via Unsloth’s Fast-\nLanguageModel, enabling efficient multi-GPU distributed training. The model\nis trained for one epoch with a learning rate of2×10 −5, cosine learning rate\nscheduling, 0.05 warmup ratio, and a batch size of 16. The maximum sequence\nlength is set to 4096 tokens to support long-context conversational tool inter-\nactions. LLM is finetuned on conventional data, where the model alternates\nbetween text generation and tool invocation, providing tool outputs and feed-\nback in JSON format, embedded in its user and assistant turns. Training ap-\nplies response-only masking, computing loss exclusively on assistant-generated\ntokens, enabling accurate tool calls and structured responses without optimizing\non prompt text or external tool outputs. This enables the model to establish a\ngood grounding for tool invocation.\n4.1 Baseline Evaluation\nTo evaluate OpenEarthAgent, we benchmark its performance against a diverse\nset of large language models (LLMs), encompassing both proprietary and open-\nsource variants. The comparison includes advanced frontier models (GPT-4o and\nits reasoning-optimized variant o4-mini), and mid- to small-sca",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "a58012192462df16",
+          "locator": "提取文本字符 3200–4800",
+          "quote": "ite\nimagery, natural-language queries, and structured reasoning traces. Be-\nyond serving as a benchmark, OpenEarthAgent establishes a cohesive\nagentic architecture built around a unified executable tool registry and\ntrajectory-based policy learning. The framework standardizes heteroge-\nneous visual, spectral, GIS, and georeferenced raster operations under\n⋆ Equal contribution.\narXiv:2602.17665v4  [cs.CV]  12 Jul 2026\n\n2 A. Shabbir et al.\na consistent callable schema, enabling modular orchestration and deter-\nministic execution. Training is performed via supervised fine-tuning on\nstructured reasoning trajectories with deterministic replay validation to\nensure executability and spatial correctness. The accompanying corpus\ncomprises 14,538 training and 1,169 evaluation instances with over 107K\nreasoning steps, spanning urban, environmental, disaster, and infrastruc-\nture domains and incorporating GIS operations alongside index analyses\nsuch as NDVI, NBR, and NDBI. Grounded in explicit reasoning traces,\nthe learned agent demonstrates structured reasoning, stable spatial un-\nderstanding, and interpretable tool-driven behavior across diverse EO\nscenarios. We report consistent improvements over a strong baseline and\ncompetitive performance against recent open and closed-source models.\n1 Introduction\nThe evolution of visual representation learning has transitioned from static per-\nception to interactive multimodal reasoning. Early single-shot frameworks such\nas DINO [4] and MAE [14] laid the foundation for large-scale visual understand-\ning through self-supervised objectives, learn",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "工具创建Agent按DAG拓扑依赖为各节点生成脚本，前一脚本执行成功后才继续下一节点。",
+      "scope": "OpenEarth-Agent工具创建论文；与OpenEarthAgent轨迹学习论文不是同一工作。",
+      "source_ids": [
+        "84d839e63c28ec29"
+      ],
+      "id": "runtime-tool-creation",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "84d839e63c28ec29",
+          "locator": "归档提取文本字符 18457–19018",
+          "quote": "Following the topological dependency order of the\nworkflow, the Coding Agent sequentially generates execution scripts for each node. Unlike existing\n5\n\nmethods that retrieve and invoke tools from a limited toolset, the Coding Agent fully leverages\nthe code generation capabilities of LLMs, combined with the integrated professional toolsets and\nknowledge base, to create adaptive and specialized tools within open environments. The agent\nadvances to the tool creation for the next node only after the script of the preceding node has been\nsuccessfully executed.",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "PhenoAssistant的Pipeline Reproducer从聊天历史中抽取实际执行的函数与代码，排除失败片段，整理为可复用Python函数。",
+      "scope": "论文已实现的流水线复现模块；不据此声称已自动检索历史流程规划新任务。",
+      "source_ids": [
+        "f8a9212514d96b57"
+      ],
+      "id": "pheno-executed-flow-reuse",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "f8a9212514d96b57",
+          "locator": "归档提取文本字符 54558–54862",
+          "quote": "5. Pipeline reproducer: extracts executed function calls and code\nfrom a chat history, organising them into a new Python function\nthat can be reused in the future. Its system prompt instructs it to\nextract only the functions and code snippets that were actually\nexecuted, while excluding the failed ones.",
+          "proposed_by": "LLM"
+        }
+      ]
+    }
+  ],
+  "conflicts": [],
+  "related_slugs": [
+    "agent-tool-knowledge-selection",
+    "tool-creation-agent",
+    "toolformer-self-supervised-tool-use-training"
+  ],
+  "relations": [
+    {
+      "id": "contrast-toolformer-self-supervised-tool-use-training",
+      "target_slug": "toolformer-self-supervised-tool-use-training",
+      "kind": "contrast",
+      "summary": "Toolformer按后续token损失筛选API调用；OpenEarthAgent重放检查多步轨迹后做监督训练。",
+      "scope": "训练数据单位和判据不同，没有同条件效果比较。",
+      "claim_ids": [
+        "openearthagent-deterministic-replay-validation",
+        "self-supervised-pipeline"
+      ],
+      "source_ids": [
+        "4a3710e0ff43d563",
+        "a58012192462df16"
+      ]
+    },
+    {
+      "id": "contrast-tool-creation-agent",
+      "target_slug": "tool-creation-agent",
+      "kind": "contrast",
+      "summary": "OpenEarthAgent改变模型的工具策略；OpenEarth-Agent按工作流生成运行时工具脚本。",
+      "scope": "两项不同研究，不能把工具创建本身称为轨迹权重学习。",
+      "claim_ids": [
+        "openearthagent-sft-trajectories",
+        "runtime-tool-creation"
+      ],
+      "source_ids": [
+        "84d839e63c28ec29",
+        "a58012192462df16"
+      ]
+    }
+  ],
+  "page_role": "knowledge",
+  "content_review": {},
+  "review_history": [],
+  "updated_at": "2026-10-12T15:05:54+00:00",
+  "writing_guide_version": "6",
+  "publication": {
+    "by": "agent",
+    "policy": "automatic",
+    "at": "2026-10-12T15:05:54+00:00"
+  }
+}

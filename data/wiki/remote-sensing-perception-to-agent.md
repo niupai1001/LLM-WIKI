@@ -30,9 +30,19 @@ Change-Agent同时读取双时相图像。多层级变化解释模型包含像�
 
 [[geospatial-hierarchical-planning-agents|层级规划与容错]]则讨论任务前置关系、工具组织及失败后的恢复。HTAM的领域任务分层与HieraPlan的工具层级属于不同设计；需要结合任务依赖、输入输出和实际执行条件考察它们与感知模块的衔接。[S:cf1e618aae1ce2d6][S:8db3263052b0cab1]
 
+## 跨研究的机制联系
+
+本组图像描述、对象框和变化掩膜的不同作用，集中解释在[[remote-sensing-perception-outputs|感知输出与后续输入]]。Remote Sensing ChatGPT把视觉工具输出反馈为新观察，与[[react-reasoning-acting-loop|ReAct]]的交互协议相接；GeoChat原文是一项VLM能力，未证明它已经是完整工具执行Agent。[S:e80b94c99e711343][S:e504ba1ba9c3fffc][S:863bccdceb2db4eb]
+
+变化掩膜后续计数、保存或其他操作，还需要[[agent-tool-interface-contracts|产物契约]]；规划和感知的分数必须按[[agent-evaluation-layers|评价层次]]解释。页面保留不同训练和实验条件，共享概念不使这些分数变得可直接比较。
+
 ## 相关知识
 
+- [[agent-evaluation-layers]]
+- [[agent-tool-interface-contracts]]
 - [[geospatial-hierarchical-planning-agents]]
+- [[react-reasoning-acting-loop]]
+- [[remote-sensing-perception-outputs]]
 - [[remote-sensing-tool-augmented-agents]]
 
 ---
@@ -46,4 +56,5 @@ Change-Agent同时读取双时相图像。多层级变化解释模型包含像�
 - [OpenEarthAgent: A Unified Framework for Tool-Augmented Geospatial Agents](/source/a58012192462df16) · 来源ID `a58012192462df16`
 - [Designing Domain-Specific Agents via Hierarchical Task Abstraction Mechanism](/source/cf1e618aae1ce2d6) · 来源ID `cf1e618aae1ce2d6`
 - [RS-Agent: Automating Remote Sensing Tasks through Intelligent Agent](/source/d97a83738e867ba8) · 来源ID `d97a83738e867ba8`
+- [ReAct: Synergizing Reasoning and Acting in Language Models](/source/e504ba1ba9c3fffc) · 来源ID `e504ba1ba9c3fffc`
 - [Remote Sensing ChatGPT: Solving Remote Sensing Tasks with ChatGPT and Visual Models](/source/e80b94c99e711343) · 来源ID `e80b94c99e711343`

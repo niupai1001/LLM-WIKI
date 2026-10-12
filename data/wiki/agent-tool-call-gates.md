@@ -36,14 +36,21 @@
 
 **静态校验通过就代表安全。** 规则可能漏掉条款、误解含义或绑定过宽；事实提取也可能被污染。仍需检查规则语义、行为和输入来源。[NOMOS](/source/e0c0d198c4709cc7)
 
+## 跨研究的机制联系
+
+OpenEarthAgent的编排器验证调用参数，PhenoAssistant的工具schema说明输入输出。这些接口约束帮助代码读懂调用，与本页NOMOS判断政策和授权条件处于不同层次。一个调用能够被解析、参数类型匹配，仍可能违反政策；语言模型自己宣称的批准也不能变成授权事实。见[[agent-tool-interface-contracts|接口与中间产物契约]]。[S:a58012192462df16][S:f8a9212514d96b57][S:e0c0d198c4709cc7]
+
 ## 相关知识
 
-- [[agent-execution-reliability|智能体执行可靠性]]
-- [[agent-memory-admission|长期记忆准入]]
-- [[multi-agent-failure-attribution|多智能体失败归因]]
+- [[agent-execution-reliability]]
+- [[agent-memory-admission]]
+- [[agent-tool-interface-contracts]]
+- [[multi-agent-failure-attribution]]
 
 ---
 
 ## 原始证据
 
-- [NOMOS: Compiling Written Policies into Statically Verified Tool-Call Gates for LLM Agents](/source/e0c0d198c4709cc7) · 2026-10-08 · [原文](https://arxiv.org/abs/2610.11030)
+- [OpenEarthAgent: A Unified Framework for Tool-Augmented Geospatial Agents](/source/a58012192462df16) · 来源ID `a58012192462df16`
+- [NOMOS: Compiling Written Policies into Statically Verified Tool-Call Gates for LLM Agents](/source/e0c0d198c4709cc7) · 来源ID `e0c0d198c4709cc7`
+- [A conversational multi-agent AI system for automated plant phenotyping](/source/f8a9212514d96b57) · 来源ID `f8a9212514d96b57`

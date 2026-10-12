@@ -3,6 +3,7 @@
   "title": "实验反馈驱动的 Agent 超参数优化",
   "category": "topic-f8ccede1b22c4c7e",
   "source_ids": [
+    "84d839e63c28ec29",
     "94853529d326ac72",
     "d7eeabd9156ed311"
   ],
@@ -259,6 +260,42 @@
           "proposed_by": "LLM"
         }
       ]
+    },
+    {
+      "text": "工具创建的检查Agent诊断脚本是否能运行，并用地学规则检查无效值与指数合理范围。",
+      "scope": "运行诊断与数值合理性检查，不等于目标性能或科学解释已验证。",
+      "source_ids": [
+        "84d839e63c28ec29"
+      ],
+      "id": "runtime-tool-checking",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "84d839e63c28ec29",
+          "locator": "归档提取文本字符 19152–19512",
+          "quote": "As the Coding Agent executes each script, the Checking\nAgent performs runtime diagnostics to determine whether the code runs successfully and utilizes\ngeoscientific rules to verify the validity of the results (e.g., checking if saved results consist entirely of\ninvalid values or if the calculated remote sensing indices fall outside logical numerical ranges).",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "AgentHPOBench让Agent根据配置、指标与执行日志提出受约束的新配置，固定数据、划分、指标、评估代码和基准元数据。",
+      "scope": "仓库级序贯HPO评价协议，不能把改评价脚本当调参收益。",
+      "source_ids": [
+        "d7eeabd9156ed311"
+      ],
+      "id": "hpo-frozen-intervention",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "d7eeabd9156ed311",
+          "locator": "归档提取文本字符 5917–6258",
+          "quote": "observes the accumulated configurations, target and auxiliary metrics, and execution logs, and proposes\na new configuration within the intervention space derived from the official training scripts, configuration\nfiles, or repository documentation. The dataset, data split, target metric, evaluation code, and benchmark\nmetadata remain fixed.",
+          "proposed_by": "LLM"
+        }
+      ]
     }
   ],
   "conflicts": [
@@ -283,20 +320,42 @@
         }
       ],
       "status": "待核查",
-      "handling": "两者任务集、试验次数、预算比例、基线定义与计分方式都不同（AgentHPO 用 10 次试验与随机搜索/贝叶斯/OPRO 对比，AgentHPOBench 用 5 次干预与随机搜索/TPE/BOHB 变体对比，且以最终步而非最佳中间结果计分），不能直接比较优劣；需核对在相同任务、相同预算与相同计分口径下，AgentHPO 式 Creator–Executor 回路相对常规 HPO 与基线智能体的表现。",
+      "handling": "正文更新后需复核。原处理记录：两者任务集、试验次数、预算比例、基线定义与计分方式都不同（AgentHPO 用 10 次试验与随机搜索/贝叶斯/OPRO 对比，AgentHPOBench 用 5 次干预与随机搜索/TPE/BOHB 变体对比，且以最终步而非最佳中间结果计分），不能直接比较优劣；需核对在相同任务、相同预算与相同计分口径下，AgentHPO 式 Creator–Executor 回路相对常规 HPO 与基线智能体的表现。",
       "proposed_by": "LLM"
     }
   ],
   "related_slugs": [
-    "scientific-automl-agent-workflows"
+    "agent-evaluation-layers",
+    "scientific-automl-agent-workflows",
+    "tool-creation-agent"
   ],
   "content_review": {},
   "review_history": [],
-  "updated_at": "2026-10-12T13:52:12+00:00",
-  "writing_guide_version": "5",
+  "updated_at": "2026-10-12T15:10:48+00:00",
+  "writing_guide_version": "6",
   "publication": {
     "by": "agent",
     "policy": "automatic",
-    "at": "2026-10-12T13:52:12+00:00"
-  }
+    "at": "2026-10-12T15:10:48+00:00"
+  },
+  "relations": [
+    {
+      "id": "shared-mechanism-tool-creation-agent",
+      "target_slug": "tool-creation-agent",
+      "kind": "shared_mechanism",
+      "summary": "超参数配置与生成脚本都利用实际运行反馈再修改；HPO协议固定评价对象，目标不能互换。",
+      "scope": "不将脚本通过诊断视为HPO收益，或把改变评估代码当优化。",
+      "claim_ids": [
+        "agent-hpo-creator-executor-loop",
+        "hpo-frozen-intervention",
+        "runtime-tool-checking"
+      ],
+      "source_ids": [
+        "84d839e63c28ec29",
+        "94853529d326ac72",
+        "d7eeabd9156ed311"
+      ]
+    }
+  ],
+  "page_role": "knowledge"
 }

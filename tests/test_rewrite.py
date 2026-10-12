@@ -29,7 +29,7 @@ class RewriteTests(unittest.TestCase):
             db.execute("UPDATE sources SET stage='approved' WHERE id=?", (self.sid,))
         self.body = f'# 测试概念\n\n旧解释：模型在受测条件下选择指令，不能推广到所有智能体。 [原文](/source/{self.sid})\n'
         self.meta = {'slug': 'concept', 'title': '测试概念', 'source_ids': [self.sid], 'category': 'agents',
-                     'page_kind': 'concept', 'related_slugs': [],
+                     'page_kind': 'concept', 'page_role': 'knowledge', 'relations': [], 'related_slugs': [],
                      'claims': [{'id': 'capacity', 'text': '容量限制影响选择', 'scope': '原论文模型',
                                  'source_ids': [self.sid], 'status': '单源支持', 'custom': {'keep': True}}],
                      'conflicts': [{'id': 'c', 'status': '保留分歧', 'custom': {'sides': [1, 2]}}],

@@ -22,7 +22,7 @@ Plan-and-Patch 用扩散语言模型（dLLM）填充待修补区域；它可以�
 
 ## 证据与边界
 
-当前依据主要来自一项研究（Plan-and-Patch，2026 年预印本）[Plan-and-Patch](/source/7d220dd5706f59fd)。
+下述扩散模型与自回归模型的修补实验来自Plan-and-Patch（2026年预印本）；新加入的其他来源用于比较恢复对象与控制方式[Plan-and-Patch](/source/7d220dd5706f59fd)。
 
 在受测的 ALFWorld 与 TextCraft 任务中，扩散模型减少了计划生成耗时，但这不是端到端任务耗时；它不包含环境执行等环节。[Plan-and-Patch](/source/7d220dd5706f59fd)
 
@@ -36,14 +36,27 @@ Plan-and-Patch 用扩散语言模型（dLLM）填充待修补区域；它可以�
 
 把生成时延当作端到端时延。论文报告的时延是单次生成或修补的解码时间，排除提示构建、解析与环境执行；实际任务耗时还取决于执行器与环境交互[Plan-and-Patch](/source/7d220dd5706f59fd)。
 
+## 跨研究的机制联系
+
+Plan-and-Patch根据失败信息选出一个文本区间，只填补该区域，保留两侧计划文本；HieraPlan先在同工具包内尝试替代工具，再保留验证前缀并重规划后缀。它们共享“保留未受影响部分”的机制，边界分别是局部文本区间和剩余操作序列。计划文本保留不等于执行状态回滚或事务检查点。[S:7d220dd5706f59fd][S:8db3263052b0cab1]
+
+GIS Copilot根据运行错误修正并重新生成代码；GeoFlow把错误和历史交回元Agent以修改工作流图。恢复对象分别是代码、工具/步骤或依赖图，不能只写一个笼统的“自我纠错”。结合[[agent-task-decomposition-dependencies|依赖表示]]选择可修订边界，再用[[agent-evaluation-layers|分层评价]]检查恢复后的调用与结果。来源使用不同实验设置，这里不比较恢复效果排名。[S:8cabb777c9bc6fe9][S:19f9b059cd25c958]
+
 ## 相关知识
 
-- [[agent-planning-repair-time-budget|智能体规划与执行]]
-- [[multi-agent-failure-attribution|多智能体失败归因]]
-- [[agent-time-budget|智能体时间预算]]
+- [[agent-evaluation-layers]]
+- [[agent-planning-repair-time-budget]]
+- [[agent-task-decomposition-dependencies]]
+- [[agent-time-budget]]
+- [[geospatial-hierarchical-planning-agents]]
+- [[llm-gis-workflow-generation]]
+- [[multi-agent-failure-attribution]]
 
 ---
 
 ## 原始证据
 
-- [Plan-and-Patch: Diffusion Language Models for Agentic Planning](/source/7d220dd5706f59fd) · 2026-10-07 · [原文](https://arxiv.org/abs/2610.10786)
+- [GeoFlow: Agentic Workflow Automation for Geospatial Tasks](/source/19f9b059cd25c958) · 来源ID `19f9b059cd25c958`
+- [Plan-and-Patch: Diffusion Language Models for Agentic Planning](/source/7d220dd5706f59fd) · 来源ID `7d220dd5706f59fd`
+- [GIS Copilot: Towards an Autonomous GIS Agent for Spatial Analysis](/source/8cabb777c9bc6fe9) · 来源ID `8cabb777c9bc6fe9`
+- [TerraLogic: A Benchmark for Hierarchical Geospatial Reasoning in Earth Observation](/source/8db3263052b0cab1) · 来源ID `8db3263052b0cab1`

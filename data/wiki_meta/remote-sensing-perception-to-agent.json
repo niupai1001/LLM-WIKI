@@ -10,6 +10,7 @@
     "a58012192462df16",
     "cf1e618aae1ce2d6",
     "d97a83738e867ba8",
+    "e504ba1ba9c3fffc",
     "e80b94c99e711343"
   ],
   "page_kind": "concept",
@@ -331,20 +332,60 @@
           "proposed_by": "LLM"
         }
       ]
+    },
+    {
+      "text": "ReAct的推理轨迹可以生成、跟踪和更新计划，行动从外部环境获得信息。",
+      "scope": "ReAct原论文机制；不把思考步当成无计划动作。",
+      "source_ids": [
+        "e504ba1ba9c3fffc"
+      ],
+      "id": "react-plans-with-observation",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "e504ba1ba9c3fffc",
+          "locator": "归档提取文本字符 856–1094",
+          "quote": "reasoning\ntraces help the model induce, track, and update action plans as well as handle\nexceptions, while actions allow it to interface with and gather additional information\nfrom external sources such as knowledge bases or environments.",
+          "proposed_by": "LLM"
+        }
+      ]
     }
   ],
   "conflicts": [],
   "related_slugs": [
+    "agent-evaluation-layers",
+    "agent-tool-interface-contracts",
     "geospatial-hierarchical-planning-agents",
+    "react-reasoning-acting-loop",
+    "remote-sensing-perception-outputs",
     "remote-sensing-tool-augmented-agents"
   ],
   "content_review": {},
   "review_history": [],
-  "updated_at": "2026-10-12T13:57:56+00:00",
-  "writing_guide_version": "5",
+  "updated_at": "2026-10-12T15:10:49+00:00",
+  "writing_guide_version": "6",
   "publication": {
     "by": "agent",
     "policy": "automatic",
-    "at": "2026-10-12T13:57:56+00:00"
-  }
+    "at": "2026-10-12T15:10:49+00:00"
+  },
+  "relations": [
+    {
+      "id": "shared-mechanism-react-reasoning-acting-loop",
+      "target_slug": "react-reasoning-acting-loop",
+      "kind": "shared_mechanism",
+      "summary": "视觉工具结果进入下一轮观察，体现了ReAct回路在遥感工具交互中的一个实现。",
+      "scope": "控制机制的联系，不据此认定视觉输出或组合系统已全面验证。",
+      "claim_ids": [
+        "react-plans-with-observation",
+        "rscgpt-workflow-four-steps"
+      ],
+      "source_ids": [
+        "e504ba1ba9c3fffc",
+        "e80b94c99e711343"
+      ]
+    }
+  ],
+  "page_role": "comparison"
 }

@@ -75,7 +75,19 @@
     const title = document.createElement('strong');
     title.textContent = node.label;
     const meta = document.createElement('span');
-    const relations = graph.edges.filter(e => e.source === node.id || e.target === node.id);
+    const adjacent = graph.edges.filter(e => e.source === node.id || e.target === node.id)
+      .sort((a, b) => Number(b.source === node.id) - Number(a.source === node.id));
+    const neighbor = e => e.source === node.id ? e.target : e.source;
+    const describedNeighbors = new Set(adjacent.filter(e => e.description).map(neighbor));
+    const seen = new Set();
+    const relations = adjacent.filter(e => {
+      if (e.type === 'related' && describedNeighbors.has(neighbor(e))) return false;
+      const label = e.source === node.id ? e.label : e.reverse_label || e.label;
+      const key = `${neighbor(e)}|${e.type}|${label}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
     meta.textContent = ` · ${types[node.type]} · ${relations.length} 条关系 `;
     const anchor = document.createElement('a');
     anchor.href = node.url;
@@ -85,13 +97,20 @@
       const ul = document.createElement('ul');
       const byId = new Map(graph.nodes.map(n => [n.id, n]));
       for (const relation of relations.slice(0, 30)) {
-        const other = byId.get(relation.source === node.id ? relation.target : relation.source);
+        const outgoing = relation.source === node.id;
+        const other = byId.get(outgoing ? relation.target : relation.source);
         if (!other) continue;
         const li = document.createElement('li');
         const a = document.createElement('a');
         a.href = other.url;
         a.textContent = other.label;
-        li.append(`${relation.label} · `, a);
+        const label = (outgoing ? relation.label : relation.reverse_label || relation.label) || '知识链接';
+        li.append(`${label} · `, a);
+        if (relation.description) {
+          const explanation = document.createElement('p');
+          explanation.textContent = relation.description;
+          li.append(explanation);
+        }
         ul.append(li);
       }
       info.append(ul);
@@ -172,8 +191,19 @@
     edgeLayer.replaceChildren(); nodeLayer.replaceChildren();
     const query = (search?.value || '').trim().toLocaleLowerCase();
     const chosen = category?.value || '';
-    const candidates = graph.nodes.filter(n => (!chosen || n.category === chosen) &&
+    let candidates = graph.nodes.filter(n => (!chosen || n.category === chosen) &&
       (!showSources || showSources.checked || n.type !== 'source'));
+    // Classification groups sources; shared mechanisms can live elsewhere.
+    if (chosen) {
+      const primary = new Set(candidates.filter(n => n.type === 'wiki').map(n => n.id));
+      const neighbors = new Set();
+      for (const edge of graph.edges) if (edge.type !== 'category' && edge.type !== 'evidence') {
+        if (primary.has(edge.source)) neighbors.add(edge.target);
+        if (primary.has(edge.target)) neighbors.add(edge.source);
+      }
+      const kept = new Set(candidates.map(n => n.id));
+      candidates = candidates.concat(graph.nodes.filter(n => n.type === 'wiki' && neighbors.has(n.id) && !kept.has(n.id)));
+    }
     const eligible = new Set(candidates.map(n => n.id));
     const matches = new Set(candidates.filter(n => !query || n.label.toLocaleLowerCase().includes(query)).map(n => n.id));
     const context = new Set(matches);
@@ -192,7 +222,12 @@
       const element = make('line', {stroke: edge.type === 'category' ? 'var(--line)' : edge.type === 'evidence' ? 'var(--graph-category)' : 'var(--graph-source)',
         'stroke-width': edge.type === 'related' ? 1.8 : 1.2,
         'stroke-dasharray': edge.type === 'evidence' ? '5 4' : edge.type === 'category' ? '2 4' : 'none'});
-      const title = make('title'); title.textContent = edge.label; element.append(title);
+      const label = edge.label || '知识链接';
+      const title = make('title');
+      title.textContent = `${byId.get(edge.source).label} → ${byId.get(edge.target).label}：${label}` +
+        (edge.description ? `\n${edge.description}` : '');
+      element.append(title);
+      element.setAttribute('aria-label', title.textContent);
       edgeLayer.append(element);
       return {...edge, a: byId.get(edge.source), b: byId.get(edge.target), element};
     });

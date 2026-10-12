@@ -3,8 +3,11 @@
   "title": "地理空间任务的层级规划与容错：HTAM/EarthAgent 与 HieraPlan/TerraLogic",
   "category": "topic-2c016a4f38e2401d",
   "source_ids": [
+    "19f9b059cd25c958",
+    "7d220dd5706f59fd",
     "8db3263052b0cab1",
-    "cf1e618aae1ce2d6"
+    "cf1e618aae1ce2d6",
+    "e504ba1ba9c3fffc"
   ],
   "page_kind": "concept",
   "claims": [
@@ -313,6 +316,84 @@
           "proposed_by": "LLM"
         }
       ]
+    },
+    {
+      "text": "GeoFlow 在 Flow 的 AOV（Activity-on-Vertex）工作流生成基础上做扩展：工作流表示为有向无环图 G=(V,E,A,O)，顶点是子任务、边是依赖、A 是智能体集合、O 把每个顶点映射到具体的智能体目标。生成时要求 LLM 为每个子智能体指定明确的函数调用目标与对应 API 名称，并填入感兴趣区、时间范围、数据源与具体地图操作等参数，输出 JSON 字典作为执行轨迹。",
+      "scope": "GeoFlow 方法定义，Geo-OLM 平台上的实现",
+      "source_ids": [
+        "19f9b059cd25c958"
+      ],
+      "id": "geoflow-aov-objectives",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "19f9b059cd25c958",
+          "locator": "提取文本字符 6400–8000",
+          "quote": "odels trained on EO\nversus SAR imagery for various ground-object categories).\nGeoFlow. In this study, we investigate a simple extension to the\nAOV formulation: at workflow generation, GeoFlow is prompted to\npopulate each vertex with a precise “agentic scope and objective” con-\ntaining detailed instructions. For example, instead of “run detector, ”\nthe objective would read: “The database agent should be providing\nyou with loaded EO imagery for dates 2024-XX to YY over AOI Z; run\nthe Swin-L EO detector and return class A. ” By fully contextualizing\ninter-agent dependencies and required operations, our workflow\ngives subagents the context they need to invoke the correct geospa-\ntial APIs. Formally, we denote the AOV graph 𝐺 =(𝑉,𝐸,𝐴,𝑂 ),\nwhere𝑉 is the set of all subtasks (vertices);𝐸 is the set of directed\nedges indicating subtasks dependencies,𝐴 is the set of agents, and\n𝑂 maps each vertex to a concrete agentic objective.\nSample prompt: Geospatial workflow generation\nYou are a workflow planner for geospatial tasks [..]\nchoosing only from the following GIS agents [..]:\n- database_agent: APIs fetching satellite images [..]\n- vision_agent: satellite vision APIs [..] ...\nValid output format example: { tasks: { \"task0\": {\n\"id\": \"task0\", \"objective\": \"Load satellite imagery\nfrom ..\", \"next\": [ \"task1\" ], \"prev\": [], \"status\":\n\"pending\", \"agent\": \"database_agent\" }, \"task1\": {\n\"id\": \"task1\", \"objective\": \"Run vision model ..\",\n\"next\": [ \"task2\" ], \"prev\": [ \"task0\" ], \"status\":\n\"pending\", \"agent\": \"vision_agent\" } } }\nWorkflow generation. Given a geospatial task𝑇 , the meta-agent\nLLM",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "19f9b059cd25c958",
+          "locator": "提取文本字符 8000–9600",
+          "quote": "is prompted to generate the workflow graph𝐺 in the dictionary-\nbased format of [6] (sample above). The LLM is supplied with de-\nscriptions of the agents in our geospatial platform and their avail-\nable APIs. Unlike Flow, where the agent set𝐴 serves as ordering\nindexing (agent_0, agent_1,... ) and API matching is left implicit,\nwe require the LLM to return each agent with its designated API\nname. The LLM then populates the objectives𝑂 with all GIS study\nparameters – area of interest, target time range, data source, and\nspecific map operations. A JSON dictionary output is generated,\nwhich is fed into the geospatial system as an execution trace.\nWorkflow execution. Once the meta-agent produces the AOV\ngraph, the execution order is calculated using a topological sort on\nits indexed vertices, as seen in Flow [6]. For each subtask𝑣 in the\nsorted sequence, we invoke the corresponding tool-augmented LLM\nsubagent𝑎 via standard function-calling. Each subagent uses its\nAPI tools to complete the objective and returns results (e.g., loaded\ndatasets or vision detection outputs) that feed into downstream\nsubtasks. The meta-agent tracks progress through the global chat\nhistory and reports overall task completion to the user. If an error\noccurs, control returns to the meta-agent, which uses the chat\nhistory and error message to refine𝐺 via update prompts [6].\n3 Experimental Setup\nGeospatial platform. We conduct our experiments within the Geo-\nOLM [10] platform, an open-source implementation of GeoLLM-\nEngine that integrates non-proprietary (Ollama) LLMs. Following\nthe official Flow codebas",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "TerraLogic中的HieraPlan在ReAct式协议下评测，层级编排补充该协议，步骤指标与端到端指标分别记录。",
+      "scope": "论文的ReAct评测设置，不宣称所有ReAct实现均已有层级工具编排。",
+      "source_ids": [
+        "8db3263052b0cab1"
+      ],
+      "id": "hiera-react-protocol",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "8db3263052b0cab1",
+          "locator": "归档提取文本字符 23517–24115",
+          "quote": "We evaluateHieraPlanon theTerraLogic benchmarkunder\na ReAct-style [52] protocol with bothstep-by-stepandend-to-end\nsettings. The step-by-step metrics—InstAcc, ToolAcc, ArgAcc, and\nSummAcc—measure instruction following, tool selection, argument\ncorrectness, and summary generation, respectively. The end-to-end\nscores—P, O, and L—assess tool-augmented predictions on thePer-\nception,Spatial-Statistics, andSpatial-Relationstoolkits. Within this\nsetup, HieraPlan complements rather than alters the ReAct pro-\ntocol, providing hierarchical orchestration while preserving the\nsame evaluation criteria.",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "ReAct的推理轨迹可以生成、跟踪和更新计划，行动从外部环境获得信息。",
+      "scope": "ReAct原论文机制；不把思考步当成无计划动作。",
+      "source_ids": [
+        "e504ba1ba9c3fffc"
+      ],
+      "id": "react-plans-with-observation",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "e504ba1ba9c3fffc",
+          "locator": "归档提取文本字符 856–1094",
+          "quote": "reasoning\ntraces help the model induce, track, and update action plans as well as handle\nexceptions, while actions allow it to interface with and gather additional information\nfrom external sources such as knowledge bases or environments.",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "Plan-and-Patch根据执行失败、历史与环境反馈选择修补区间，填补时保留周围计划文本。",
+      "scope": "保留计划文本上下文，不把它写成执行状态回滚或事务检查点。",
+      "source_ids": [
+        "7d220dd5706f59fd"
+      ],
+      "id": "repair-region-context",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "7d220dd5706f59fd",
+          "locator": "归档提取文本字符 5092–5395",
+          "quote": "If execution fails, the executor also serves as the failure detector, using the current plan, execution history, and environment feedback to select a repair region and explain the required revision. The planner uses this repair feedback to infill the region while preserving the surrounding plan text.",
+          "proposed_by": "LLM"
+        }
+      ]
     }
   ],
   "conflicts": [
@@ -337,18 +418,40 @@
         }
       ],
       "status": "待核查",
-      "handling": "正文更新后需复核。原处理记录：两者都称“层级”，但一者按任务依赖图分层、一者按工具功能与模态分类；需要核对是否存在共同的层间约束定义，以及 HieraPlan 是否也强制层间单向依赖，避免把两种层级混为一谈。",
+      "handling": "正文更新后需复核。原处理记录：正文更新后需复核。原处理记录：两者都称“层级”，但一者按任务依赖图分层、一者按工具功能与模态分类；需要核对是否存在共同的层间约束定义，以及 HieraPlan 是否也强制层间单向依赖，避免把两种层级混为一谈。",
       "proposed_by": "LLM"
     }
   ],
-  "related_slugs": [],
+  "related_slugs": [
+    "agent-plan-repair",
+    "agent-task-decomposition-dependencies",
+    "react-reasoning-acting-loop"
+  ],
   "content_review": {},
   "review_history": [],
-  "updated_at": "2026-10-12T13:57:56+00:00",
-  "writing_guide_version": "5",
+  "updated_at": "2026-10-12T15:10:48+00:00",
+  "writing_guide_version": "6",
   "publication": {
     "by": "agent",
     "policy": "automatic",
-    "at": "2026-10-12T13:57:56+00:00"
-  }
+    "at": "2026-10-12T15:10:48+00:00"
+  },
+  "relations": [
+    {
+      "id": "shared-mechanism-agent-plan-repair",
+      "target_slug": "agent-plan-repair",
+      "kind": "shared_mechanism",
+      "summary": "HieraPlan保留验证前缀并修后缀，Plan-and-Patch保留两侧计划文本并修局部区间。",
+      "scope": "保存对象与修补算法不同，不声称状态回滚或共同实验优劣。",
+      "claim_ids": [
+        "hieraplan-fault-tolerant-execution",
+        "repair-region-context"
+      ],
+      "source_ids": [
+        "7d220dd5706f59fd",
+        "8db3263052b0cab1"
+      ]
+    }
+  ],
+  "page_role": "comparison"
 }

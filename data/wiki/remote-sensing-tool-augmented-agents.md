@@ -28,15 +28,27 @@ OpenEarthAgent为视觉、光谱、GIS和地理参考栅格操作提供统一的
 
 三者都要把自然语言请求连接到专业工具和中间结果，但知识的进入位置不同：RS-Agent在运行时检索流程与文档，Earth-Agent扩展接口和工具选择空间，OpenEarthAgent还把执行轨迹用于训练。按任务需要可以研究这些环节如何互补；现有材料没有给出它们在同一协议下的直接比较，也没有验证任意组合一定改善效果。[S:d97a83738e867ba8][S:1a874e5d2226c159][S:a58012192462df16]
 
+## 跨研究的机制联系
+
+RS-Agent的任务匹配和专家流程进入[[agent-tool-knowledge-selection|工具知识与流程复用]]；Earth-Agent和OpenEarthAgent的接口组织进入[[agent-tool-interface-contracts|工具契约]]；OpenEarthAgent的重放与微调进入[[agent-tool-experience-learning|工具经验学习]]。同一来源支持多个机制，各机制仍保留自身证据范围。
+
+Toolformer按后续token预测损失筛API调用，OpenEarthAgent重放检查完整操作轨迹后训练；学习的数据单位与验证目标不同。PhenoAssistant还提供另一条经验积累路径：把实际成功执行的代码抽为可复用函数，属于程序产物保存，不能自动解释为权重学习。[S:4a3710e0ff43d563][S:a58012192462df16][S:f8a9212514d96b57]
+
 ## 相关知识
 
+- [[agent-tool-experience-learning]]
+- [[agent-tool-interface-contracts]]
+- [[agent-tool-knowledge-selection]]
 - [[geospatial-hierarchical-planning-agents]]
+- [[toolformer-self-supervised-tool-use-training]]
 
 ---
 
 ## 原始证据
 
 - [Earth-Agent: Unlocking the Full Landscape of Earth Observation with Agents](/source/1a874e5d2226c159) · 来源ID `1a874e5d2226c159`
+- [Toolformer: Language Models Can Teach Themselves to Use Tools](/source/4a3710e0ff43d563) · 来源ID `4a3710e0ff43d563`
 - [OpenEarthAgent: A Unified Framework for Tool-Augmented Geospatial Agents](/source/a58012192462df16) · 来源ID `a58012192462df16`
 - [Designing Domain-Specific Agents via Hierarchical Task Abstraction Mechanism](/source/cf1e618aae1ce2d6) · 来源ID `cf1e618aae1ce2d6`
 - [RS-Agent: Automating Remote Sensing Tasks through Intelligent Agent](/source/d97a83738e867ba8) · 来源ID `d97a83738e867ba8`
+- [A conversational multi-agent AI system for automated plant phenotyping](/source/f8a9212514d96b57) · 来源ID `f8a9212514d96b57`

@@ -26,9 +26,23 @@ PhenoAssistant的演示涉及植物表型提取、统计、可视化和必要训
 
 AutoML-Agent在7类下游任务、14个数据集上验证生成流程，包含明确约束和无额外约束的设置；评测时不提供人工反馈。缺少数据、骨架代码或遇到与现有任务不同的开发流程，仍可能失败；强化学习与推荐系统等需要额外专职能力。植物表型案例和通用AutoML试验都不能直接当成任意林业工作流已经验证的证据。[S:5d666092726c8b5f][S:f8a9212514d96b57]
 
+## 跨研究的机制联系
+
+PhenoAssistant的schema参与[[agent-tool-interface-contracts|工具契约]]；Pipeline Reproducer抽取成功执行历史并整理成可复用函数，参与[[agent-tool-knowledge-selection|程序性知识与流程复用]]。RS-Agent保存专家先验流程，PhenoAssistant保存已执行流程，两者知识来源与后续使用能力不同，不能写成相同记忆模块。[S:f8a9212514d96b57][S:d97a83738e867ba8]
+
+AutoML-Agent的检索增强计划属于[[agent-task-decomposition-dependencies|任务分解与方案搜索]]；提示式候选“执行”和Operation Agent真实代码运行属于[[agent-evaluation-layers|不同评价层次]]。同一论文应为这些知识分别提供证据，而不限于这张比较页。
+
+## 相关知识
+
+- [[agent-evaluation-layers]]
+- [[agent-task-decomposition-dependencies]]
+- [[agent-tool-interface-contracts]]
+- [[agent-tool-knowledge-selection]]
+
 ---
 
 ## 原始证据
 
 - [AutoML-Agent: A Multi-Agent LLM Framework for Full-Pipeline AutoML](/source/5d666092726c8b5f) · 来源ID `5d666092726c8b5f`
+- [RS-Agent: Automating Remote Sensing Tasks through Intelligent Agent](/source/d97a83738e867ba8) · 来源ID `d97a83738e867ba8`
 - [A conversational multi-agent AI system for automated plant phenotyping](/source/f8a9212514d96b57) · 来源ID `f8a9212514d96b57`

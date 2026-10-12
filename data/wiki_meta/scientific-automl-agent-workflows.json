@@ -4,6 +4,7 @@
   "category": "topic-f8ccede1b22c4c7e",
   "source_ids": [
     "5d666092726c8b5f",
+    "d97a83738e867ba8",
     "f8a9212514d96b57"
   ],
   "page_kind": "concept",
@@ -393,6 +394,42 @@
           "proposed_by": "LLM"
         }
       ]
+    },
+    {
+      "text": "PhenoAssistant的Pipeline Reproducer从聊天历史中抽取实际执行的函数与代码，排除失败片段，整理为可复用Python函数。",
+      "scope": "论文已实现的流水线复现模块；不据此声称已自动检索历史流程规划新任务。",
+      "source_ids": [
+        "f8a9212514d96b57"
+      ],
+      "id": "pheno-executed-flow-reuse",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "f8a9212514d96b57",
+          "locator": "归档提取文本字符 54558–54862",
+          "quote": "5. Pipeline reproducer: extracts executed function calls and code\nfrom a chat history, organising them into a new Python function\nthat can be reused in the future. Its system prompt instructs it to\nextract only the functions and code snippets that were actually\nexecuted, while excluding the failed ones.",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "RS-Agent 用 LLM 中央控制器把用户查询先推断为预定义任务类型，再据此从 Solution Space 检索专家编写的解题流程，最后编排工具链执行；消融显示任务推断与流程检索单独使用收益有限，二者结合时单工具准确率 93.53%、多工具准确率 90.62%，而基线分别为 69.06% 与 9.42%。",
+      "scope": "RS-Agent 在自建任务规划数据集上的消融实验，工具集在各变体间相同，骨干为 Qwen2.5 32B-Instruct 等",
+      "source_ids": [
+        "d97a83738e867ba8"
+      ],
+      "id": "rs-agent-solution-space-task-aware-retrieval",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "d97a83738e867ba8",
+          "locator": "提取文本字符 51184–52784",
+          "quote": "Evaluation tasks.We test two task categories: single-tool tasks requiring one tool, and multi-tool tasks coupling\nseveral tools to assess complex workflows.\nMetric.Task planning accuracy is reported asSingle-Tool Accuracy(whether the correct tool is selected for\nsingle-tool tasks) andMulti-Tool Accuracy(whether all required tools are invoked in a valid order for multi-tool\ntasks). We additionally report end-to-end task success rates based on final-answer correctness in the Supplementary\n\nSci China Inf Sci13\nFile (Table S1).\nResults.As shown in Table 6, the Baseline achieves 69.06% single-tool accuracy but only 9.42% multi-tool task\nplanning accuracy, as it frequently fails to invoke the correct tools (e.g., 10.53% on Object Counting). Adding Task\nInference or Solution Retrieval alone yields moderate single-tool gains (82.01% and 73.38%) with limited multi-tool\nimprovement (10.87% and 11.38%). Combining both achieves the best performance: 93.53% single-tool and 90.62%\nmulti-tool accuracy, confirming a strong synergistic effect. Notably, the underlying toolset is identical across all\nvariants; the gains are entirely attributable to the orchestration mechanism. Multi-tool end-to-end task success\nrates are reported in Table S1 (Supplementary File), and representative case studies are provided in Table 7.\nTo provide deeper insight into the roles of Task Inference and Solution Retrieval, we present representative case\nstudies in Table 7. Each case compares the MLLM baseline (GeoChat [6]) with the four RS-Agent ablation variants.\nThese cases further illustrate that the core value",
+          "proposed_by": "LLM"
+        }
+      ]
     }
   ],
   "conflicts": [
@@ -417,18 +454,41 @@
         }
       ],
       "status": "待核查",
-      "handling": "正文更新后需复核。原处理记录：两者任务域与评测协议不同（植物表型图像分析 vs 通用 ML 流水线），不能直接比较；需核对在相同任务与相同人工介入条件下，自动验证与人工检查各自能覆盖哪些失败模式。",
+      "handling": "正文更新后需复核。原处理记录：正文更新后需复核。原处理记录：两者任务域与评测协议不同（植物表型图像分析 vs 通用 ML 流水线），不能直接比较；需核对在相同任务与相同人工介入条件下，自动验证与人工检查各自能覆盖哪些失败模式。",
       "proposed_by": "LLM"
     }
   ],
-  "related_slugs": [],
+  "related_slugs": [
+    "agent-evaluation-layers",
+    "agent-task-decomposition-dependencies",
+    "agent-tool-interface-contracts",
+    "agent-tool-knowledge-selection"
+  ],
   "content_review": {},
   "review_history": [],
-  "updated_at": "2026-10-12T13:57:57+00:00",
-  "writing_guide_version": "5",
+  "updated_at": "2026-10-12T15:10:49+00:00",
+  "writing_guide_version": "6",
   "publication": {
     "by": "agent",
     "policy": "automatic",
-    "at": "2026-10-12T13:57:57+00:00"
-  }
+    "at": "2026-10-12T15:10:49+00:00"
+  },
+  "relations": [
+    {
+      "id": "contrast-agent-tool-knowledge-selection",
+      "target_slug": "agent-tool-knowledge-selection",
+      "kind": "contrast",
+      "summary": "RS-Agent专家事先编排方案，PhenoAssistant从成功历史提取程序；产生路径和调用能力不同。",
+      "scope": "未据此断言Pheno已自动检索流程规划新任务。",
+      "claim_ids": [
+        "pheno-executed-flow-reuse",
+        "rs-agent-solution-space-task-aware-retrieval"
+      ],
+      "source_ids": [
+        "d97a83738e867ba8",
+        "f8a9212514d96b57"
+      ]
+    }
+  ],
+  "page_role": "comparison"
 }
