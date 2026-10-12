@@ -21,7 +21,7 @@ SYSTEM = """你是私人情报Wiki的知识编辑，任务是根据来源证据�
 仅总结材料明确支持的事实；区分研究结果、作者观点、模型推断与尚不确定的内容。
 遇到相互矛盾的证据：同时保留两种说法，注明来源与日期，不得默默覆盖。
 必须只返回一个JSON对象，不要markdown代码围栏：
-{"action":"create或update","slug":"小写英文数字连字符文件名","title":"中文标题",
+{"action":"create或update","slug":"小写英文数字连字符文件名","title":"中文标题","page_kind":"concept或topic",
  "used_source_ids":["实际用于该概念的本次来源ID"],
  "claims":[{"id":"稳定断言标识","text":"核心断言","source_ids":["来源ID"],"scope":"原文的任务、模型、数据和条件","status":"单源支持或多源一致或范围差异或未解决冲突或证据不足","evidence_passages":[{"source_id":"来源ID","excerpt_id":"该source.text中[E:e1]的e1；选择包含限定条件的摘录，程序填入原文"}]}],
  "conflicts":[{"id":"稳定差异标识","title":"差异问题","kind":"范围差异或结论冲突","sides":[{"text":"一方表述","source_ids":["来源ID"],"scope":"条件"}],"status":"待核查","handling":"需要核对什么"}],
@@ -41,6 +41,8 @@ knowledge_topic是本页要回答的具体问题。资料读得完整不等于�
 新来源摘录优先返回source_id与excerpt_id，由程序复制原文；[E:...]是摘录定位标记，不是正文引用。旧页面的原有evidence_passages保持原样。没有摘录ID的旧资料允许逐字quote，不得重新编写引文。
 直接陈述概念和因果过程，避免反复使用“不是……而是……”“并非……而是……”的对立句式，不输出编辑过程说明。
 related_slugs只可选候选页面已有slug；正文可使用[[slug|显示名称]]建立真实知识关系。
+reference_sources是已有知识背后的归档原文，允许用于断言和正文引用，但不要放入used_source_ids；used_source_ids只记录本次sources。候选Wiki正文帮助定位问题，不充当原始证据。
+在有关联时，正文说明与已有方法的具体共同机制、差别、适用条件和可互补的位置，并用[[slug|方法名]]建立文内链接，分别引用双方原文。不能只在页末列名称；不能强凑多源一致。组合设计建议标明推论，未直接比较的实验不写成优劣排名。原始方法定义可以单源，跨方法判断需要双方证据。
 不要在正文中嵌入脚本、HTML或未经核实的外链。"""
 
 WRITING_GUIDE = Path(__file__).resolve().parent.parent / 'config' / 'wiki-writing.md'
@@ -247,13 +249,16 @@ def page_version(path):
     return sha256(path.read_bytes() + b'\0' + (meta.read_bytes() if meta.exists() else b'')).hexdigest()
 
 
-def prepare(limit=3, category=None, source_id=None, source_ids=None, topic=None, target_slug=None, second_pass=False):
+def prepare(limit=3, category=None, source_id=None, source_ids=None, topic=None, target_slug=None, second_pass=False,
+            revisit=False, _created_ids=None):
     """Compile related original sources into a reviewed topic, one category per batch."""
     db = connect()
     made = 0
     try:
         if not isinstance(second_pass, bool):
             raise ValueError('second_pass must be boolean')
+        if not isinstance(revisit, bool) or revisit and (not target_slug or not source_ids):
+            raise ValueError('Refreshing knowledge requires a page and its archived sources')
         if target_slug is not None:
             if not isinstance(target_slug, str) or safe_slug(target_slug) != target_slug or target_slug == 'index':
                 raise ValueError('Invalid target Wiki page')
@@ -269,7 +274,7 @@ def prepare(limit=3, category=None, source_id=None, source_ids=None, topic=None,
             validate_category(category, active_only=True)
         active_categories = [c['id'] for c in categories() if c['enabled']]
         params = list(active_categories)
-        where = "stage='new' AND content_status='full-text' AND category IN (" + ','.join('?' for _ in active_categories) + ")"
+        where = ("stage='approved'" if revisit else "stage='new'") + " AND content_status='full-text' AND category IN (" + ','.join('?' for _ in active_categories) + ")"
         if category:
             where += " AND category=?"
             params.append(category)
@@ -315,36 +320,53 @@ def prepare(limit=3, category=None, source_id=None, source_ids=None, topic=None,
                 meta = load_json(meta_path) if meta_path.exists() else {}
                 candidate['claims'] = meta.get('claims', [])
                 candidate['conflicts'] = meta.get('conflicts', [])
+                candidate['source_ids'] = meta.get('source_ids', [])
             candidate_versions = {c['slug']: page_version(WIKI / (c['slug'] + '.md')) for c in candidates}
             candidate_bodies = {c['slug']: (WIKI / (c['slug'] + '.md')).read_text(encoding='utf-8') for c in candidates}
             evidence = []
             excerpt_lookup = {}
+            # Existing Wiki prose is navigation/context, never a substitute for originals.
+            # Read the approved originals behind the most relevant candidate pages.
+            reference_sources, seen = [], {s['id'] for s in sources}
+            for candidate in candidates[:3]:
+                for sid in candidate['source_ids']:
+                    if sid in seen or len(reference_sources) >= 4:
+                        continue
+                    row = db.execute("SELECT raw_path FROM sources WHERE id=? AND stage='approved' AND content_status='full-text'", (sid,)).fetchone()
+                    if row:
+                        record = load_json(Path(row['raw_path']))
+                        reference_sources.append(record)
+                        seen.add(sid)
+            input_sources = sources + reference_sources
+            input_versions = source_versions([s['id'] for s in input_sources])
             total_budget = max(8000, min(int(os.getenv('LLM_CONTEXT_CHARS', '160000')), 500000))
-            budgets = [min(context_size(s['text']), total_budget // len(sources)) for s in sources]
+            budgets = [min(context_size(s['text']), total_budget // len(input_sources)) for s in input_sources]
             remaining = total_budget - sum(budgets)
-            for i, source in enumerate(sources):
+            for i, source in enumerate(input_sources):
                 extra = min(remaining, context_size(source['text']) - budgets[i])
                 budgets[i] += extra
                 remaining -= extra
-            for source, budget in zip(sources, budgets):
+            for source, budget in zip(input_sources, budgets):
                 selected, excerpt_lookup[source['id']] = marked_original(source['text'], budget)
                 evidence.append({'source_id': source['id'], 'title': source['title'], 'url': source['url'],
                                  'published': source.get('published', ''), 'bibliography': source.get('bibliography', {}), 'source_type': source['kind'],
-                                 **selected})
-            context = {'category': category_name(group_category), 'sources': evidence, 'candidates': candidates}
+                                 'role': 'reference' if source in reference_sources else 'incoming', **selected})
+            context = {'category': category_name(group_category), 'sources': [e for e in evidence if e['role'] == 'incoming'],
+                       'reference_sources': [e for e in evidence if e['role'] == 'reference'], 'candidates': candidates}
             context['category_focus'] = next((c['description'] for c in categories() if c['id'] == group_category), '')
             if topic:
                 context['knowledge_topic'] = topic.strip()
             if target_slug:
                 context['target_slug'] = target_slug
-            db.execute('BEGIN IMMEDIATE')
-            claimed = 0
-            for row in batch:
-                claimed += db.execute("UPDATE sources SET stage='compiling',claim_at=? WHERE id=? AND stage='new' AND category=?", (utcnow(), row['id'], group_category)).rowcount
-            if claimed != len(batch):
-                db.rollback()
-                continue
-            db.commit()
+            if not revisit:
+                db.execute('BEGIN IMMEDIATE')
+                claimed = 0
+                for row in batch:
+                    claimed += db.execute("UPDATE sources SET stage='compiling',claim_at=? WHERE id=? AND stage='new' AND category=?", (utcnow(), row['id'], group_category)).rowcount
+                if claimed != len(batch):
+                    db.rollback()
+                    continue
+                db.commit()
             proposal_id = 'p_' + uuid4().hex
             pending_path = PENDING / (proposal_id + '.json')
             try:
@@ -381,7 +403,10 @@ def prepare(limit=3, category=None, source_id=None, source_ids=None, topic=None,
                 unresolved_related = set(related) - allowed
                 related = [s for s in related if s in allowed]
                 previous_meta = load_json(META / (slug + '.json')) if (META / (slug + '.json')).exists() else {}
-                known_ids = {s['id'] for s in sources} | set(previous_meta.get('source_ids', []))
+                page_kind = previous_meta.get('page_kind', reply.get('page_kind', 'concept'))
+                if page_kind not in {'concept', 'topic'}:
+                    raise ValueError('Invalid page kind')
+                known_ids = {s['id'] for s in input_sources} | set(previous_meta.get('source_ids', []))
                 for candidate in candidates:
                     meta_path = META / (candidate['slug'] + '.json')
                     if meta_path.exists():
@@ -429,15 +454,18 @@ def prepare(limit=3, category=None, source_id=None, source_ids=None, topic=None,
                 body = page_body(body)
                 first = selected_sources[0]
                 proposal = {'proposal_id': proposal_id, 'mode': 'update', 'source_id': first['id'], 'source_ids': [s['id'] for s in selected_sources],
+                            'reserved_source_ids': [] if revisit else [s['id'] for s in selected_sources],
                             'referenced_source_ids': sorted(cited_ids | used_ids),
+                            'source_versions': {sid: input_versions[sid] for sid in cited_ids | used_ids if sid in input_versions},
                             'source_title': first['title'], 'source_url': first['url'],
                             'sources': [{'id': s['id'], 'title': s['title'], 'url': s['url']} for s in selected_sources],
                             'published': first.get('published', ''), 'action': action, 'slug': slug,
                             'title': str(reply.get('title') or first['title'])[:200], 'category': group_category,
+                            'page_kind': page_kind,
                             'related_slugs': sorted(set(related) - {slug}), 'body_markdown': body,
                             'evidence_excerpted': any(e['is_excerpt'] for e in evidence if e['source_id'] in used_ids),
                             'unresolved_wiki_links': sorted(unresolved_links | unresolved_related),
-                            'writing_guide_version': '4',
+                            'writing_guide_version': '5',
                             'writing_issues': writing_issues(body) + (['已忽略不存在或未读取的关联页面，请核查概念关系。'] if unresolved_related else []) + ([] if reply['generation_complete'] else ['额外润色未完成，请退回重新生成。']),
                             'fact_review_issues': str(reply.get('fact_review_issues', ''))[:4000],
                             **{k: reply[k] for k in ('generation_policy', 'second_pass_requested', 'writing_passes', 'generation_complete')},
@@ -456,6 +484,8 @@ def prepare(limit=3, category=None, source_id=None, source_ids=None, topic=None,
                 db.executemany("UPDATE sources SET stage='new',claim_at=NULL WHERE id=? AND stage='compiling'", [(s['id'],) for s in sources if s['id'] not in used_ids])
                 db.commit()
                 made += 1
+                if _created_ids is not None:
+                    _created_ids.append(proposal_id)
                 print(f"[DRAFT] {proposal_id} {action} -> {slug} ({len(sources)} sources)")
             except Exception as exc:
                 db.rollback()
@@ -623,6 +653,33 @@ def _require_claims_preserved(old_meta, claims):
     old_ids = {c['id'] for c in old_meta.get('claims', []) if isinstance(c, dict) and c.get('id')}
     if not old_ids <= {c['id'] for c in claims}:
         raise ValueError('更新遗漏了旧断言，不能静默删除。请重新生成。')
+    by_id = {c['id']: c for c in claims}
+    for old in old_meta.get('claims', []):
+        if not isinstance(old, dict) or old.get('id') not in by_id:
+            continue
+        new = by_id[old['id']]
+        if old.get('text') == new.get('text') and old.get('scope') == new.get('scope'):
+            if not set(old.get('source_ids', [])) <= set(new.get('source_ids', [])):
+                raise ValueError('更新静默移除了已有支持来源，系统需重新综合。')
+            def quoted(record):
+                return {(p.get('source_id'), ' '.join(p.get('quote', '').split()))
+                        for p in record.get('evidence_passages', []) if isinstance(p, dict)}
+            if not quoted(old) <= quoted(new):
+                raise ValueError('更新遗漏了已有原文证据，系统需重新综合。')
+
+
+def _require_quoted_changes(old_meta, claims, page_kind):
+    """New or changed knowledge must carry original evidence before auto publication."""
+    if page_kind != 'topic' and not claims:
+        raise ValueError('概念页缺少带原文证据的核心断言，系统需重新编写。')
+    old = {c['id']: c for c in old_meta.get('claims', []) if isinstance(c, dict) and c.get('id')}
+    for claim in claims:
+        previous = old.get(claim['id'])
+        same_meaning = previous and all(previous.get(k) == claim.get(k) for k in ['text', 'scope'])
+        required = set(claim['source_ids']) - set(previous.get('source_ids', [])) if same_meaning else set(claim['source_ids'])
+        quoted = {p['source_id'] for p in claim.get('evidence_passages', [])}
+        if not required <= quoted:
+            raise ValueError('新断言或新增支持来源缺少原文摘录，系统需补全证据。')
 
 
 def _publication_body(proposal, source_ids):
@@ -644,7 +701,7 @@ def _archive(path, proposal, outcome, **details):
     return history
 
 
-def approve(proposal_id, *, fact_invariance_confirmed=False, fact_review_note=''):
+def approve(proposal_id, *, fact_invariance_confirmed=False, fact_review_note='', actor='agent'):
     with proposal_lock():
         path = proposal_path(proposal_id)
         proposal = load_json(path)
@@ -656,7 +713,7 @@ def approve(proposal_id, *, fact_invariance_confirmed=False, fact_review_note=''
         if not isinstance(fact_review_note, str) or len(fact_review_note) > 4000:
             raise ValueError('Invalid fact review note')
         if proposal.get('needs_fact_review') and not fact_review_note.strip():
-            raise ValueError('请记录事实疑点的核查处理说明。')
+            raise ValueError('系统尚有未解决的事实疑点，需要 Agent 核对原文后处理。')
         slug = proposal['slug']
         if not re.fullmatch(r'[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?', slug) or slug == 'index':
             raise ValueError('Invalid safe Wiki slug')
@@ -671,12 +728,10 @@ def approve(proposal_id, *, fact_invariance_confirmed=False, fact_review_note=''
         old_body_bytes = target.read_bytes() if target.exists() else None
         old_body = old_body_bytes.decode('utf-8') if old_body_bytes is not None else None
         old_meta_bytes = meta_path.read_bytes() if meta_path.exists() else None
-        ids = proposal.get('source_ids', [proposal.get('source_id')])
+        ids = proposal.get('reserved_source_ids', proposal.get('source_ids', [proposal.get('source_id')]))
         db = None
         try:
             if mode == 'rewrite':
-                if fact_invariance_confirmed is not True:
-                    raise ValueError('请确认事实含义与适用范围未改变。')
                 frozen = {k: old_meta[k] for k in PROTECTED_FIELDS if k in old_meta}
                 if proposal.get('protected_metadata') != frozen or proposal.get('base_metadata') != old_meta:
                     raise ValueError('改写的冻结元数据已改变。')
@@ -686,7 +741,7 @@ def approve(proposal_id, *, fact_invariance_confirmed=False, fact_review_note=''
                     raise ValueError('改写不允许修改知识字段。')
                 if proposal['slug'] != old_meta.get('slug', slug) or proposal['title'] != old_meta.get('title', proposal['title']):
                     raise ValueError('改写不允许修改页面身份。')
-                if source_versions(ids) != proposal.get('source_versions'):
+                if source_versions(proposal.get('source_ids', [])) != proposal.get('source_versions'):
                     raise ValueError('原始资料版本已变化，请重新生成改写稿。')
                 if wiki_targets(page_body(proposal['body_markdown'])) != wiki_targets(page_body(old_body)):
                     raise ValueError('改写改变了正文知识关联。')
@@ -695,6 +750,12 @@ def approve(proposal_id, *, fact_invariance_confirmed=False, fact_review_note=''
                 new_meta = copy.deepcopy(old_meta)
                 source_ids = old_meta.get('source_ids', [])
             else:
+                if proposal.get('source_versions') and source_versions(list(proposal['source_versions'])) != proposal['source_versions']:
+                    raise ValueError('编写所用原始资料已变化，系统需重新编写。')
+                if proposal.get('publication_policy') == 'automatic':
+                    known_pages = {p.stem for p in WIKI.glob('*.md') if p.stem != 'index'} | {slug}
+                    if not wiki_targets(proposal['body_markdown']) <= known_pages:
+                        raise ValueError('正文指向不存在的知识页面，系统需修正关联。')
                 db = connect()
                 db.execute('BEGIN IMMEDIATE')
                 for sid in ids:
@@ -706,6 +767,8 @@ def approve(proposal_id, *, fact_invariance_confirmed=False, fact_review_note=''
                     raise ValueError('Unknown source citation')
                 records = validate_evidence_records(proposal, set(source_ids))
                 _require_claims_preserved(old_meta, records['claims'])
+                if proposal.get('publication_policy') == 'automatic':
+                    _require_quoted_changes(old_meta, records['claims'], old_meta.get('page_kind', proposal.get('page_kind', 'concept')))
                 conflicts = {c['id']: copy.deepcopy(c) for c in old_meta.get('conflicts', []) if isinstance(c, dict) and c.get('id')}
                 for conflict in conflicts.values():
                     conflict['status'] = '待核查'
@@ -714,13 +777,14 @@ def approve(proposal_id, *, fact_invariance_confirmed=False, fact_review_note=''
                     conflicts.setdefault(conflict['id'], conflict)
                 new_meta = {**old_meta, 'slug': slug, 'title': proposal['title'],
                             'category': proposal.get('category', 'other'), 'source_ids': source_ids,
-                            'page_kind': old_meta.get('page_kind', 'concept'), 'claims': records['claims'],
+                            'page_kind': old_meta.get('page_kind', proposal.get('page_kind', 'concept')), 'claims': records['claims'],
                             'conflicts': list(conflicts.values()), 'related_slugs': proposal.get('related_slugs', [])}
             history = list(old_meta.get('review_history', []))
             if old_meta.get('content_review'):
                 history.append(old_meta['content_review'])
             new_meta.update(content_review={}, review_history=history[-20:], updated_at=utcnow(),
                             writing_guide_version=proposal.get('writing_guide_version', '1'))
+            new_meta['publication'] = {'by': actor, 'policy': proposal.get('publication_policy', 'agent'), 'at': utcnow()}
             new_body = _publication_body(proposal, source_ids)
             # Persist both before-images before any official file is replaced.
             backup = PENDING.parent / 'publication_backups' / (path.stem + '.json')
@@ -735,7 +799,7 @@ def approve(proposal_id, *, fact_invariance_confirmed=False, fact_review_note=''
                 refresh_index()
                 _archive(path, proposal, 'approved', published_body=new_body,
                                    fact_invariance_confirmed=fact_invariance_confirmed is True,
-                                   fact_review_note=fact_review_note.strip())
+                                   fact_review_note=fact_review_note.strip(), publication_actor=actor)
                 if db:
                     db.executemany("UPDATE sources SET stage='approved' WHERE id=?", [(sid,) for sid in ids])
                     db.commit()
@@ -772,8 +836,38 @@ def reject(proposal_id):
         if draft.get('mode', 'update') == 'update':
             with connect() as db:
                 db.executemany("UPDATE sources SET stage='new' WHERE id=? AND stage='drafted'",
-                               [(sid,) for sid in draft.get('source_ids', [draft.get('source_id')])])
+                               [(sid,) for sid in draft.get('reserved_source_ids', draft.get('source_ids', [draft.get('source_id')]))])
         path.unlink()
+
+
+def automatic_publish(proposal_id):
+    """Publish after checks, or retain a system exception without user forms."""
+    with proposal_lock():
+        path = proposal_path(proposal_id)
+        proposal = load_json(path)
+        proposal['publication_policy'] = 'automatic'
+        save_json(path, proposal)
+    try:
+        slug = approve(proposal_id, actor='system')
+        return {'proposal_id': proposal_id, 'status': 'published', 'slug': slug}
+    except Exception as exc:
+        # Only our local validation errors are safe to expose; never upstream URLs.
+        error = str(exc) if isinstance(exc, ValueError) else f'系统发布未完成（{type(exc).__name__}）'
+        with proposal_lock():
+            if path.exists():
+                current = load_json(path)
+                current.update(automation_status='blocked', automation_error=error)
+                save_json(path, current)
+        print(f'[WARN] Could not publish {proposal_id}: {error}')
+        return {'proposal_id': proposal_id, 'status': 'blocked', 'slug': proposal['slug'], 'error': error}
+
+
+def compile_and_publish(**kwargs):
+    """Public workflow: one writing pass, automatic publication, no human gate."""
+    created = []
+    count = prepare(_created_ids=created, **kwargs)
+    results = [automatic_publish(pid) for pid in created]
+    return {'count': count, 'published': sum(r['status'] == 'published' for r in results), 'results': results}
 
 
 def refresh_index():

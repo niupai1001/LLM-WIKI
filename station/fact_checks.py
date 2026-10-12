@@ -203,7 +203,7 @@ def save_review(slug, payload, reviewer_type='human'):
         return {'message': '核查记录已保存', 'url': '/page/' + quote(slug) + '#fact-check-' + quote(payload['claim_id'])}
 
 
-def render(slug):
+def render(slug, editable=True):
     state = snapshot(slug)
     E = lambda v: html.escape(str(v), quote=True)
     counts = state['counts']
@@ -256,7 +256,7 @@ def render(slug):
                 if isinstance(passage, dict):
                     body += f'<details class="fact-quote"><summary>模型提议摘录 · 待核对</summary><p>{E(passage.get("locator", ""))} · <a href="/source/{E(passage.get("source_id", ""))}">查看来源 ↗</a></p><blockquote>{E(passage.get("quote", ""))}</blockquote></details>'
         options = ''.join(f'<option value="{E(sid)}" data-source-version="{E(source["version"])}">{E(source["title"])}</option>' for sid, source in row['sources'].items())
-        if options:
+        if options and editable:
             statuses = ''.join(f'<option value="{E(value)}">{E(label)}</option>' for value, label in VERDICTS.items())
             body += f'''<details class="fact-review-edit"><summary>记录人工复核</summary><form data-claim-review="{E(slug)}"><input type="hidden" name="page_version" value="{E(state['page_version'])}"><input type="hidden" name="claim_version" value="{E(row['claim_version'])}"><input type="hidden" name="claim_id" value="{E(cid)}"><label>核查来源<select name="source_id">{options}</select></label><label>核查结论<select name="verdict">{statuses}</select></label><label>原文位置<input name="locator" maxlength="300" placeholder="例如：第 3 节，表 2，PDF 第 6 页"></label><label>原文摘录<textarea name="quote" rows="4" maxlength="3000" placeholder="直接复制原文，系统会核对是否存在于归档文字"></textarea></label><label>判断理由<textarea name="rationale" rows="3" maxlength="2000" required placeholder="说明原文如何支持、限制或反驳这条断言"></textarea></label><label>核查者<input name="by" maxlength="100" value="本地用户" required></label><button type="submit" class="button primary">保存核查</button><p class="fact-form-error" role="status"></p></form></details>'''
         body += '</article>'

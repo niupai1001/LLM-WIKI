@@ -94,7 +94,7 @@ uvicorn.run('station.web:app', host='127.0.0.1', port=int(os.environ['TEST_PORT'
                     self.assertEqual(raw['content_status'],'full-text')
                     self.assertIn(text[-100:], request('/source/'+sid))
                     self.assertIn('完整的原创测试资料', request('/source/'+sid+'/original'))
-                compiled = request('/api/compile', {'category':'research'})
+                compiled = request('/api/compile', {'category':'research','draft_only':True})
                 self.assertEqual(compiled['count'],1)
                 pending = next((Path(root)/'pending').glob('*.json'))
                 draft = json.loads(pending.read_text())
@@ -109,7 +109,7 @@ uvicorn.run('station.web:app', host='127.0.0.1', port=int(os.environ['TEST_PORT'
                 self.assertEqual(len([e for e in graph['edges'] if e['type']=='evidence']),2)
                 self.assertTrue(any(n['id']=='wiki:evidence-synthesis' for n in graph['nodes']))
                 self.assertFalse(pending.exists())
-                self.assertEqual(request('/api/compile', {'category':'research'})['count'],0)
+                self.assertEqual(request('/api/compile', {'category':'research','draft_only':True})['count'],0)
             finally:
                 process.terminate()
                 try:

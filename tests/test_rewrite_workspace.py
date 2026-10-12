@@ -37,6 +37,7 @@ def model(messages):
     context = json.loads(messages[-1]['content'].split('JSON数据：\n',1)[1])
     sid = context['sources'][0]['source_id']
     return {'action':'create','slug':'concept','title':'测试知识','needs_fact_review':False,
+            'claims':[{'id':'mechanism','text':'机制限于受测任务','scope':'测试原文','status':'单源支持','source_ids':[sid], 'evidence_passages':[{'source_id':sid,'excerpt_id':'e1'}]}],
             'body_markdown':'旧表达解释一个明确的知识问题，机制包含输入、处理与输出；观察限于测试条件，不能推广到所有任务。'*2+'[S:'+sid+']'}
 wiki.call_llm = model
 import uvicorn
@@ -61,36 +62,40 @@ uvicorn.run('station.web:app',host='127.0.0.1',port=int(os.environ['TEST_PORT'])
                         time.sleep(.05)
                 imported = request('/api/import-file', {'file_name':'source.txt','title':'测试原文','category':'agents',
                     'content_base64':base64.b64encode(('完整测试原文，限定机制在受测任务内。'*10).encode()).decode()})
-                self.assertEqual(request('/api/compile', {'source_id':imported['source_id']})['count'], 1)
-                initial_path = next((root/'pending').glob('*.json'))
+                compiled = request('/api/compile', {'source_id':imported['source_id']})
+                self.assertEqual(compiled['published'], 1)
+                self.assertEqual(list((root/'pending').glob('*.json')), [])
+                initial_path = next((root/'proposal_history').glob('*.json'))
                 initial = json.loads(initial_path.read_text())
                 self.assertTrue(initial['generation_complete'])
                 self.assertEqual(initial['writing_passes'], 1)
                 self.assertNotIn('editorial_reviewed', initial)
-                request('/api/drafts/'+initial['proposal_id']+'/approve', {})
                 old_meta = json.loads((root/'wiki_meta/concept.json').read_text())
                 before = states()
-                generated = request('/api/pages/concept/rewrite', {})
+                automatic = request('/api/pages/concept/rewrite', {})
+                self.assertEqual(automatic['status'], 'published')
+                self.assertEqual(before, states())
+                self.assertIn('新表达', (root/'wiki/concept.md').read_text())
+                generated = request('/api/pages/concept/rewrite', {'draft_only':True})
                 pid = generated['proposal_id']
                 self.assertNotEqual(pid, initial['proposal_id'])
                 self.assertEqual(before, states())
                 view = request('/drafts')
-                for marker in ['表达改写', '原正文', '新稿 · 待审核', '查看正文差异', 'fact_invariance_confirmed', '批准并发布']:
+                for marker in ['表达改写', '原正文', '编写结果', '查看正文差异']:
                     self.assertIn(marker, view)
                 self.assertNotIn('<strong>编辑说明</strong>', view)
-                self.assertIn('生成表达改写稿', request('/page/concept'))
-                with self.assertRaises(HTTPError) as unconfirmed:
-                    request('/api/drafts/'+pid+'/approve', {})
-                self.assertEqual(unconfirmed.exception.code, 400)
+                self.assertIn('改写表达', request('/page/concept'))
+                for removed in ['四个审核问题', 'fact_invariance_confirmed', '批准并发布']:
+                    self.assertNotIn(removed, view)
                 with self.assertRaises(HTTPError):
-                    request('/api/pages/concept/rewrite', {})
+                    request('/api/pages/concept/rewrite', {'draft_only':True})
                 request('/api/drafts/'+pid+'/approve', {'fact_invariance_confirmed':True,'fact_review_note':'原文、旧稿、新稿范围相同。'})
                 self.assertEqual(before, states())
                 self.assertIn('新表达', (root/'wiki/concept.md').read_text())
                 new_meta = json.loads((root/'wiki_meta/concept.json').read_text())
                 for field in ['claims','conflicts','source_ids','category','page_kind','related_slugs','title','slug']:
                     self.assertEqual(new_meta[field], old_meta[field])
-                next_pid = request('/api/pages/concept/rewrite', {})['proposal_id']
+                next_pid = request('/api/pages/concept/rewrite', {'draft_only':True})['proposal_id']
                 request('/api/drafts/'+next_pid+'/reject', {})
                 self.assertEqual(before, states())
                 self.assertFalse((root/'pending'/(next_pid+'.json')).exists())

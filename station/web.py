@@ -6,6 +6,8 @@ import json
 import os
 import re
 import tempfile
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from pathlib import Path
 from difflib import unified_diff
 from urllib.parse import quote, urlsplit
@@ -17,15 +19,24 @@ from starlette.concurrency import run_in_threadpool
 
 from .common import ASSETS, PENDING, RAW, WIKI, connect, load_json, safe_slug
 from .citations import prepare_citations, evidence_html, evidence_jump, _external_url, _date
-from .knowledge import categories, category_name, graph_data, wiki_pages, validate_category
-from .wiki import approve, prepare, prepare_rewrite, reject, proposal_key, page_body
+from .knowledge import categories, category_name, graph_data, wiki_pages, validate_category, semantic_backlinks
+from .wiki import approve, prepare, prepare_rewrite, reject, proposal_key, page_body, compile_and_publish, automatic_publish
 
 app = FastAPI(title='LLM Wiki')
 app.mount('/static', StaticFiles(directory=Path(__file__).parent / 'static'), name='static')
 ASSET_VERSIONS = {name: str((Path(__file__).parent / "static" / name).stat().st_mtime_ns) for name in ("app.css", "app.js", "fact-checks.css", "fact-checks.js")}
 MAX_UPLOAD = 15 * 1024 * 1024
 E = lambda value: html.escape(str(value), quote=True)
-STAGES = {'new': '待编写', 'compiling': '正在编写', 'drafted': '待审核', 'approved': '已入 Wiki'}
+
+
+def publication_time(value):
+    try:
+        stamp = datetime.fromisoformat(value.replace('Z', '+00:00'))
+        return stamp.astimezone(ZoneInfo('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M')
+    except (ValueError, TypeError, AttributeError):
+        return ''
+
+STAGES = {'new': '待编写', 'compiling': '正在编写', 'drafted': '系统处理中', 'approved': '已入 Wiki'}
 KINDS = {'paper': '论文', 'article': '文章', 'news': '资讯', 'note': '个人笔记', 'document': '文档'}
 
 
@@ -48,7 +59,7 @@ def layout(title, body, active='wiki'):
         'graph': '<circle cx="12" cy="5" r="3"/><circle cx="5" cy="18" r="3"/><circle cx="19" cy="18" r="3"/><path d="m10.5 7.5-4 8M13.5 7.5l4 8M8 18h8"/>',
     }
     nav = ''.join(f'<a class="nav-link {"active" if key == active else ""}" href="{url}" {"aria-current=page" if key == active else ""}><svg viewBox="0 0 24 24" aria-hidden="true">{icons[key]}</svg><span>{name}</span></a>' for key, url, name in [
-        ('wiki', '/', '知识 Wiki'), ('sources', '/sources', '原始资料'), ('drafts', '/drafts', '编写与审核'), ('graph', '/graph', '知识图谱')])
+        ('wiki', '/', '知识 Wiki'), ('sources', '/sources', '原始资料'), ('drafts', '/drafts', '编写记录'), ('graph', '/graph', '知识图谱')])
     topic_links = ''.join(f'<a class="topic-link" href="/?category={quote(c["id"])}"><span class="topic-dot"></span>{E(c["name"])}</a>' for c in categories() if c['enabled'])
     nav += f'<a class="nav-link {"active" if active == "collection" else ""}" href="/collection" {"aria-current=page" if active == "collection" else ""}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg><span>采集计划</span></a>'
     nav += f'<a class="nav-link {"active" if active == "settings" else ""}" href="/settings" {"aria-current=page" if active == "settings" else ""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg><span>主题与订阅</span></a>'
@@ -124,8 +135,8 @@ def home(q: str = '', category: str = ''):
     pending_pages = [load_json(p) for p in PENDING.glob('*.json')]
     pending_pages = [p for p in pending_pages if (not category or p.get('category') == category) and (not q or q.casefold() in (p['title'] + p['body_markdown']).casefold())]
     body = f'<div class="page-heading"><div><h1>知识 Wiki</h1></div><a class="button primary" href="/sources#import">＋ 导入资料</a></div>'
-    body += f'<div class="metrics"><div><strong>{len(pages)}</strong><span>知识页面</span></div><div><strong>{originals}</strong><span>可阅读原文</span></div><div><strong>{drafts_count}</strong><span>待审核草稿</span></div><div><strong>{total-originals}</strong><span>待补原文</span></div></div>'
-    body += f'<div class="section-heading"><h2>全部知识 <span class="count-label">{len(visible)}</span></h2><button class="button" data-compile="" data-category-from="wiki-category">编写 Wiki 草稿</button></div><form class="filterbar"><input name="q" value="{E(q)}" placeholder="搜索知识页面…" aria-label="搜索知识页面"><select name="category" id="wiki-category" aria-label="知识主题">{category_options(category, True)}</select><button class="button">筛选</button></form>'
+    body += f'<div class="metrics"><div><strong>{len(pages)}</strong><span>知识页面</span></div><div><strong>{originals}</strong><span>可阅读原文</span></div><div><strong>{drafts_count}</strong><span>系统待处理</span></div><div><strong>{total-originals}</strong><span>待补原文</span></div></div>'
+    body += f'<div class="section-heading"><h2>全部知识 <span class="count-label">{len(visible)}</span></h2><button class="button" data-compile="" data-category-from="wiki-category">编写 Wiki</button></div><form class="filterbar"><input name="q" value="{E(q)}" placeholder="搜索知识页面…" aria-label="搜索知识页面"><select name="category" id="wiki-category" aria-label="知识主题">{category_options(category, True)}</select><button class="button">筛选</button></form>'
     if visible:
         for kind, heading in [('topic', '主题入口'), ('concept', '概念知识')]:
             group = [p for p in visible if ('topic' if p.get('page_kind') == 'topic' else 'concept') == kind]
@@ -142,7 +153,7 @@ def home(q: str = '', category: str = ''):
     elif not pending_pages:
         body += empty('暂无知识页面', '导入论文、文章或笔记。选择主题，让 LLM 综合原文，生成可核查的知识草稿。', '<div class="empty-actions"><a class="button primary" href="/sources#import">＋ 导入第一份资料</a><a class="button" href="/graph">查看知识图谱</a></div>')
     if pending_pages:
-        body += '<div class="section-heading"><h2>新生成的知识 · 待审核</h2><a class="text-link" href="/drafts">核查与发布 →</a></div><div class="wiki-grid">'
+        body += '<div class="section-heading"><h2>系统待处理记录</h2><a class="text-link" href="/drafts">查看记录 →</a></div><div class="wiki-grid">'
         for draft in pending_pages:
             body += f'<a class="wiki-card" href="/drafts#draft-{E(proposal_key(draft))}"><span class="tag warning">LLM 草稿</span><h3>{E(draft["title"])}</h3><p>{E(knowledge_excerpt(draft["body_markdown"]))}</p><div class="card-foot">{len(draft.get("source_ids",[]))} 份原始证据 <span>阅读全文 →</span></div></a>'
         body += '</div>'
@@ -159,11 +170,18 @@ def page(slug: str):
     current = matches[0]
     backlinks = [p for p in wiki_pages() if slug in p.get('related_slugs', []) or re.search(r'\[\[' + re.escape(slug) + r'(?:\||\]\])', p['body'])]
     page_kind = "主题入口" if current.get("page_kind") == "topic" else "概念条目"
-    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><p>{len(current.get("source_ids", []))} 份证据 · 已发布知识 · <a href="#fact-check">逐项事实核查 ↓</a></p></div><div class="button-row"><label class="checkbox-label"><input type="checkbox" data-second-pass> 额外润色（+1 次调用）</label><button class="button" data-rewrite="{E(slug)}">生成表达改写稿</button><a class="button" href="/graph">在图谱中探索 ↗</a></div></div><article class="prose">{md_render(current["body"], current.get("source_ids", []), evidence_prefix="wiki-" + slug)}</article>'
+    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><p>{len(current.get("source_ids", []))} 份证据 · 已发布知识 · <a href="#fact-check">逐项事实核查 ↓</a></p></div><div class="button-row"><label class="checkbox-label"><input type="checkbox" data-second-pass> 额外润色（+1 次调用）</label><button class="button" data-rewrite="{E(slug)}">改写表达</button><a class="button" href="/graph">在图谱中探索 ↗</a></div></div><article class="prose">{md_render(current["body"], current.get("source_ids", []), evidence_prefix="wiki-" + slug)}</article>'
+    connections = semantic_backlinks(slug)
+    if connections:
+        body += '<section class="prose"><h2>方法之间的联系</h2>'
+        for note in connections:
+            body += f'<h3><a href="/page/{E(note["slug"])}">{E(note["title"])}</a></h3>'
+            body += md_render(note['body'], note['source_ids'], evidence_prefix='connection-' + note['slug'])
+        body += '</section>'
     from .evidence import knowledge_evidence
     from .fact_checks import render as fact_checks_html
     body += f'<link rel="stylesheet" href="/static/fact-checks.css?v={ASSET_VERSIONS["fact-checks.css"]}">'
-    body += fact_checks_html(slug)
+    body += '<details class="page-evidence-records"><summary>断言与原文证据</summary>' + fact_checks_html(slug, editable=False) + '</details>'
     body += '<details class="page-evidence-records"><summary>来源、编辑记录与差异记录</summary>' + knowledge_evidence(slug) + '</details>'
     body += f'<script src="/static/fact-checks.js?v={ASSET_VERSIONS["fact-checks.js"]}" defer></script>'
     if backlinks:
@@ -301,9 +319,9 @@ def source(sid: str):
             options = '<option value="">自动选择 / 新建</option>' + ''.join(f'<option value="{E(p["slug"])}">{E(p["title"])}</option>' for p in targets)
             body += f'<label>归入 Wiki <select data-compile-target>{options}</select></label>'
         body += '<label class="checkbox-label"><input type="checkbox" data-second-pass> 额外润色（+1 次调用）</label>'
-        body += f'<button class="button primary" data-source-compile="{sid}">生成 Wiki 草稿</button>'
+        body += f'<button class="button primary" data-source-compile="{sid}">编写 Wiki</button>'
     elif row['stage'] == 'drafted':
-        body += '<a class="button primary" href="/drafts">审核关联草稿 →</a>'
+        body += '<a class="button primary" href="/drafts">查看处理记录 →</a>'
     if not complete and d.get('body_level') != 'manual-original':
         body += f'<button class="button" data-refresh="{sid}">重新获取原文</button>'
     body += '</div>'
@@ -348,20 +366,20 @@ def original(sid: str, version: str = 'current'):
 def drafts():
     connect().close()
     items = [load_json(p) for p in sorted(PENDING.glob('*.json'))]
-    body = '<div class="page-heading"><div><h1>编写与审核</h1></div><button class="button primary" data-compile="">综合待编写原文</button></div>'
+    body = '<div class="page-heading"><div><h1>编写记录</h1></div><button class="button primary" data-compile="">综合待编写原文</button></div>'
     if not items:
-        body += empty('没有待审草稿', '导入原文后，点击“编写 Wiki 草稿”。只有原文已获取的资料会参与编写。', '<a class="button" href="/sources">查看原始资料</a>')
+        body += empty('没有待处理项', '', '<a class="button" href="/sources">查看原始资料</a>')
     for d in items:
         pid = proposal_key(d)
         rewrite = d.get('mode') == 'rewrite'
         label = '表达改写' if rewrite else ('知识更新' if d['action'] == 'update' else '新建知识')
-        body += f'<section class="draft-panel" id="draft-{E(pid)}"><div class="draft-header"><div><span class="tag">{E(category_name(d.get("category","other")))}</span><span class="tag subtle">{label}</span><h2>{E(d["title"])}</h2></div><button class="button danger" data-reject="{E(pid)}">退回草稿</button></div>'
+        body += f'<section class="draft-panel" id="draft-{E(pid)}"><div class="draft-header"><div><span class="tag">{E(category_name(d.get("category","other")))}</span><span class="tag subtle">{label}</span><h2>{E(d["title"])}</h2></div><button class="button danger" data-reject="{E(pid)}">撤销本次编写</button></div>'
         issues = d.get('writing_issues', [])
         issues = [issue for issue in issues if isinstance(issue, str) and issue.strip()] if isinstance(issues, list) else []
         if d.get('generation_complete') is False or d.get('editorial_reviewed') is False:
             issues.append(d.get('editorial_error') or '第二遍编辑未完成，请退回重新生成。')
         if d.get('needs_fact_review'):
-            issues.append('存在待核查疑点，发布前须记录处理说明。')
+            issues.append(d.get('automation_error') or '系统需处理事实疑点。')
             if d.get('fact_review_issues'):
                 issues.append(d['fact_review_issues'])
         if issues:
@@ -374,34 +392,34 @@ def drafts():
             old = page_body(base or '')
             new = page_body(d['body_markdown'])
             body += '<div class="draft-comparison"><section><h3>原正文</h3><article class="prose">' + md_render(old, d.get('source_ids', []), evidence_prefix='old-' + pid) + '</article></section>'
-            body += '<section><h3>新稿 · 待审核</h3><article class="prose">' + md_render(new, d.get('source_ids', []), evidence_prefix='new-' + pid) + '</article></section></div>'
+            body += '<section><h3>编写结果</h3><article class="prose">' + md_render(new, d.get('source_ids', []), evidence_prefix='new-' + pid) + '</article></section></div>'
             diff = '\n'.join(unified_diff(old.splitlines(), new.splitlines(), fromfile='原正文', tofile='待审稿', lineterm=''))
             body += f'<details class="draft-diff"><summary>查看正文差异</summary><pre>{E(diff or "正文未变化")}</pre></details>'
         else:
             body += f'<article class="prose">{md_render(d["body_markdown"], d.get("source_ids", [d.get("source_id")]), evidence_prefix="draft-" + pid)}</article>'
         body += '<div class="draft-source-links"><strong>原始资料</strong> ' + ' · '.join(f'<a href="/source/{E(sid)}" target="_blank" rel="noopener">{E(load_json(RAW/(sid+".json")).get("title", sid) if (RAW/(sid+".json")).is_file() else sid)}</a>' for sid in d.get('source_ids', [])) + '</div>'
-        if rewrite and isinstance(d.get('pilot_evaluation'), dict):
-            review = d['pilot_evaluation']
-            body += '<details class="draft-review-questions"><summary>试点评阅 · Codex</summary><p>' + E(review.get('fact_invariance', '')) + '</p><ul>' + ''.join('<li>' + E(item) + '</li>' for item in review.get('questions', []) if isinstance(item, str)) + '</ul><p>阅读改善：' + ('较明显' if review.get('readability_improved') else '有限') + ' · 等待人工审核</p></details>'
-        if rewrite:
-            body += '<details class="draft-review-questions"><summary>四个审核问题</summary><ul><li>开头能否看懂？</li><li>机制能否复述？</li><li>例子或场景是否有帮助？</li><li>事实和适用范围是否改变？</li></ul></details>'
-        body += f'<form class="draft-approval" data-approve-form="{E(pid)}">'
-        if rewrite:
-            body += '<label class="checkbox-label"><input type="checkbox" name="fact_invariance_confirmed" required> 我已对照正文与原始资料，确认事实含义与适用范围未改变</label>'
-        if rewrite or d.get('needs_fact_review'):
-            required = 'required' if d.get('needs_fact_review') else ''
-            body += f'<label>审核说明{ "（须说明疑点处理）" if required else "（可选）"}<textarea name="fact_review_note" rows="3" maxlength="4000" {required}></textarea></label>'
-        disabled = 'disabled' if d.get('generation_complete') is False or d.get('editorial_reviewed') is False else ''
-        body += f'<button class="button primary" type="submit" {disabled}>批准并发布</button></form></section>'
+        body += '</section>'
         if not rewrite:
             from .evidence import proposal_evidence
             body += proposal_evidence(d)
-    return layout('编写与审核', body, 'drafts')
+    history_dir = PENDING.parent / 'proposal_history'
+    history = []
+    for path in history_dir.glob('*.json'):
+        record = load_json(path)
+        if record.get('outcome') == 'approved':
+            history.append(record)
+    history.sort(key=lambda d: d.get('handled_at', ''), reverse=True)
+    if history:
+        body += '<div class="section-heading"><h2>已完成</h2></div><div class="wiki-grid">'
+        for d in history[:12]:
+            body += f'<a class="wiki-card" id="draft-{E(proposal_key(d))}" href="/page/{E(d["slug"])}"><span class="tag complete">已发布</span><h3>{E(d["title"])}</h3><p>{E(publication_time(d.get("handled_at", "")))}</p><div class="card-foot">查看知识页面 →</div></a>'
+        body += '</div>'
+    return layout('编写记录', body, 'drafts')
 
 
 @app.get('/graph', response_class=HTMLResponse)
 def graph():
-    body = f'<div class="page-heading"><div><h1>知识图谱</h1></div><a class="button" href="/">回到知识库 →</a></div><div class="filterbar"><input id="graph-search" placeholder="查找节点…" aria-label="查找图谱节点"><select id="graph-category" aria-label="图谱主题">{category_options("",True)}</select><label class="checkbox-label"><input type="checkbox" id="graph-sources" checked>显示原始证据</label></div><section class="graph-panel"><div class="graph-legend"><span><i class="legend-wiki"></i>Wiki 知识</span><span><i class="legend-source"></i>原始证据</span><span><i class="legend-category"></i>主题分类</span></div><svg id="graph-canvas" tabindex="0" aria-label="知识图谱" role="img"></svg><div id="graph-empty" class="graph-empty">尚未形成知识图谱。导入资料并审核 Wiki 后，关系会在这里出现。</div><div id="graph-info" class="graph-info">拖动节点 · 滚轮缩放 · 选择节点查看关系</div></section><script src="/static/graph.js" defer></script>'
+    body = f'<div class="page-heading"><div><h1>知识图谱</h1></div><a class="button" href="/">回到知识库 →</a></div><div class="filterbar"><input id="graph-search" placeholder="查找节点…" aria-label="查找图谱节点"><select id="graph-category" aria-label="图谱主题">{category_options("",True)}</select><label class="checkbox-label"><input type="checkbox" id="graph-sources" checked>显示原始证据</label></div><section class="graph-panel"><div class="graph-legend"><span><i class="legend-wiki"></i>Wiki 知识</span><span><i class="legend-source"></i>原始证据</span><span><i class="legend-category"></i>主题分类</span></div><svg id="graph-canvas" tabindex="0" aria-label="知识图谱" role="img"></svg><div id="graph-empty" class="graph-empty">尚未形成知识图谱。导入资料并生成 Wiki 后，关系会在这里出现。</div><div id="graph-info" class="graph-info">拖动节点 · 滚轮缩放 · 选择节点查看关系</div></section><script src="/static/graph.js" defer></script>'
     return layout('知识图谱', body, 'graph')
 
 
@@ -440,7 +458,7 @@ def collection():
         body += f'<small>{E(window)}</small> · <a class="text-link" href="{E(feed["url"])}" target="_blank" rel="noopener noreferrer">原始订阅源 ↗</a></div></section>'
     if not enabled:
         body += '<p class="muted">当前没有启用的订阅。到“主题与订阅”新增或启用节点后，下次采集会使用这些设置。</p>'
-    drafting = '采集完成后，LLM 自动编写知识草稿；首页和“编写与审核”均可阅读，核查后发布。' if os.getenv('AUTO_DRAFT', 'false').lower() == 'true' else '编写草稿由你手动触发，核查后发布。'
+    drafting = '采集完成后，LLM 编写知识，通过系统检查后自动发布。处理结果在“编写记录”查看。' if os.getenv('AUTO_DRAFT', 'false').lower() == 'true' else '编写由你触发，通过系统检查后自动发布。'
     body += f'</div><section class="panel collection-notes"><h2>采集说明</h2><p>在<a href="/settings">主题与订阅</a>中调整关注领域，为每个订阅设置所属主题、关键词与日期范围。保存后，下次采集读取新设置。</p><p>{drafting}</p><p>定时任务在本机运行。Mac 需要保持开机并登录；睡眠期间无法准时采集，唤醒后可能补触发。关机错过的任务没有保证补跑。</p></section>'
     return layout('采集计划', body, 'collection')
 
@@ -494,6 +512,12 @@ async def api_save_feed(request: Request):
 async def api_delete_feed(feed_id: str, request: Request):
     from .settings import delete_feed
     return await settings_change(delete_feed, feed_id, await read_payload(request))
+
+
+@app.get('/api/pages/{slug}/claim-reviews')
+async def api_read_claim_reviews(slug: str):
+    from .fact_checks import snapshot
+    return await operation(snapshot, slug)
 
 
 @app.post('/api/pages/{slug}/claim-reviews')
@@ -597,9 +621,18 @@ async def api_compile(request: Request):
     second_pass = p.get('second_pass', False)
     if not isinstance(second_pass, bool):
         raise HTTPException(400, '额外润色选项必须为布尔值')
-    count = await operation(prepare, limit=3, category=category, source_id=sid,
-                            target_slug=p.get('target_slug') or None, second_pass=second_pass)
-    return {'count': count, 'url': '/drafts' if count else None, 'message': f'已生成 {count} 份知识草稿' if count else '未生成草稿：请确认存在待编写的原文，并检查模型接口。'}
+    options = dict(limit=3, category=category, source_id=sid, target_slug=p.get('target_slug') or None, second_pass=second_pass)
+    draft_only = p.get('draft_only', False)
+    if not isinstance(draft_only, bool):
+        raise HTTPException(400, '草稿预览选项必须为布尔值')
+    if draft_only:
+        count = await operation(prepare, **options)
+        return {'count': count, 'url': '/drafts' if count else None, 'message': f'已生成 {count} 份预览稿'}
+    result = await operation(compile_and_publish, **options)
+    published = result['published']
+    result.update(url=('/page/' + next(r['slug'] for r in result['results'] if r['status'] == 'published') if published == 1 else '/') if published else '/drafts',
+                  message=f'已编写并发布 {published} 个知识页面' if published == result['count'] and published else f'系统生成 {result["count"]} 份记录，{result["count"]-published} 份待处理')
+    return result
 
 
 @app.post('/api/pages/{slug}/rewrite')
@@ -608,8 +641,15 @@ async def api_rewrite(slug: str, request: Request):
     second_pass = p.get('second_pass', False)
     if not isinstance(second_pass, bool):
         raise HTTPException(400, '额外润色选项必须为布尔值')
+    draft_only = p.get('draft_only', False)
+    if not isinstance(draft_only, bool):
+        raise HTTPException(400, '草稿预览选项必须为布尔值')
     pid = await operation(prepare_rewrite, slug, second_pass=second_pass)
-    return {'proposal_id': pid, 'url': '/drafts#draft-' + pid, 'message': '表达改写稿已生成，请对照审核'}
+    if draft_only:
+        return {'proposal_id': pid, 'url': '/drafts#draft-' + pid, 'message': '表达改写预览已生成'}
+    result = await operation(automatic_publish, pid)
+    return {**result, 'url': '/page/' + slug if result['status'] == 'published' else '/drafts#draft-' + pid,
+            'message': '表达已更新' if result['status'] == 'published' else '系统尚未完成改写，请查看处理记录'}
 
 
 @app.post('/api/drafts/{sid}/approve')

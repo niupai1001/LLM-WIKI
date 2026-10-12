@@ -161,7 +161,7 @@ def run_once(project=PROJECT, home=None, runner=None, auto_draft=None):
                     output = completed.stdout or ""
                     log.write(output)
                     log.flush()
-                    warning_failure = bool(re.search(r"^\[ERROR\]|^\[WARN\] Could not (?:compile|prepare)", output, re.M))
+                    warning_failure = bool(re.search(r"^\[ERROR\]|^\[WARN\] Could not (?:compile|prepare|publish)", output, re.M))
                     failed = completed.returncode != 0 or warning_failure
                     state["steps"].append({"action": action, "exit_code": completed.returncode,
                                            "status": "failed" if failed else "succeeded"})

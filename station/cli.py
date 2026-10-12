@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 from .collector import add_note, ingest
 from .common import PENDING, connect, load_json
-from .wiki import approve, prepare, prepare_rewrite, proposal_key
+from .wiki import approve, prepare, prepare_rewrite, proposal_key, compile_and_publish, automatic_publish
 
 
 def main():
@@ -19,13 +19,15 @@ def main():
     draft.add_argument("--target", help="Merge evidence into this existing Wiki page")
     draft.add_argument("--source-id", help="Compile this original only")
     draft.add_argument("--second-pass", action="store_true", help="Request one extra expression-only edit")
+    draft.add_argument("--draft-only", action="store_true", help="Development preview without publication")
     rewrite = sub.add_parser("rewrite", help="Generate an expression-only draft for an existing Wiki")
     rewrite.add_argument("slug")
     rewrite.add_argument("--second-pass", action="store_true", help="Request one extra expression-only edit")
+    rewrite.add_argument("--draft-only", action="store_true", help="Development preview without publication")
     sub.add_parser("drafts")
     accept = sub.add_parser("approve")
     accept.add_argument("proposal_id")
-    accept.add_argument("--confirm-facts", action="store_true", help="Confirm unchanged factual meaning and scope for rewrite")
+    accept.add_argument("--confirm-facts", action="store_true", help="Legacy compatibility option; no user confirmation required")
     accept.add_argument("--fact-review-note", default="")
     note = sub.add_parser("add-note")
     note.add_argument("--title", required=True)
@@ -46,11 +48,13 @@ def main():
     if args.action == "ingest":
         ingest()
     elif args.action == "prepare":
-        print(f"Created {prepare(max(1, min(args.limit, 20)), category=args.category, source_id=args.source_id, target_slug=args.target, second_pass=args.second_pass)} drafts")
+        options = dict(limit=max(1, min(args.limit, 20)), category=args.category, source_id=args.source_id, target_slug=args.target, second_pass=args.second_pass)
+        print(prepare(**options) if args.draft_only else compile_and_publish(**options))
     elif args.action == "approve":
         approve(args.proposal_id, fact_invariance_confirmed=args.confirm_facts, fact_review_note=args.fact_review_note)
     elif args.action == "rewrite":
-        print("Rewrite proposal:", prepare_rewrite(args.slug, second_pass=args.second_pass))
+        pid = prepare_rewrite(args.slug, second_pass=args.second_pass)
+        print({'proposal_id': pid} if args.draft_only else automatic_publish(pid))
     elif args.action == "add-note":
         print("Archived note:", add_note(args.title, args.file, category=args.category))
     elif args.action == "import-file":
@@ -75,7 +79,7 @@ def main():
         while True:
             ingest()
             if os.getenv("AUTO_DRAFT", "false").lower() == "true":
-                prepare(limit=3)
+                compile_and_publish(limit=3)
             time.sleep(max(10, args.minutes) * 60)
 
 

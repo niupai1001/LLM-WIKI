@@ -50,10 +50,11 @@ class ReviewWorkspaceTests(unittest.TestCase):
                         page=request('/page/qa-review');break
                     except OSError:time.sleep(.05)
                 else:self.fail('Isolated review server failed to start')
-                import re
-                def hidden(name):return re.search(f'name="{name}" value="([^"]+)"',page)[1]
-                payload={name:hidden(name) for name in ['page_version','claim_version','claim_id']}
-                payload.update(source_id='a'*16,source_version=re.search('data-source-version="([^"]+)"',page)[1],
+                self.assertNotIn('data-claim-review=', page)
+                state=json.loads(request('/api/pages/qa-review/claim-reviews'))
+                row=state['claims'][0]
+                payload={'page_version':state['page_version'],'claim_version':row['claim_version'],'claim_id':row['claim']['id']}
+                payload.update(source_id='a'*16,source_version=row['sources']['a'*16]['version'],
                     verdict='supported',by='QA user',locator='Section 2',quote='The agent retrieves relevant memories before composing the working context.',
                     rationale='原文明确给出这两个环节的次序。',reviewer_type='agent')
                 endpoint='/api/pages/qa-review/claim-reviews'

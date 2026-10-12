@@ -84,6 +84,43 @@ def _wikilinks(body):
     return {m.group(1).strip() for m in re.finditer(r"(?<!!)\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]", body)}
 
 
+def semantic_backlinks(slug, pages=None):
+    """Reuse published, cited comparisons on their other method's reading page.
+
+    A bare link or shared category is not a comparison. We require a prose
+    paragraph citing both the current method's originals and another source.
+    This does not rewrite another file or claim independent validation.
+    """
+    from .wiki import page_body
+    pages = pages if pages is not None else wiki_pages()
+    current = next((p for p in pages if p['slug'] == slug), None)
+    if current is None:
+        return []
+    old_ids = set(current['source_ids'])
+    outgoing = _wikilinks(page_body(current['body']))
+    notes = []
+    for other in pages:
+        if other['slug'] == slug or other['slug'] in outgoing:
+            continue
+        body = page_body(other['body'])
+        body = re.sub(r"```[^\n]*\n.*?```|~~~[^\n]*\n.*?~~~", '', body, flags=re.S)
+        for paragraph in re.split(r'\n\s*\n', body):
+            cited = set(re.findall(r'/source/([a-f0-9]{16})', paragraph))
+            if (slug not in _wikilinks(paragraph) or not 40 <= len(paragraph) <= 1800
+                    or not cited & old_ids or not cited - old_ids
+                    or not cited <= set(other['source_ids']) or paragraph.lstrip().startswith(('#', '- ', '* '))):
+                continue
+            def remove_self(match):
+                target, _, label = match[1].partition('|')
+                return label or current['title'] if target.strip() == slug else match[0]
+            paragraph = re.sub(r'\[\[([^\]\n]+)\]\]', remove_self, paragraph)
+            notes.append({'slug': other['slug'], 'title': other['title'], 'body': paragraph, 'source_ids': sorted(cited)})
+            break
+        if len(notes) == 2:
+            break
+    return notes
+
+
 def graph_data():
     """No model-inferred or dangling relations: every endpoint must exist locally."""
     pages = wiki_pages()

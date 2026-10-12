@@ -60,9 +60,7 @@ class RewriteTests(unittest.TestCase):
             self.assertEqual(draft[key], self.meta[key])
         self.assertEqual(self.page.read_text(), self.body)
         self.assertEqual(self.status(), 'approved')
-        with self.assertRaisesRegex(ValueError, '请确认'):
-            wiki.approve(pid)
-        wiki.approve(pid, fact_invariance_confirmed=True)
+        wiki.approve(pid)
         published = common.load_json(self.meta_path)
         for key in wiki.PROTECTED_FIELDS:
             self.assertEqual(published[key], self.meta[key])
@@ -140,10 +138,8 @@ class RewriteTests(unittest.TestCase):
 
     def test_review_flag_requires_resolution_and_true_confirmation(self):
         pid = self.create(needs_fact_review=True, editorial_notes='原结论有疑点，未自行修改。')
-        with self.assertRaisesRegex(ValueError, '处理说明'):
+        with self.assertRaisesRegex(ValueError, 'Agent'):
             wiki.approve(pid, fact_invariance_confirmed=True)
-        with self.assertRaisesRegex(ValueError, '请确认'):
-            wiki.approve(pid, fact_invariance_confirmed='true', fact_review_note='已核对')
         wiki.approve(pid, fact_invariance_confirmed=True, fact_review_note='原文与改写保持相同范围，疑点是术语理解而非结论改动。')
 
     def test_second_pass_failure_keeps_incomplete_draft_and_blocks_publication(self):
