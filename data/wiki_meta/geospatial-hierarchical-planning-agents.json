@@ -1,0 +1,354 @@
+{
+  "slug": "geospatial-hierarchical-planning-agents",
+  "title": "地理空间任务的层级规划与容错：HTAM/EarthAgent 与 HieraPlan/TerraLogic",
+  "category": "topic-2c016a4f38e2401d",
+  "source_ids": [
+    "8db3263052b0cab1",
+    "cf1e618aae1ce2d6"
+  ],
+  "page_kind": "concept",
+  "claims": [
+    {
+      "text": "HTAM 从领域任务依赖图（有向无环图）出发，对顶点做拓扑分层，把整个求解过程划分为若干有序功能层；层数 L 由领域任务图的内在复杂度决定，而非固定值。",
+      "scope": "HTAM 框架的形式化定义，任务图由专家知识与既有流程标准给出",
+      "source_ids": [
+        "cf1e618aae1ce2d6"
+      ],
+      "id": "htam-task-dependency-hierarchy",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "locator": "提取文本字符 14182–15782",
+          "quote": "trace of a ReAct-style agent. This makes it difficult to con-\nduct fair comparisons against agents that use different plan-\nning approaches,e.g., Plan-and-Execute or our HTAM. Our\nwork directly addresses these gaps by introducing GeoPlan-\nbench, a benchmark focused on comprehensive, multi-step\ntasks and built upon an evaluation method that is indepen-\ndent of any specific agent architecture.\n3. Methodology\nThe prevailing approach of designing Multi-Agent Systems\n(MAS) by imitating human social structures, while intu-\nitive, proves fragile when applied to some specialized do-\nmains, as mentioned above. To move beyond this limitation,\nwe introduce a paradigm shift in agent architecture design,\ni.e., HTAM. This framework departs from social analogies\nand instead derives its structure directly from the logical de-\npendencies inherent to the problem domain.\n3.1. HTAM\n3.1.1. Hierarchical Architecture Construction\nThe architecture of an HTAM-based system is derived from\na formal analysis of the domain’s task dependency graph 3,\ndenoted asG= (V,E). In this graph, the vertex setVrep-\nresents all potential atomic operations, tools, or tasks avail-\nable within the domain, and the edge setErepresents the\nprerequisite constraints between them (i.e., an edge(v i,v j)\nexists if taskv i must be completed beforev j can begin).\nThe hierarchical structure of HTAM is obtained through\na topological stratification of this master graphG. This pro-\ncess partitions the vertex setVinto an ordered sequence\nofLdisjoint layers,V= SL\nl=1Vl, such that for any edge\n(vi,v j)∈E, ifv i∈V a andv j ∈V b, thena",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "locator": "提取文本字符 15782–17382",
+          "quote": "≤b. Each\nlayerV l thus represents a distinct level of operational ab-\nstraction, containing a group of tasks that are functionally\nrelated and share a similar position in the overall workflow.\nThis condition architecturally enforces unidirectional pro-\ngression from lower to higher layer, known as inter-layer\ndependencies (a < b), while allowing for multi-step work-\nflows within a single layer of abstraction, referred to as\nintra-layer dependencies (a=b). Each layerV l directly de-\nfines a functional layer within the agent system. Each layer\nis then populated by a set of specialized sub-agents, where\neach sub-agent is responsible for executing one or more of\nthe atomic tasks or tools (vertices) contained within its as-\nsigned layer.\nThe number of layersL, is not fixed but is an emergent\nproperty determined by the intrinsic complexity and struc-\nture of the domain’s task graph. This architectural design\noffers significant advantages:(1) Modularity: Agents de-\nsigned for a specific layer can be developed and maintained\n3In general, it is a directed acyclic graph. The graph’s structure is de-\nfined based on expert knowledge and established standards. A simple ex-\nample can be found in Suppl. 8.1.1 Figure 6.\nindependently.(2) Logical Enforcement: The unidirec-\ntional dependency flow makes it architecturally impossible\nto generate logically invalid plans (e.g., performing analysis\nbefore data preprocessing).(3) Decomposition of Com-\nplexity: The stratification decomposes a single and com-\nplex planning problem into a sequence of smaller, more\nconstrained sub-problems, one for ea",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "分层要求：若存在边 (vi,vj) 且 vi 属于层 a、vj 属于层 b，则 a≤b。这使跨层依赖只能由低层流向高层（a<b），同层内允许多步工作流（a=b），从而在架构上排除“先分析后预处理”这类逻辑非法计划。",
+      "scope": "HTAM 分层构造的约束条件与作者给出的设计优势",
+      "source_ids": [
+        "cf1e618aae1ce2d6"
+      ],
+      "id": "htam-inter-layer-constraint",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "locator": "提取文本字符 15782–17382",
+          "quote": "≤b. Each\nlayerV l thus represents a distinct level of operational ab-\nstraction, containing a group of tasks that are functionally\nrelated and share a similar position in the overall workflow.\nThis condition architecturally enforces unidirectional pro-\ngression from lower to higher layer, known as inter-layer\ndependencies (a < b), while allowing for multi-step work-\nflows within a single layer of abstraction, referred to as\nintra-layer dependencies (a=b). Each layerV l directly de-\nfines a functional layer within the agent system. Each layer\nis then populated by a set of specialized sub-agents, where\neach sub-agent is responsible for executing one or more of\nthe atomic tasks or tools (vertices) contained within its as-\nsigned layer.\nThe number of layersL, is not fixed but is an emergent\nproperty determined by the intrinsic complexity and struc-\nture of the domain’s task graph. This architectural design\noffers significant advantages:(1) Modularity: Agents de-\nsigned for a specific layer can be developed and maintained\n3In general, it is a directed acyclic graph. The graph’s structure is de-\nfined based on expert knowledge and established standards. A simple ex-\nample can be found in Suppl. 8.1.1 Figure 6.\nindependently.(2) Logical Enforcement: The unidirec-\ntional dependency flow makes it architecturally impossible\nto generate logically invalid plans (e.g., performing analysis\nbefore data preprocessing).(3) Decomposition of Com-\nplexity: The stratification decomposes a single and com-\nplex planning problem into a sequence of smaller, more\nconstrained sub-problems, one for ea",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "HTAM先自顶向下规划，从最高层逐层选择子智能体；再自底向上执行，第1层处理查询的初始输入，第l层处理第l−1层输出并产生供更高层使用的结果，最终响应来自最高层。",
+      "scope": "HTAM 的规划与执行流程定义",
+      "source_ids": [
+        "cf1e618aae1ce2d6"
+      ],
+      "id": "htam-topdown-planning-bottomup-execution",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "locator": "提取文本字符 17382–18982",
+          "quote": "ch layer.\n3.1.2. Top-Down Planning and Bottom-Up Execution\nOnce the hierarchical architecture is defined, the system op-\nerates through a dual-pass mechanism for the given user\nquery: a top-down planning pass to select and configure\nsub-agents, followed by a bottom-up execution pass.\nPlanning.For a given user queryQ, the system first initi-\nates a top-down planning process to translate the high-level\nintent into a concrete, multi-layered execution plan. This\nprocess begins at the highest layer (L) and proceeds down-\nwards to the basic layer. At each layerl, a policy function\nπl (typically implemented via an LLM call) selects an ap-\npropriate set of sub-agentsS l, conditioned on the query and\nthe selections made at higher layers. This cascade of de-\ncisions effectively decomposes the main query into a series\nof specialized sub-agents assigned to the appropriate layers.\nFormally, the sub-agent sets{S 1,...,S L}are determined\nas follows:\nSL =π L(Q)(1)\nSl =π l(Q,S l+1,...,S L)forl=L−1,...,1(2)\nEach policy functionπ l acts as a specialized manager for its\nlayer, mapping the broader context to a specific team of sub-\nagents. This structured delegation transforms an ambiguous\nuser request into a precise and executable hierarchical plan.\nExecution.Following planning, the execution phase be-\ngins, operating in the reverse direction. This process starts\nfrom the basic layer (l= 1) and moves upwards. Each\nselected sub-agent set,i.e.,S l, acts as a composite transfor-\nmation function,f Sl, processing the output from the layer\nbelow and producing the output for the layer above. The\npipe",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "locator": "提取文本字符 18982–20582",
+          "quote": "line starts with initial inputsQ in from the query:\nO1 =f S1 (Qin)(3)\nOl =f Sl (Ol−1)forl∈[2,L](4)\nThe final system response,R, is the output of the highest\nlayer,O L. The entire process can be viewed as a nested\nfunctional composition:\nR=O L =f SL (fSL−1 (...f S1 (Qin)...))(5)\nThis bottom-up execution implements a strict data pro-\ncessing pipeline. The output of each layer serves as the\n4\n\nPlanning\n Output Example\nUser Input\nQUESTION：Analyze the land use situation in this area. \nProvide recommendations for the future development \nof this type of zone based on the recent Central Urban \nWork Conference.\nAttached Data：\n#<metadata>\n##<project>Urban_Traffic_An\nalysis_Project_2025\n##<resolution>3840 x 2160\n##<camera>Hikvision DS-\n2CD4A26FWD-IZ(H)S\n##<datatime>08:30:15.123\n......\nANSWER：The extensive dark green areas \nin the image indicate that the region is \npredominantly farmland or vegetation... \nThe fragmented distribution of the road \nnetwork suggests limited transport \naccessibility... The recent Central Urban \nWork Conference outlined the following \nkey principles... These concepts offer the \nfollowing recommendations for the future \ndevelopment of this type of area.\nReport Log and Metadata\nInput Example\n×N\nDomain \nExperts\n×N\nwork\nflow\nSub-agents Info\nSub-agents Info\nSub-agents Info\nSynthesis and Application Layer\nRemote Sensing Models:\nRemoteCLIP, SegEarth,\nDynamicEarth, DescribeEarth,\n… …\n×N\nData Processing and Analysis Layer\nData Acquisition and Preprocessing Layer\nExecution\nLayer 2 Profile\nLayer 3  Profile\nLayer 1 Profile\nEquipped with sub-agents directory and \nlayer 3",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "EarthAgent 是 HTAM 在遥感领域的实现，其任务依赖图拓扑分析得到三层结构：第 1 层数据获取与预处理、第 2 层数据处理与分析、第 3 层综合与应用；每层配置专门子智能体，例如第 1 层 DataFetcherAgent 与 PreprocessingAgent，第 2 层 SemanticSegmentorAgent 与 ChangeDetectorAgent，第 3 层 UrbanistAIAgent、AgriScoutAgent、CrisisCommanderAgent 等。",
+      "scope": "EarthAgent 的三层实例化与子智能体分布",
+      "source_ids": [
+        "cf1e618aae1ce2d6"
+      ],
+      "id": "earthagent-three-layer-instantiation",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "locator": "提取文本字符 20582–22182",
+          "quote": "profile, Manager selects sub-agents.\nEquipped with sub-agents directory and \nlayer 2 profile, Manager selects sub-agents.\nEquipped with sub-agents directory and \nlayer 1 profile, Manager selects sub-agents.\nFigure 3.Workflow of our EarthAgent.The process starts with a Top-Down Planning, where a user query is decomposed into a\nhierarchical plan across layers. This is followed by a Bottom-Up Execution, where specialized sub-agents process information.\ninput for the next, ensuring that the final result is the prod-\nuct of a traceable and auditable sequence of transformations\noriginating from the source data.\n3.2. EarthAgent\nTo validate the efficacy and practicality of the HTAM\nmodel, we developed EarthAgent, a multi-agent system that\nserves as its implementation for the remote sensing domain,\nas shown in Figure 3. A typical remote sensing project pro-\ngresses naturally from handling raw satellite data, to per-\nforming data processing and analysis, and finally to deriving\nhigh-level insights and conclusions. A topological analysis\nof the remote sensing task dependency graph yields a three-\nlayer hierarchy, forming the architectural basis of EarthA-\ngent, as shown in Suppl. 8.3 Table 4.\nData Acquisition and Preprocessing Layer.This layer is\nEarthAgent’s interface with the vast geospatial data. The\nsub-agents in this layer are specialists in data I/O and pre-\nprocessing steps. TheDataFetcherAgent, for exam-\nple, queries and retrieves data from various sources,e.g., the\nSentinel Hub API or commercial data providers. It handles\nthe complexities of spatial-temporal queries and data",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "locator": "提取文本字符 22182–23782",
+          "quote": "access\nprotocols. Then, thePreprocessingAgenttransforms\nraw satellite sensor data into analysis-ready products. Its\ncapabilities include essential radiometric calibration, atmo-\nspheric correction, denoising,etc.\nData Processing and Analysis Layer.This layer func-\ntions as EarthAgent’s analytical engine, where prepro-\ncessed images are transformed into structured geospa-\ntial information. It contains a rich library of sub-\nagents, each an expert in a specific image interpreta-\ntion task adapted for remote sensing. For example, the\nSemanticSegmentorAgentutilizes deep learning or\ntraditional models to perform pixel-level classification, gen-\nerating land use/land cover maps or single-class maps [27,\n30, 31], while theChangeDetectorAgentcompares\nbi-temporal images to highlight areas of change [26]. The\noutputs of this layer are typically intermediate data products\nlike semantic masks or vector geometries.\nSynthesis and Application Layer.This is the highest and\nmost abstract layer, responsible for synthesizing the inter-\nmediate data products from the lower layers into a final\nanalysis that directly addresses the user’s query. The sub-\nagents at this layer are domain-specific “analysts”. For in-\nstance, theUrbanistAIAgentmight take building and\nroad detections from interpretation layer to analyze urban\nsprawl patterns. TheAgriScoutAgentcould use vege-\ntation indices (a product of 2nd layer) to assess crop health,\nwhile theCrisisCommanderAgentmight use building\ndamage assessments to coordinate an emergency response.\nIt is worth noting that there is aGeneralChatBotAgent\nserves a",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "locator": "提取文本字符 72251–73851",
+          "quote": "A =R A +K(S A−E A)(14)\nR′\nB =R B +K(S B−E B)(15)\nThis update mechanism is self-correcting; an agent that\nperforms better than expected will gain points, while one\nthat underperforms will lose them, causing the ratings to\nconverge over time to more accurately reflect the agents’\nrelative capabilities.\n4\n\nTable 4. Distribution and Description of Sub-Agents within the EarthAgent Architecture.\nLayer Sub-Agent Description\nLayer 1: Data\nAcquisition &\nPreprocessing\nDataFetcherAgentRetrieves remote sensing data from various sources based\non user queries.\nPreprocessingAgentPerforms standard preprocessing tasks like radiometric\ncorrection and georeferencing.\nLayer 2: Data Processing\nand Analysis\nObjectDetectorAgentIdentifies and locates specific objects (e.g., vehicles,\nbuildings) within an image.\nSemanticSegmentorAgentClassifies each pixel of an image into a set of predefined\nland cover categories.\nInstanceSegmentorAgentDetects and delineates individual object instances within\nan image.\nSceneClassifierAgentAssigns a high-level label (e.g., ’urban’, ’forest’) to the\nentire image scene.\nImageGeneratorAgentCreates new image data, such as for super-resolution or\ninpainting.\nChangeDetectorAgentCompares multi-temporal images to identify and high-\nlight areas of change.\nLayer 3: Synthesis\nand Application\nGeneralChatBotAgentProvides general information and answers user questions\nbased on the analyzed data.\nAgriScoutAgentSpecializes in agricultural applications like crop health\nmonitoring.\nCrisisCommanderAgentFocuses on disaster management by assessing damage for\nemergency response.\nUrbanist",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "EarthAgent 的实验只评估规划阶段，即比较生成的工具序列的正确性与质量，独立于工具实际执行；评测使用 GeoPlan-bench（1,244 个任务，7 个子领域，3 个难度等级），指标包括关键工具召回/精确率/F1、基于加权编辑距离的路径相似度，以及用 LLM 两两比较加 Elo 评级的整体完备性分数。",
+      "scope": "GeoPlan-bench 的构建与评测设置，作者自建基准",
+      "source_ids": [
+        "cf1e618aae1ce2d6"
+      ],
+      "id": "earthagent-planning-only-evaluation",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "locator": "提取文本字符 31325–32925",
+          "quote": "tative set of established agent\nparadigms. The evaluation focused exclusively on the plan-\nning phase, assessing the generated tool sequences for their\ncorrectness and quality, independent of tool execution.\nWe benchmarked EarthAgent against several key archi-\ntectures, as shown in Suppl. 8 Figure 7:\n• A simple Chain-of-Thought (CoT) [56] prompt was used\nas a fundamental baseline, instructing the LLM to “think\nstep-by-step” to generate a tool plan.\n• For single-agent paradigms, we implemented ReAct [62],\nwhich generates a plan through an iterative cycle of\nthought, action, and observation, allowing for dynamic\nadjustments; and Plan&Execute [55], which first gener-\nates a complete, multi-step plan and then proceeds to ex-\necute it without intermediate modifications.\n• For multi-agent paradigms 5, we included Debate [12],\n5See Suppl. 8.4 and 8.5 for our re-implementation details.\nwhere we configured three agents to propose and critique\neach other’s plans over several rounds to reach a refined\nconsensus. We also implemented AFlow [64], an agen-\ntic workflow generation system that we used to learn an\noptimized workflow from a subset (248 samples) of our\nbenchmark, which was then evaluated on the remainder.\nTo ensure a fair comparison, unless otherwise specified,\nall agent architectures were powered by the same LLM,\nGPT-4o-mini, and were provided with the exact same tools\nand their descriptions. 996 samples were used for evalua-\ntion (excluding AFlow’s training samples). In Sections 5.3\nand 5.4, only 70 uniformly sampled tasks are utilized due\nto API costs. Each architecture’s s",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "locator": "提取文本字符 26982–28582",
+          "quote": "level (e.g., simple, medium, complex) assigned during gen-\neration. This is followed by a domain relevance check using\nkeyword filtering and a classifier model to discard any ques-\ntions inconsistent with the designated remote sensing sub-\ndomain. Finally, to maximize conceptual diversity, we per-\nform semantic deduplication by using vector embeddings to\nidentify and prune functionally redundant questions.\nThe final product of this pipeline is the GeoPlan-bench,\na curated collection of 1,244 unique tasks. These are\ndistributed across seven sub-domains and categorized into\nthree distinct levels of difficulty, providing a robust bench-\nmark for nuanced analysis of agent performance. See\nSuppl. 8.1 for more details of data construction.\n4.2. Evaluation Metric\nTo realize a multi-faceted evaluation, we develop a suite of\nmetrics designed to assess the quality of an agent’s gen-\nerated plan from three perspectives: correctness, structure,\nand holistic completeness.\nCorrectness Metrics.In complex workflows, not all steps\ncarry equal weight. Our evaluation therefore prioritizes an\nagent’s ability to identify and use the indispensable “key\ntools” required for a solution. We measure this using\nRecallkey, which evaluates if the agent included all essen-\ntial tools, and Precision key, which measures how many of\nthe tools the agent proposed are necessary and penalizes re-\ndundant steps. Then, an F1-Score is calculated to provide\na balanced measure of correctness. See Suppl. 8.2.1 for the\ndetailed calculation process.\nStructural Metrics.Beyond individual tool choices, the\nstructural coh",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "locator": "提取文本字符 28582–29725",
+          "quote": "erence of the entire plan is critical. We mea-\nsure this using a path similarity metric based on a weighted\nedit distance. Unlike plain Levenshtein distance [24], our\ncost functions are context-aware: adding or deleting a\nhighly central tool incurs a greater penalty, while substitut-\ning a tool with a functionally similar one is penalized less.\nThe final distance is normalized into a Path Similarity score,\nwhere 1 indicates identical plans. See Suppl. 8.2.2 for the\ndetailed calculation process.\nHolistic Metrics.A plan may satisfy correctness and struc-\ntural checks yet still be logically incomplete or flawed. To\ncapture this holistic quality, we use LLM-as-a-judge and\nemploy the Elo rating system [50, 66]. Judging the qual-\nity of a complex plan is a demanding cognitive task for an\nLLM, often leading to inconsistent results. In contrast, a\npairwise comparison is a far simpler and more reliable judg-\nment [50]. This approach alleviates the cognitive burden\non the LLM judge, yielding more stable assessments. For\neach task, an LLM judge determines the winner between\ntwo agents’ plans. Each agent’s Elo rating is then updated,\n6",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "在 GeoPlan-bench 上移除层级策略后，EarthAgent 的 F1key 从 0.62 降至 0.39，结构分数从 0.66 降至 0.63；作者据此认为层级分解的主要价值在于让每一阶段能做出正确的上下文相关工具选择，而不仅是强制顺序。",
+      "scope": "作者自建基准上的消融实验，GPT-4o-mini 等骨干模型，规划阶段评测",
+      "source_ids": [
+        "cf1e618aae1ce2d6"
+      ],
+      "id": "earthagent-hierarchy-ablation",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "locator": "提取文本字符 35259–36859",
+          "quote": ".\nAs shown in Table 2, EarthAgent’s performance remains\nconsistently high across various models. This stability is\nfurther highlighted in a direct comparison against ReAct\n(Figure 5), where EarthAgent’s scores are tightly clustered,\nin stark contrast to the wide performance variance exhibited\nby the ReAct-based agent. This suggests that the HTAM\narchitecture itself provides the primary reasoning scaffold,\nmaking the system’s performance less dependent on the\nspecific capabilities of the underlying LLM.\nThis robustness stems from HTAM’s architectural de-\nsign, which changes the LLM’s role. Instead of performing\ncomplex, end-to-end planning, the LLM is tasked with more\nconstrained, layer-specific decisions,i.e., selecting and con-\nfiguring sub-agents within a predefined logical flow. By\noffloading the primary cognitive burden of procedural rea-\nsoning to the architecture, HTAM ensures consistent and\nreliable performance, demonstrating its broad applicability\nacross different LLMs.\n(a) F1𝑘𝑒𝑦 (b) Structural Score\nFigure 5. Performance stability of EarthAgent versus ReAct\nacross multiple LLM backbones.\n5.4. Ablation Study\nTo dissect HTAM’s core architectural components, we con-\nducted an ablation study, as listed in Table 3. When we re-\nmoved the hierarchical strategy, the system’s performance\ncollapsed dramatically, with the F1key score dropping from\n0.62 to 0.39. This result proves that the structured, hier-\narchical decomposition of a user’s query into a multi-layer\nplan is the foundational pillar of HTAM’s success. Interest-\ningly, the Structural score sees a more modest dec",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "locator": "提取文本字符 36859–38459",
+          "quote": "line from\n0.66 to 0.63. This suggests that while a non-hierarchical ap-\nproach might generate a superficially plausible sequence, it\nprofoundly fails in selecting the correct tools for the task.\nThis highlights that the primary value of our hierarchical\nmechanism lies not just in enforcing order, but more crit-\nically, in enabling correct, context-aware tool selection at\neach stage of the workflow.\n6. Conclusion\nIn this work, we introduce HTAM, a novel framework for\ndesigning domain-specific multi-agent systems. Departing\nfrom prevalent socially-inspired paradigms, HTAM con-\nstructs an agent hierarchy that directly mirrors the domain’s\nintrinsic task dependency. This knowledge-driven structural\ndesign enforces procedural correctness and systematically\ndecomposes complex problems, leading to more robust and\nreliable agent performance. We demonstrate the efficacy\nof this framework through EarthAgent, an HTAM-based\nsystem for geospatial analysis, and evaluate it on our pro-\nposed benchmark, GeoPlan-bench. Extensive experiments\nshow that EarthAgent significantly outperforms established\nsingle- and multi-agent architectures. Our results validate\na key principle: for specialized domains governed by\nstructured workflows, aligning the agent architecture with\nthe inherent task logic is not just beneficial, but essential.\nThis work provides a concrete methodology for building\nthe next generation of specialized autonomous systems 6.\n6We have built a practical EarthAgent system that can actually execute\ncomplex remote sensing workflows. Its basic version will be contributed\nto the comm",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "作者指出 HTAM 在具体垂直领域的实例化没有完美方案，依赖设计者对行业的理解；EarthAgent 不能断言已把完整求解路径抽象为最优形式，某些场景可能需要层间回滚，例如中高层子智能体在处理中需要额外专门数据。",
+      "scope": "作者自述的框架局限，属开放问题",
+      "source_ids": [
+        "cf1e618aae1ce2d6"
+      ],
+      "id": "earthagent-rollback-limitation",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "locator": "提取文本字符 55296–56896",
+          "quote": "agent system [19]. Other promis-\ning domains includelegal case analysis, which requires a\nsequence of fact-finding, precedent research, and argument\nconstruction [6], and complexsoftware engineeringtasks\nthat can be broken down into requirement analysis, architec-\nture design, implementation, and testing [46]. In all these\nscenarios, HTAM provides a robust framework for creat-\ning specialized and efficient multi-agent systems that can\nnavigate complex, domain-specific procedures with greater\nreliability than general agent architectures.\n7.2. Limitation\nEarthAgent represents our instantiation of the HTAM\nwithin remote sensing. However, there is still no perfect\nsolution for how to instantiate HTAM in specific vertical\nfields. This process fundamentally depends on the users’\nand designers’ comprehension of the specific industry or\ndomain, as well as the associated business requirements.\nAlthough EarthAgent was developed through extensive\nresearch and in consultation with industry experts, we can-\nnot assert that we have abstracted the complete set of task-\nsolving pathways into their optimal forms. As a result, in\ncertain scenarios, rollbacks between layers may be needed,\ne.g., when mid- or high-level sub-agents require additional\nspecialized data during processing.\nIf more effective abstraction methods become available,\nthis issue could be resolved. Thus, we regard this as an\nopen question and encourage future research to propose im-\nproved abstraction strategies and design more optimal in-\nstantiations of HTAM.\n7.3. Expectation\nAs the development of LLM agents continues to",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "HieraPlan 把工具库按功能与模态组织成层级（Perception、Spatial-Relations、Spatial-Statistics、SAR、IR），工具带类型化输入输出与基本合法性约束；给定任务时先检索任务相关的工具子集，再生成模态感知的计划、执行具体算子，并从经过验证的工具输出合成最终答案。",
+      "scope": "HieraPlan 智能体的设计，TerraLogic 基准上的参考基线",
+      "source_ids": [
+        "8db3263052b0cab1"
+      ],
+      "id": "hieraplan-functional-tool-hierarchy",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "8db3263052b0cab1",
+          "locator": "提取文本字符 20215–21815",
+          "quote": "atial Trigger(quantitative thresholds or topological relations),\n(ii) anExpert Interpretation(domain-grounded semantics), and\n(iii) aVerifiable Tool-Chain. This hierarchical design bridges\nperception and cognition, offering structured priors and explicit\nTable 3: Statistics of question complexity and tool-use pat-\nterns across different modalities.\nMetric All Optical SAR IR\nTotal queries 545 386 116 43\nTotal tool calls 1649 1217 346 86\n2/3/4-tools use 72/387/86 27/273/86 2/114/0 43/0/0\nMaximum question length N/A 406 207 288\nMinimum question length N/A 109 111 135\nAverage question length 158.24 160.13 143.49 181.05\nmulti-step pathways while ensuring interpretability and verifia-\nbility. By covering both canonical and high-complexity reasoning\nscenarios, TerraLogic provides rigorous testbeds for evaluating\ndiverse agentic capabilities, including fine-grained spatial under-\nstanding, multi-step tool composition, quantitative analysis, and\ncontext-aware risk assessment.\n3 The HieraPlan Agent\nTo support evaluation onTerraLogic, we provideHieraPlan, a\nhierarchy-aware and fault-tolerant agent for geospatial reasoning\nin remote sensing. Given a task, HieraPlan retrieves a task-relevant\nsubset of tools from a hierarchical library spanningPerception,\nSpatial-Relations,Spatial-Statistics,SAR, andIR, then generates a\nmodality-aware plan, executes concrete operators, and synthesizes\nthe final answer from validated tool outputs. HieraPlan supportshi-\nerarchical abstraction: tools are organized by function and modality,\nwith typed inputs/outputs and basic legality constraints, reducing\ni",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "HieraPlan 的容错执行方式：某一步失败时，先尝试在同一工具包内替换，必要时只重规划剩余的后续片段，同时保留已验证的前缀；量化输出由工具计算，LLM 只负责从已验证的中间结果做自然语言综合。",
+      "scope": "HieraPlan 的故障恢复与可验证性约束",
+      "source_ids": [
+        "8db3263052b0cab1"
+      ],
+      "id": "hieraplan-fault-tolerant-execution",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "8db3263052b0cab1",
+          "locator": "提取文本字符 21815–23410",
+          "quote": "nvalid compositions over heterogeneous RS data. Its executable\noperators are grounded in remote-sensing expert models, including\nRemoteSAM[ 51],SARATR-X[ 26, 27],DMIST/LASNet[ 9], and\nChange3D[ 56]. It further enablesfault-tolerant execution: when\na step fails, the agent first attempts within-toolkit substitution\nand, if needed, replans only the remaining suffix while preserv-\ning the validated prefix. Finally, it enforcesverifiable grounding:\nquantitative outputs are computed by tools, while the LLM is re-\nstricted to natural-language synthesis from validated intermediate\nresults. Overall, HieraPlan serves as a suitable reference baseline\nfor TerraLogic, whose tasks require scenario-aware decomposition,\ncross-modal tool coordination, and reliable execution under long\nreasoning chains.\n4 Experiments and Results\nTo evaluate the reasoning and tool-use capabilities ofHieraPlan\nunder real-world RS scenarios, we conduct comprehensive experi-\nments on theTerraLogicbenchmark. Since HieraPlan is controlled\nby an LLM, we evaluate a diverse set of foundation models, includ-\ning API-based systems—GPT-3.5 [36], GPT-4o [20], and Gemini-2.5-\nFlash [43]—as well as a broad range of open-source LLMs. The open-\nsource models include large-capacity systems, such as DeepSeek-\nV3 [6], Qwen2.5-32B-Instruct [44], and LLaMA-3-70B-Instruct [14],\ntogether with medium-sized models, including Qwen2.5-7B [ 5],\nInternLM3-8B [8], LLaMA-3-8B [14], Mistral-7B [21], Yi-1.5-6B [3],\nand Phi-3-Mini [2]. All experiments are conducted on an NVIDIA\nA5000 GPU within the OpenCompass [10] evaluation platform.",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "TerraLogic 的每个推理任务由三部分组成：空间触发器（定量阈值或拓扑关系）、专家解释（领域语义）和可验证工具链；基准共 545 个场景驱动任务，覆盖光学、SAR 与红外模态，13 个工具被调用 1649 次，多数查询需要多工具组合。",
+      "scope": "TerraLogic 基准的任务结构与统计",
+      "source_ids": [
+        "8db3263052b0cab1"
+      ],
+      "id": "terralogic-task-structure",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "8db3263052b0cab1",
+          "locator": "提取文本字符 18615–20215",
+          "quote": "s that\nrely on free-form generation, we require that the finalized tool se-\nquence can berun to completionunder operator legality constraints\n(typed I/O, unit validity, and geospatial constraints). We accept an\ninstance only when (a) the tool chain executes without violations,\n(b) intermediate outputs pass basic validity checks (non-empty out-\nputs where required and valid topology when applicable), and (c)\nany reported quantities in the final answer are directly computed\nfrom tool outputs rather than inferred without evidence. This gat-\ning criterion ensures that every released instance is paired with an\nexecutable tool chain that supports traceable, evidence-grounded\nevaluation.\nRounds and traceability.The three rounds consist of an initial\nscreening, disagreement resolution for borderline cases, and a final\nconformance check across the query text, tool arguments, and pro-\nduced outputs. All modifications to the query, operator selection,\narguments, and final answer are logged in the curation interface,\npreserving instance-level traceability for verification and subse-\nquent analysis.\n2.3 Benchmark Statistics\nTerraLogic contains 545 queries across optical, SAR, and IR modal-\nities. In total, 13 tools are invoked 1649 times, with most queries\nrequiring multi-tool composition. Query lengths range from short\nfactual questions to complex compositional ones, demonstrating\nboth diversity and reasoning depth. Detailed statistics are reported\nin Table 3. Each reasoning task in TerraLogic is instantiated as a\ndistinct scene context type, characterized by three components: (i) a\nSp",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "8db3263052b0cab1",
+          "locator": "提取文本字符 20215–21815",
+          "quote": "atial Trigger(quantitative thresholds or topological relations),\n(ii) anExpert Interpretation(domain-grounded semantics), and\n(iii) aVerifiable Tool-Chain. This hierarchical design bridges\nperception and cognition, offering structured priors and explicit\nTable 3: Statistics of question complexity and tool-use pat-\nterns across different modalities.\nMetric All Optical SAR IR\nTotal queries 545 386 116 43\nTotal tool calls 1649 1217 346 86\n2/3/4-tools use 72/387/86 27/273/86 2/114/0 43/0/0\nMaximum question length N/A 406 207 288\nMinimum question length N/A 109 111 135\nAverage question length 158.24 160.13 143.49 181.05\nmulti-step pathways while ensuring interpretability and verifia-\nbility. By covering both canonical and high-complexity reasoning\nscenarios, TerraLogic provides rigorous testbeds for evaluating\ndiverse agentic capabilities, including fine-grained spatial under-\nstanding, multi-step tool composition, quantitative analysis, and\ncontext-aware risk assessment.\n3 The HieraPlan Agent\nTo support evaluation onTerraLogic, we provideHieraPlan, a\nhierarchy-aware and fault-tolerant agent for geospatial reasoning\nin remote sensing. Given a task, HieraPlan retrieves a task-relevant\nsubset of tools from a hierarchical library spanningPerception,\nSpatial-Relations,Spatial-Statistics,SAR, andIR, then generates a\nmodality-aware plan, executes concrete operators, and synthesizes\nthe final answer from validated tool outputs. HieraPlan supportshi-\nerarchical abstraction: tools are organized by function and modality,\nwith typed inputs/outputs and basic legality constraints, reducing\ni",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "TerraLogic 采用两阶段构建：先用知识增强的场景生成（注入城市绿化与热缓解框架、国际土地覆盖标准、航空与海上搜救准则、工业安全规则等知识语料，强制产生定量阈值并做算子合法性检查），再由八位遥感专家进行三轮审核，并以“执行门控”为发布标准——工具链必须能在类型化 I/O、单位有效性与地理空间约束下完整运行，中间输出通过基本有效性检查，最终答案中的量值必须直接由工具输出计算而非无证据推断。",
+      "scope": "TerraLogic 的数据构建与验证流程",
+      "source_ids": [
+        "8db3263052b0cab1"
+      ],
+      "id": "terralogic-execution-gated-construction",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "8db3263052b0cab1",
+          "locator": "提取文本字符 9600–11200",
+          "quote": "Reasoning Scenarios\nA central challenge in RS is bridging the gap between low-level\nperceptual outputs and the high-level intelligence required for real-\nworld decision-making. To address this, we adopt a structured\ntaxonomy of geospatial reasoning tasks, systematically organized\ninto seven primary domains: urban planning, disaster assessment,\nenvironmental monitoring, transportation analysis, activation mon-\nitoring, maritime monitoring, and industrial sites.\n2.2 Source Data Construction Pipeline\nWe construct TerraLogic with a two-stage pipeline (see Figure 3)\nthat combines diverse source imagery, knowledge-augmented sce-\nnario generation, and multi-pass expert adjudication to produce\n545 validated instances. The source datasets used in this pipeline\nare summarized in Table 2.\n2.2.1 Stage 1: Knowledge-augmented scenario generation.We ob-\ntain a stratified sample of source imagery (by modality and scene\ntype) and apply explicit hardness controls to select cases that require\nmulti-tool reasoning and compositional spatial relations (e.g., prox-\nimity, containment, topology). Candidate queries and tool-chains\nare generated with ChatGPT-5 via in-context learning: prompts are\nmodality-specific and seeded with expert-authored exemplars.\nTo ground generation in domain knowledge, we inject a compact\nknowledge corpus into prompts. The corpus covers four guidance\ncategories: (i) urban greening and heat-mitigation frameworks [4,\n7, 33, 38, 45]; (ii) international land-cover standards [ 12, 32]; (iii)\naviation and maritime search-and-rescue doctrine for IR small-\ntarget tasks [23]; and",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "8db3263052b0cab1",
+          "locator": "提取文本字符 17015–18615",
+          "quote": "Yan et al., Yuhang Yan, Linchao Mou, Bokang Yang, and Qingyu Li\nTable 2: Datasets used as image sources in the TerraLogic\nbenchmark.\nName Annotation Type Resolution Modality Geographical Coverage\nLoveDA [48] Masks 0.3 m/px Optical Nanjing/Changzhou/Wuhan, China\nISPRS Potsdam [41] Masks 0.05 m/px Optical Potsdam, Germany\nISPRS Vaihingen [1] Masks 0.09 m/px Optical Vaihingen, Germany\nDeepGlobe Land Cover [29] Masks 0.50 m/px Optical Cities in India/Indonesia/Thailand\nHRSCD [11] Change masks 0.45 m/px Optical Rennes/Caen, France\nOGSOD [46] Bounding boxes 3 m/px SAR Cities in China\nDMIST [9] Bounding boxes – IR Chengdu, China\nprocedure by eight remote-sensing experts, aiming to produce in-\nstances that are both unambiguous in intent and verifiable through\ntool execution.Checklist-based assessment.For every candidate, re-\nviewers examine three aspects: (i)semantic soundness(the query\nstates a well-posed, domain-relevant task without underspecifica-\ntion), (ii)workflow validity(the operator choices, ordering, and\narguments comply with modality constraints and remain consis-\ntent under GSD-aware units), and (iii)geospatial correctness(no\ngeometry/topology pitfalls, and intermediate spatial objects are\nmeaningful for downstream operators). We iteratively revise each\ncandidate until all criteria are satisfied; otherwise, we discard it if\nthe intended question cannot be substantiated by executable tool\nevidence (invalid units, ill-defined spatial predicates, or inconsis-\ntencies between the query and the expected tool outputs).\nExecution-gated verification.To avoid releasing instance",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "8db3263052b0cab1",
+          "locator": "提取文本字符 18615–20215",
+          "quote": "s that\nrely on free-form generation, we require that the finalized tool se-\nquence can berun to completionunder operator legality constraints\n(typed I/O, unit validity, and geospatial constraints). We accept an\ninstance only when (a) the tool chain executes without violations,\n(b) intermediate outputs pass basic validity checks (non-empty out-\nputs where required and valid topology when applicable), and (c)\nany reported quantities in the final answer are directly computed\nfrom tool outputs rather than inferred without evidence. This gat-\ning criterion ensures that every released instance is paired with an\nexecutable tool chain that supports traceable, evidence-grounded\nevaluation.\nRounds and traceability.The three rounds consist of an initial\nscreening, disagreement resolution for borderline cases, and a final\nconformance check across the query text, tool arguments, and pro-\nduced outputs. All modifications to the query, operator selection,\narguments, and final answer are logged in the curation interface,\npreserving instance-level traceability for verification and subse-\nquent analysis.\n2.3 Benchmark Statistics\nTerraLogic contains 545 queries across optical, SAR, and IR modal-\nities. In total, 13 tools are invoked 1649 times, with most queries\nrequiring multi-tool composition. Query lengths range from short\nfactual questions to complex compositional ones, demonstrating\nboth diversity and reasoning depth. Detailed statistics are reported\nin Table 3. Each reasoning task in TerraLogic is instantiated as a\ndistinct scene context type, characterized by three components: (i) a\nSp",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "在 TerraLogic 上以 ReAct 协议评测 HieraPlan 时，格式错误是各模型家族最主要的失败模式（GPT-4o 41.65%，DeepSeek-V3 66.40%，Llama-3-70B 55.20%），工具使用错误在模型间差异明显（GPT-4o 3.60%，Gemini-2.5-Flash 37.26%），感知接地错误也较高（GPT-4o 41.26%），而推理错误相对温和（13–35%）；作者据此认为当前地理空间智能体更多受限于结构化输出生成与多模态接地，而非抽象推理本身。",
+      "scope": "TerraLogic 上的错误分类统计，作者自建基准与自建基线",
+      "source_ids": [
+        "8db3263052b0cab1"
+      ],
+      "id": "terralogic-error-taxonomy",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "8db3263052b0cab1",
+          "locator": "提取文本字符 25010–26610",
+          "quote": "PT-4oachieves the strongest overall performance across\nboth evaluation settings, leading on InstAcc, ArgAcc, SummAcc, as\nwell as P, O, and Ans. Among open-source large models,Llama-3-\n70B-Instructperforms best overall, with competitive ToolAcc and\nstrong end-to-end results. Among medium-scale open-source mod-\nels,Qwen2.5-7B-Instructis notable for achieving the highest L\nscore (Spatial Relations) across all evaluated models, despite weaker\nInstAcc and SummAcc. Across model families,ArgAccremains the\nmain bottleneck, while lower ToolAcc is consistently associated\nwith reduced end-to-end performance, highlighting the difficulty\nof reliable tool selection and faithful argument propagation in long-\nhorizon geospatial workflows.\n4.2 Task Error Analysis.\nTo explain the performance gaps above, we analyze failures using\nan error taxonomy coveringformat,reasoning,perception, andtool\nuse. As shown in Table 5,format errorsare the dominant failure\nmode across model families. They are particularly severe for open-\nsource models, includingDeepSeek-V3(66.40%),Llama-3-70B\n(55.20%), andPhi-3-Mini(45.60%), but remain substantial even for\nGPT-4o(41.65%). This suggests that generating valid structured\ntool calls, especially well-formed JSON arguments, remains a major\nbottleneck.Tool-use errorsfurther distinguish model classes.GPT-\n4ois the most reliable (3.60%), whereasGemini-2.5-Flash(37.26%)\nandGPT-3.5(39.50%) more often select inappropriate operators\nor produce invalid parameters. Some open-source models show\nlower tool-use error rates, but this likely reflects more conservative\nbehavior rat",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "8db3263052b0cab1",
+          "locator": "提取文本字符 26610–28210",
+          "quote": "her than stronger execution. Another major source\nof failure isperception grounding. For example,GPT-4oshows a\nperception error rate of 41.26%, indicating that interpreting land-\ncover masks, change maps, and spatial layouts remains challenging.\nBy contrast,reasoning errorsare relatively moderate across models\nTable 4: Main results of HieraPlan on the TerraLogic bench-\nmark. Inst., Tool., Arg., and Summ. denote step-by-step ac-\ncuracies (InstAcc, ToolAcc, ArgAcc, SummAcc). P, O, and L\ndenote end-to-end scores in thePerception,Spatial Statistics,\nandSpatial Relationstoolkits. Ans. denotes the final answer\naccuracy (AnsAcc). Bold indicates the best overall score, and\nunderline marks the best within the same model scale.\nModel Step-by-Step Metrics (%) End-to-End Metrics (%)\nInst. Tool. Arg. Summ. P O L Ans.\nAPI-based\nGPT-4o 79.40 72.0123.57 82.83 72.73 88.38 77.9525.70\nGemini-2.5-Flash 59.09 43.31 15.75 47.22 41.47 40.89 41.51 12.04\nGPT-3.5 59.05 57.12 21.88 59.08 61.22 61.04 53.30 24.40\nOpen-source (Large)\nDeepSeek-V3 65.84 66.33 23.32 60.92 65.44 66.04 57.93 21.28\nQwen2.5-32B-Instruct 62.83 58.00 17.41 58.90 44.28 67.40 61.47 19.08\nLlama-3-70B-Instruct 67.89 67.47 22.66 69.91 62.72 71.62 62.54 22.75\nOpen-source (Medium/Small)\nQwen2.5-7B-Instruct 77.1974.71 23.11 65.32 68.56 73.0382.42 22.57\nInternLM3-8B-Instruct 61.26 57.72 22.59 50.28 61.44 53.70 60.70 18.90\nLLaMA3-1-8B 69.46 65.99 22.27 55.60 68.42 60.34 70.82 16.70\nPhi-3-Mini-4K-Instruct 55.45 41.14 17.17 10.09 43.63 7.52 51.74 3.67\nMistral-7B-Instruct-v0.2 60.03 47.05 16.73 46.06 49.75 44.05 45.23 13.21\nYi-1.5-6B-Chat 63",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "TerraLogic 的细粒度子集分析显示：能力组合比单一能力更难，多数模型从 S+G 或 S+Q 降到 S+G+Q 时性能下降；规划长度是主要挑战，在长时程全流程子集 H∩(S+G+Q) 上，即使强系统仍保持中等步骤级准确率，最终答案准确率却急剧下降，说明局部工具或参数的小错误会在长推理链中破坏端到端正确性。",
+      "scope": "TerraLogic 上的能力子集分层评测",
+      "source_ids": [
+        "8db3263052b0cab1"
+      ],
+      "id": "terralogic-long-horizon-degradation",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "8db3263052b0cab1",
+          "locator": "提取文本字符 29810–31410",
+          "quote": "d require\n\nYan et al., Yuhang Yan, Linchao Mou, Bokang Yang, and Qingyu Li\nTable 6: Optical accuracy comparison between representa-\ntive remote-sensing multimodal LLMs (RS-MLLMs) and our\nHieraPlan (GPT-4o) on TerraLogic optical VQA tasks.\nModel Optical Accuracy (%)\nRS-MLLMs\nEarthDial[42] 9.38\nGeoChat[24] 6.70\nGeoPix[34] 6.17\nLLM-based Agent (Ours)\nHieraPlan (GPT-4o) 29.29\nfine-grained spatial reasoning beyond standard VQA-style interpre-\ntation.\n4.4 Fine-grained capability subsets.\nTo pinpoint where failures arise, Table 7 stratifies TerraLogic into\nfour subsets with progressively increasing capability composition\nand planning horizon.Semantic + Geometry (S+G)includes tasks\nrequiring semantic perception followed by geometric reasoning\n(e.g., segmentation with buffering or overlap), without quantitative\nstatistics.Semantic + Quantitative (S+Q)combines semantic per-\nception with numerical measurement (e.g., detection with distance\nestimation or counting), without geometric predicates.Semantic +\nGeometry + Quantitative (S+G+Q)represents full-pipeline work-\nflows integrating all three capabilities.Long-Horizon (H)includes\ninstances with𝐾≥ 4sequential tool operations, and we further\nreport𝐻∩ (S+G+Q)to isolate the most challenging long-horizon\nfull-pipeline cases. Two trends emerge. First,capability composi-\ntionis substantially harder than any individual capability: for most\nmodels, performance drops from S+G or S+Q to S+G+Q, indicat-\ning that errors accumulate when arguments must be propagated\nacross heterogeneous toolkits. Second,planning horizonremains\nthe dominant challenge:",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "8db3263052b0cab1",
+          "locator": "提取文本字符 31410–33010",
+          "quote": "on𝐻∩(S+G+Q), even strong systems retain\nmoderate step-level accuracies but still degrade sharply in final an-\nswer accuracy, suggesting that small local tool or argument errors\ncan derail end-to-end correctness in long reasoning chains.\n5 Conclusion\nIn this work, we introduced TerraLogic, the first benchmark for\ncognitive-level geospatial reasoning across optical, SAR, and IR\nmodalities. TerraLogic comprises 545 hierarchy-aware, scenario-\ndriven tasks that extend evaluation beyond perception to structured,\nmulti-step analysis. To support benchmark evaluation, we further\nprovide HieraPlan, a hierarchy-aware, fault-tolerant baseline agent\nfor multimodal tool-augmented reasoning. Experiments on Ter-\nraLogic show that even frontier models remain limited, with clear\nweaknesses in argument prediction, summary generation, and mul-\ntimodal tool integration, highlighting substantial headroom for\nfuture research on geospatial reasoning, planning, and execution.\nTable 7: Fine-grained results across models and capability\nsubsets. All metrics are in %.\nModel Task Inst Tool Arg Summ Ans\nAPI-based\nGPT-4o\nS+G 77.78 92.11 32.8975.0045.29\nS+Q 78.33 89.20 22.80 94.00 36.00\nS+G+Q85.20 84.40 27.37 91.08 35.43\nH∩(S+G+Q) 60.70 46.77 18.09 60.47 9.81\nGemini-2.5-Flash\nS+G 49.44 48.03 18.42 53.57 21.43\nS+Q 30.67 25.60 12.00 30.00 8.00\nS+G+Q 34.51 23.40 9.00 24.93 9.97\nH∩(S+G+Q) 50.81 34.24 12.40 41.86 0.00\nGPT-3.5\nS+G 67.20 73.00 27.00 64.30 42.90\nS+Q 83.30 94.40 40.80 98.00 48.00\nS+G+Q 53.90 53.50 20.80 51.20 24.70\nH∩(S+G+Q) 67.10 54.40 18.3069.80 10.50\nOpen-source (Large)\nDeepSeek-V3\nS+G 80.00 86",
+          "proposed_by": "LLM"
+        }
+      ]
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "hierarchy-source-difference",
+      "title": "层级来源：领域任务依赖图 vs 工具功能与模态分类",
+      "kind": "范围差异",
+      "sides": [
+        {
+          "text": "HTAM 的层来自领域任务依赖图的拓扑分层，层数由领域任务图复杂度决定，层间依赖由低层流向高层，层内允许多步工作流。",
+          "scope": "HTAM 形式化定义，遥感实例化为三层",
+          "source_ids": [
+            "cf1e618aae1ce2d6"
+          ]
+        },
+        {
+          "text": "HieraPlan 的层级是把工具库按功能与模态（Perception、Spatial-Relations、Spatial-Statistics、SAR、IR）组织，用于检索任务相关工具子集并生成模态感知计划。",
+          "scope": "HieraPlan 智能体设计，TerraLogic 基准",
+          "source_ids": [
+            "8db3263052b0cab1"
+          ]
+        }
+      ],
+      "status": "待核查",
+      "handling": "正文更新后需复核。原处理记录：两者都称“层级”，但一者按任务依赖图分层、一者按工具功能与模态分类；需要核对是否存在共同的层间约束定义，以及 HieraPlan 是否也强制层间单向依赖，避免把两种层级混为一谈。",
+      "proposed_by": "LLM"
+    }
+  ],
+  "related_slugs": [],
+  "content_review": {},
+  "review_history": [],
+  "updated_at": "2026-10-12T13:57:56+00:00",
+  "writing_guide_version": "5",
+  "publication": {
+    "by": "agent",
+    "policy": "automatic",
+    "at": "2026-10-12T13:57:56+00:00"
+  }
+}

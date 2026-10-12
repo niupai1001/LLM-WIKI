@@ -6,3 +6,4 @@ Markdown>=3.7,<4
 bleach>=6.2,<7
 python-dotenv>=1.0,<2
 pypdf>=5,<7
+fonttools>=4.0,<5

@@ -122,7 +122,10 @@ def _pdf_text(data):
     from pypdf.errors import PyPdfError
     try:
         reader = PdfReader(io.BytesIO(data))
-        return "\n\n".join(page.extract_text() or "" for page in reader.pages).strip()
+        text = "\n\n".join(page.extract_text() or "" for page in reader.pages).strip()
+        # Malformed PDF font maps can emit lone UTF-16 surrogates. Keep the PDF
+        # unchanged and mark those unreadable characters so JSON archiving works.
+        return text.encode('utf-16-le', errors='surrogatepass').decode('utf-16-le', errors='replace')
     except PyPdfError:
         raise ValueError("PDF文件损坏、加密或无法读取") from None
 

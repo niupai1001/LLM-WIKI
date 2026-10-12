@@ -1,8 +1,50 @@
 [
-  {"id": "agents", "name": "Agent 智能体"},
-  {"id": "ai", "name": "人工智能"},
-  {"id": "vision", "name": "计算机视觉"},
-  {"id": "engineering", "name": "工具与工程"},
-  {"id": "research", "name": "个人研究"},
-  {"id": "other", "name": "其他"}
+  {
+    "id": "agents",
+    "name": "Agent 智能体",
+    "description": "",
+    "enabled": true
+  },
+  {
+    "id": "ai",
+    "name": "人工智能",
+    "description": "",
+    "enabled": true
+  },
+  {
+    "id": "vision",
+    "name": "计算机视觉",
+    "description": "",
+    "enabled": true
+  },
+  {
+    "id": "engineering",
+    "name": "工具与工程",
+    "description": "",
+    "enabled": true
+  },
+  {
+    "id": "research",
+    "name": "个人研究",
+    "description": "",
+    "enabled": true
+  },
+  {
+    "id": "other",
+    "name": "其他",
+    "description": "",
+    "enabled": true
+  },
+  {
+    "name": "遥感与 GIS",
+    "description": "遥感视觉、地理空间工具、任务依赖规划与空间分析工作流。区分感知模型、工具调用 Agent、规划系统与评测基准，依据原文解释方法和适用条件。",
+    "enabled": true,
+    "id": "topic-2c016a4f38e2401d"
+  },
+  {
+    "name": "自主实验与 AutoML",
+    "description": "实验反馈驱动的超参数优化、机器学习流水线搜索及专业科学分析工作流。保留试验预算、数据条件与实际评测范围。",
+    "enabled": true,
+    "id": "topic-f8ccede1b22c4c7e"
+  }
 ]

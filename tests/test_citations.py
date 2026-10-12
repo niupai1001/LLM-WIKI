@@ -12,6 +12,13 @@ C = '3333333333333333'
 
 
 class CitationTests(unittest.TestCase):
+    def test_publisher_dates_preserve_declared_precision(self):
+        self.assertEqual(citations._date('2024'), '2024')
+        self.assertEqual(citations._date('2024/07'), '2024-07')
+        self.assertEqual(citations._date('2024/07/16'), '2024-07-16')
+        self.assertEqual(citations._date('2024-13'), '')
+        self.assertEqual(citations._date('0000'), '')
+
     def setUp(self):
         self.sources = {
             A: {'title': 'Plan-and-Patch: Diffusion Language Models for Agentic Planning', 'published': 'Fri, 09 Oct 2026 00:00:00 -0400', 'url': 'https://arxiv.org/abs/2610.10786', 'pdf_url': 'https://arxiv.org/pdf/2610.10786'},

@@ -1,0 +1,417 @@
+{
+  "slug": "llm-gis-workflow-generation",
+  "title": "自然语言驱动的 GIS 空间分析工作流生成与执行",
+  "category": "topic-2c016a4f38e2401d",
+  "source_ids": [
+    "19f9b059cd25c958",
+    "3bdb54f327d29558",
+    "8cabb777c9bc6fe9"
+  ],
+  "page_kind": "concept",
+  "claims": [
+    {
+      "text": "GeoGPT 用 LangChain 把 LLM（实验用 gpt-3.5-turbo，temperature=0）与一个 GIS 工具池连接，按 ReAct 式的“思考—行动—观察—再思考”循环逐步调用工具：LLM 先理解自然语言需求，再选择并调用工具，读取工具返回的观察结果后决定下一步，直到认为任务完成。",
+      "scope": "GeoGPT 框架设计，作者自建工具池与案例研究，非受控对比实验",
+      "source_ids": [
+        "3bdb54f327d29558"
+      ],
+      "id": "geogpt-react-tool-loop",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3bdb54f327d29558",
+          "locator": "提取文本字符 12739–14339",
+          "quote": "ally solve geospatial tasks by a chain of thinking mode based on the demands\nof non-professional users. GeoGPT uses the Langchain [49] framework to connect an\nLLM (we use gpt-3.5-turbo with a temperature of 0 in our experiments) with various\nmature tools within the GIS community. In this way, GeoGPT can automatically\nchoose appropriate GIS tools for geographical dataset collection, spatial data analysis,\n4\n\nand mapping, to name a few. The overall framework of GeoGPT is shown in Figure 2.\nIn GeoGPT, we construct a GIS tool pool that contains various GIS tools to support\ngeospatial applications.\nFigure 2. The framework of our GeoGPT. Users first describe their demands by natural\nlanguage text, then an LLM is used for interpreting and reasoning demands implied in\nthe text, and chooses and calls appropriate tools in GIS Tool Pool to solve geospatial\ntasks step by step. The final result can be obtained when the LLM thinks the task is\nfinished.\n3.2. LangChain\nLangChain is a comprehensive framework designed to extend the ability of LLMs and\nfacilitate the development of language model applications [49]. In this framework, var-\nious modules including access to language models, prompts input, document loaders,\nchains, indexes, agents, memory, and chat functionality are defined, and researchers\ncan easily integrate these modules for their personalized demands, such as chatbots\nand question answering systems. Moreover, LangChain also provides the interface to\nuse external tools, which means users can integrate both strong abilities of semantic\nunderstanding and reasoning of LLMs and p",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "3bdb54f327d29558",
+          "locator": "提取文本字符 11139–12739",
+          "quote": "is described as the iteration of\nthought (i.e., semantic understanding and reasoning), action (i.e, use of professional\ntools), observation (i.e., obtaining results of actions), and thought again based on\nobservations and initial target.\nIn this way, the ability of LLMs to solve professional tasks can be greatly enhanced\nwith the equipment of external tools. Some research from different fields validates its\neffectiveness. For example, AutoGPT can be directed to crawl external information\nthrough a wide array of online platforms. Visual ChatGPT [17] combines ChatGPT\nand various external visual foundation models, which can solve complex visual ques-\ntions step-by-step. Then, HuggingGPT [48] further extends LLMs with various AI\nmodels in machine learning communities (e.g., Hugging Face), which can solve com-\nplicated AI tasks with different domains and modalities. Besides the field of computer\nscience, some researchers from other fields also show the effectiveness of integrating\nLLMs with professional tools to automatically solve complicated tasks, such as organic\nsynthesis and drug discovery in chemistry [19] and infodemiology in public health [20].\nInspired by these studies, we propose a framework called GeoGPT that combines\nLLMs with mature tools within the GIS community to solve various geospatial tasks.\nOur framework can benefit non-professional users since it can accept natural language\ninput based on the strong semantic understanding performance of LLMs.\n3. GeoGPT\n3.1. Framework\nIn this section, we will introduce GeoGPT, an LLM-based framework we developed to\nautomatic",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "GeoGPT 的工具池按三类组织：数据采集（按关键词/多边形取 POI、按矩形取路网、按省市与时间取遥感影像）、本地数据加载（地铁、酒店、工厂、超市等）、空间分析与制图（Buffer、Clip、Intersect、Erase、土地利用分类、栅格转矢量、制图等）。工具描述同时充当 LLM 选择工具的依据。",
+      "scope": "GeoGPT 论文中为验证框架而实现的工具集合，作者说明可扩展",
+      "source_ids": [
+        "3bdb54f327d29558"
+      ],
+      "id": "geogpt-tool-pool-scope",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3bdb54f327d29558",
+          "locator": "提取文本字符 15268–16722",
+          "quote": "Figure 3. The prompt used in our experiments to specifies the format of GeoGPT to\nunderstand and process geospatial tasks. In this prompt, GeoGPT is guided to call\ndifferent GIS tools to solve corresponding geospatial tasks based on the understanding\nof both users’ demands and tools’ descriptions.\nTable 1. Tools implemented in GeoGPT.\nTools Description\nData Collection Tools\nGet POI By Keywords Use this tool when you need to get POI data\nfor a Chinese city by POI keywords. The input\nof this tool must at least provide the city name,\nafter which the user can provide multiple POI\ncategories or none. City names and each POI\ncategory are separated by commas.\nGet POI By Polygon Use this tool when you need to get POI data\nwithin a polygonal area. Input a longitude-\nlatitude coordinate pair representing the area of\nthe polygon. Longitude and latitude are sepa-\nrated by ”,”, and the coordinate pairs are sepa-\nrated by ”| ”. The first and last coordinate pairs\nneed to be the same.\nGet Road Network By Rectangle Use this tool when you need to get road network\ndata within a rectangular area. Input a comma-\nseparated string of four-tuples, representing two\nlongitude ranges x1, x2 enclosed in a rectangle,\nand two latitude ranges y1, y2 enclosed in a rect-\nangle.\nGet Remote Sensing Image Input parameters, in order of province, city,\nstart time and end time, in comma-separated\nstrings\nData Loader Tools (Load data locally)\nContinued on next page\n6",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "3bdb54f327d29558",
+          "locator": "提取文本字符 16722–18322",
+          "quote": "Load Subway Data Load the dataset of subway stations, return the\nfile path of subway stations.\nLoad Hotel Data Load the dataset of hotels, return the file path\nof hotels.\nLoad Factory Data Load the dataset of factories, return the file path\nof factories.\nLoad Supermarket Data Load the dataset of supermarkets, return the file\npath of supermarkets.\nLoad Remote Sensing Image Data Load the dataset of remote sensing image, re-\nturn the file path of RS image.\nLoad Wuhan Main Urban Data Load the dataset of Wuhan main urban, return\nthe file path of Wuhan main urban.\nSpatial Analysis Tools\nObtain location Input a place name, return its location. Use it\nwhen you need to find unknown locations.\nBuffer Input ”shapefile, number”, return the neighbor-\ning range around this shapefile.\nIntersect Input two shapefiles, retain objects meanwhile\nwithin (inside) both shapefiles.\nClip Input two shapefiles ”A, B”, return (keep) ob-\njects of A only within (inside) the range of B.\nErase Input two shapefiles ”A, B”, remove (erase) ob-\njects of A only within (inside) the range of B.\nTools for RS Image Processing\nCrop Remote Sensing Image Use this tool when you need to crop an image\nof Remote Sensing. Input a tif file storing re-\nmote sensing and a shapefile storing the crop-\nping area, which are separated by a comma.\nLandUse Classification Use this tool when you need to perform land\nuse classification on remote sensing imagery in\na tif file. Input a tif file storing remote sensing\nimage, and output a raster file (tif format) after\nland use classification.\nRaster to Vector Use this tool when you need",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "在设施选址案例中，GeoGPT 把“距地铁 500 米内、距超市 800 米内、不在工厂 1500 米邻域内”的需求转成工具序列：先加载并缓冲地铁与超市数据，再缓冲工厂数据，用 Erase 从地铁邻域中去除工厂邻域，最后用 Intersect 与超市邻域求交，输出候选区域文件。每一步的输出文件路径作为下一步的输入，形成可追溯的中间数据链。",
+      "scope": "GeoGPT 案例研究（设施选址），单次演示，非统计评测",
+      "source_ids": [
+        "3bdb54f327d29558"
+      ],
+      "id": "geogpt-facility-siting-chain",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3bdb54f327d29558",
+          "locator": "提取文本字符 25538–27138",
+          "quote": "rmine\nwhen and which dataset it should use. From Table 6, it can be observed that GeoGPT\nfirst loads the datasets needed, and then use the Buffer tool to obtain their neighboring\nareas. Then, it takes the Erase tool to erase the neighboring areas of factories from\nneighboring areas of subway stations. Finally, it takes the Intersect tool to obtain\ncandidate areas by intersecting neighboring areas of supermarkets and the result from\nthe last step. Based on this case, we can observe that GeoGPT can plan a sequential\nprocess, and it can also remember to use previous datasets it has obtained.\n10\n\nTable 6. The case study of facility sitting. .\nQuery: I want to find areas that locate meanwhile within a maximum distance\nof 500 meters from the subway stations, within neighboring areas of 800 meters\nfrom the supermarkets, and not within neighboring areas of 1500 meters from the\nfactories.\nThought: I need to find areas that locate within a maximum distance of 500 meters\nfrom the subway stations, within neighboring areas of 800 meters from the super-\nmarkets, and not within neighboring areas of 1500 meters from the factories.\nAction: Load Subway Data\nAction Input: None\nObservation: I obtain the dataset of subway stations, it is stored in\n./data use/case2/subway station.shp\nThought: I need to buffer the subway stations dataset to get the areas within a\nmaximum distance of 500 meters from the subway stations.\nAction: Buffer\nAction Input: ./data use/case2/subway station.shp, 500\nObservation: I obtain the neighboring area with a distance\nof 500.0 for ./data use/case2/subway station.shp, i",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "3bdb54f327d29558",
+          "locator": "提取文本字符 28356–29956",
+          "quote": "Thought: I need to erase the areas not within a neighboring area of 1500 meters\nfrom the factories from the areas within a maximum distance of 500 meters from the\nsubway stations and within neighboring areas of 800 meters from the supermarkets.\nAction: Erase\nAction Input : ./data output/subway station neighborhood 500.0.shp,\n./data output/factory neighborhood 1500.0.shp\nObservation: In this step I obtain objects that locate within\n./data output/subway station neighborhood 500.0.shp but not in\n./data output/factory neighborhood 1500.0.shp, it is stored in\n./data output/erase.shp\nThought: I need to intersect the areas within a maximum distance of 500 me-\nters from the subway stations and within neighboring areas of 800 meters from the\nsupermarkets.\nAction: Intersect\nAction Input: ./data output/erase.shp,\n./data output/supermarket neighborhood 800.0.shp\nObservation: In this step I obtain objects that meanwhile locate within\n./data output/supermarket neighborhood 800.0.shp,./data output/erase.shp, it is\nstored in ./data output/intersect.shp\nFinal Answer: The areas that locate meanwhile within a maximum distance of 500\nmeters from the subway stations, within neighboring areas of 800 meters from the\nsupermarkets, not within neighboring areas of 1500 meters from the factories can\nbe found in the file ./data output/intersect.shp.\n4.3. Spatial query\nIn this section, we also test GeoGPT on the task of spatial query. In effect, this task\nis similar but different from facility sitting, which is implemented to test whether\nGeoGPT can distinguish a specific dataset of “hotels” and the “a",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "GeoGPT 在工具内设置保护机制：例如 Clip 要求裁剪边界几何维度不低于被裁剪数据，输入不满足时工具返回异常提示，让 LLM 检查文件是否存在、格式与顺序是否正确或是否选错工具。该机制也能拦截 LLM 编造的不存在工具（如“Load Hubei University Data”返回“不是有效工具”）。作者称这只是补偿策略，不能从根本上保证 LLM 可靠运行。",
+      "scope": "GeoGPT 的工程实现与作者自述，案例中观察到幻觉工具与参数错误",
+      "source_ids": [
+        "3bdb54f327d29558"
+      ],
+      "id": "geogpt-protection-mechanism",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3bdb54f327d29558",
+          "locator": "提取文本字符 39280–40880",
+          "quote": "undary must also be polygon; when dimension\nof the global dataset is line, the clip boundary should be line or polygon. In this way, in\nthe Clip tool, a pre-judgment will be conducted to confirm whether the input satisfies\nthis requirement. If not, the output (Observation) will return “An exception occurred\nusing this tool, I need to check whether the input file exists, or whether the input\ncontains excessive content, or whether the input format is correct, or whether the input\nfile order is correct, or and whether I have selected the wrong tool” to let GeoGPT\ncheck related contents. This protection mechanism is also effective when there are\nsome hallucinated files and tools. For example, in example (1) in Table 9, GeoGPT\nneeds to use Buffer for the dataset of subway stations, but it inputs only the name\nof “Subway Stations” rather than the corresponding file path. Therefore, the tool will\nreturn such exception information to remind GeoGPT to check the input, and GeoGPT\nthen knows to use Load Subway Data to obtain subway stations. A similar problem\nalso appears in example (2). Then, in example (3), GeoGPT chooses a hallucinated\ntool Load Hubei University Data to obtain the location of “Hubei University”, and\nthe tool is practically non-existent in our tool list. During our whole test stage, we find\nthat LLMs can imitate our code style and create some tools and file paths, though\nin prompts we have emphasized that GeoGPT can only use tools we defined and files\nit has obtained. In this way, designing such a protection mechanism can stabilize our\nframework to a certain degree.",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "3bdb54f327d29558",
+          "locator": "提取文本字符 40880–42480",
+          "quote": "However, such a mechanism is only a compensation\nstrategy, and investigating an effective solution to make LLMs operate reliably still\nneeds more exploration.\n17\n\nTable 9. An example to show the protection mechanism.\nQuery: I want to find hotels that locate meanwhile within a maximum distance of\n500 meters from subway stations, and within neighboring areas of 800 meters from\nHubei University.\nThought: I need to find hotels that are within 500 meters of subway stations and 800\nmeters of Hubei University. I need to use the tools provided to obtain the necessary\ndata and then use the Clip and Intersect tools to find the hotels that meet the\ncriteria.\nAction: Load Hotel Data\nAction Input: None\nObservation: I obtain the dataset of hotels, it is stored in\n./data use/case3/hotel.shp\nThought:I need to obtain the location of Hubei University and the subway stations.\nAction: Obtain location\nAction Input: Hubei University\nObservation: I obtain the location of Hubei University, it is stored in\n./data output/Hubei University.shp\nThought:\nAction: Obtain location\nAction Input: Subway Stations\nObservation: I obtain the location of Subway Stations, it is stored in\n./data output/Subway Stations.shp\nThought:\nAction: Buffer\nAction Input: Subway Stations, 500 (1)\nObservation: An exception occurred using this tool, I need to check whether the\ninput file exists, or whether the input contains excessive content, or whether the\ninput format is correct, or whether the input file order is correct, or and whether I\nhave selected the wrong tool\nThought: I need to check whether the input file exists. (1",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "作者报告 GeoGPT 存在输出不确定性：相同实验设置与代码下可能出现不同结果甚至失败，且对查询中的“the”“and”“but”或“1”“2”等词敏感。作者通过提示、调整工具描述、设置温度与工具保护机制缓解，但问题仍然存在。",
+      "scope": "GeoGPT 测试过程中的观察，作者自述，未给出量化统计",
+      "source_ids": [
+        "3bdb54f327d29558"
+      ],
+      "id": "geogpt-uncertainty",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3bdb54f327d29558",
+          "locator": "提取文本字符 34926–36526",
+          "quote": "Thought:\nAction: Raster to Vector\nAction Input: ./data output/lucc.tif\nObservation: In this step I obtain the converted vector file (shapefile format) based\non the raster file, it is stored at ./data output/polyone.shp\nThought: I need to draw a map using the vector file.\nAction: Mapping\nAction Input: ./data output/polyone.shp\nObservation: In this step I obtain the visual map that meet the requirements, it is\nstored at ./data output/visual map.png\nFinal Answer : The visual map of cropped remote sensing image based on\nthe Wuhan main urban, whose land use has been classified, is stored at\n./data output/visual map.png.\n5. Discussion\n5.1. Uncertainty\nFirst, the uncertainty of GeoGPT is discussed. In our case studies, the LLM of gpt-3.5-\nturbo is used as the agent. In effect, the uncertainty of the LLM output will influence\nour results, since the analysis results in GIS should always be stable and accurate.\nDuring the testing process, different results or even failures may appear with the same\nexperimental settings and codes. Moreover, the LLM seems to be sensitive to some\nwords. For example, if we add (or remove) “the”, “and”, “but”, or “1”, “2” into (or\nfrom) the query, the results may sometimes also be different. In our case studies, we\ntry our best to avoid such situations including adding prompts, adjusting tool descrip-\ntions, setting the temperature of the LLM, and designing protection mechanisms in\ntools (Section 5.3). However, though these measures can relieve this problem, it still\nexists. Similar problems are also found in other relevant studies. Therefore, we think\nst",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "GIS Copilot 作为 QGIS 插件，框架由四个核心模块组成：数据理解、GIS 界面交互、代码审查/调试、工具文档。数据理解模块在分析前提取数据格式、字段名、坐标参考系、范围、栅格分辨率等信息，使用户无需在请求中指定字段名；代码审查/调试模块实时监控生成代码的执行，发现错误后自动修正并重新生成代码，该自调试过程是迭代的。",
+      "scope": "GIS Copilot 框架设计，QGIS 插件实现",
+      "source_ids": [
+        "8cabb777c9bc6fe9"
+      ],
+      "id": "giscopilot-four-modules",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "8cabb777c9bc6fe9",
+          "locator": "提取文本字符 14794–16394",
+          "quote": "5 \n \ncollaborated to develop Earth Copilot, an AI-driven tool designed to simplify and democratize \naccess to NASA's extensive Earth science data through natural language queries, such as \nassessing the impact of specific events or environmental changes (Microsoft, 2024). \n \n3 Methodology \n3.1 Framework of the GIS Copilot \nThe GIS Copilot is designed to interact with existing GIS platform (e.g., QGIS) via graphic \nuser interface, GIS toolbox, and documents for the toolbox, to assist GIS users in conducting \ngeospatial data processing and analysis tasks. The framework consists of four core modules, \nincluding data understanding, GIS interface interaction, code review/debugging, and tool \ndocumentation. The GIS Copilot is informed by the data insights from the data understanding \nmodule and leverages documentation of the geoprocessing tools contained in the spatial analysis \ntoolbox, to conduct spatial analyses. It automatically determines the most suitable geospatial \nprocessing tools for various tasks, manages data processing workflows, and executes spatial \nanalysis operations. It generates the necessary code for the selected tools and uses the code \nreview and debugging module to automatically correct errors that may arise during execution. \n \nFigure 1: Framework of the GIS Copilot  \n3.1.1 Spatial analysis toolbox \nQGIS is a widely used open-source GIS software for geospatial data management, analysis, \nand visualization. It offers tools from various algorithm providers, including QGIS native \nalgorithms, GDAL/OGR, GRASS GIS, SAGA GIS, and Orfeo Toolbox, supporting dive",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "8cabb777c9bc6fe9",
+          "locator": "提取文本字符 18767–20367",
+          "quote": "zed tools to meet specific \ntasks. For example, a tool used for performing kernel density estimation can be customized using \ngeopandas, scipy, and rasterio Python libraries and registered to the GIS Copilot (Appendix 2).  \n3.1.3 Data understanding module \nThe data understanding module enables the agent to extract and interpret the structure and \nattributes of spatial data before being used for any analysis. It functions similarly as the initial \nstep a human analyst would take when approaching a spatial analysis task -understanding the \ndata to be analyzed. Specifically, it collects a wide range of critical information of the data for \nspatial analysis, such as file format, field names of the attribute table, coordinate reference \nsystem, data extent, and raster resolution. This information provides the GIS Copilot with a \nthorough overview and understanding of the data inputs, which guides it in selecting appropriate \ntools for the task and the right attributes for performing geospatial operations. As a result, users \nare not required to specify data details such as field names in their task requests, making the \nCopilot more user-friendly. \n3.1.4 Code review/debugging module \nThe code review/debugging module is an essential component designed to enhance the \nreliability and accuracy of generated code. This module enables the GIS Copilot to actively \nreview the generated code and monitor the execution of the generated code in real-time to \ncapture any errors that may arise. Upon detecting an error, it attempts to correct the error \nautomatically and re-generate the code f",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "8cabb777c9bc6fe9",
+          "locator": "提取文本字符 20367–21967",
+          "quote": "or execution. This self-debugging functionality is \niterative, allowing for continuous refinement and improvement of the code to increase the \nchances of successful execution.  \n3.1.5 GIS interface interaction \nThe GIS interface interaction module enables the GIS Copilot to engage directly with the \nhost GIS’ (QGIS) graphic user interface. It allows the Copilot to perform actions such as \n\n \n7 \n \ndynamic loading and data handling within the GIS software. For example, data layers that users \nload into GIS software can be automatically accessed by the Copilot. Additionally, results \ngenerated from the Copilot are directly reloaded into the host GIS, which allows immediate \nvisualization and further processing or manipulation by the user. \n3.2 Workflow of the GIS Copilot \n The GIS Copilot is implemented as a plugin within QGIS. It interprets user requests in \nnatural language and translates them into executable geoprocessing commands. As shown in \nFigure 2, the overall workflow begins by breaking down the user’s task into detailed steps.  Once \nthe task is well understood, the system identifies the appropriate geoprocessing tool(s) from a \nwide range of options, including QGIS native tools, GDAL, or customized tools.The tools are \nselected based on the steps analyzed during the task breakdown to ensure each step of the \nprocess is addressed by the most suitable tool. Based on the selected tool (s), the system \ngenerates executable Python code that is specifically designed to solve the spatial task. \nThroughout these steps, the system is guided by a set of predefined instructio",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "GIS Copilot 的工具箱文档来自 QGIS 帮助文档，包含工具描述、参数与代码示例，用于引导 LLM 为选定工具生成 PyQGIS 代码。当前实现系统整理了 390 个 QGIS 原生与 GDAL 工具；框架以即插即用方式支持用户注册自定义工具（如用 geopandas、scipy、rasterio 实现核密度估计）。",
+      "scope": "GIS Copilot 当前实现，文档以 TOML 结构组织",
+      "source_ids": [
+        "8cabb777c9bc6fe9"
+      ],
+      "id": "giscopilot-toolbox-documentation",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "8cabb777c9bc6fe9",
+          "locator": "提取文本字符 17167–18767",
+          "quote": "6 \n \nalgorithms (e.g., 'native:buffer' for buffering and 'qgis:selectbyattribute' for attribute selection) \nand external providers like GDAL (e.g., 'gdal:slope' for slope analysis). The customized \ngeoprocessing tools, developed using external libraries like GeoPandas, PySAL, and Matplotlib. \nThese customized tools enable statistical analysis (e.g., correlation analysis), customized charts \n(e.g., bar plot, scatter plot), and thematic map generation, offering flexibility in spatial analysis \nworkflows. \n3.1.2 Toolbox documentation \nThe GIS Copilot is equipped with documentation of QGIS tools, allowing it to generate \nPyQGIS code for specific geoprocessing tasks. Derived from the QGIS help documents, the \ntoolbox documentation primarily consists of tool descriptions, parameters, and code examples, \nserving as a guide for the agent in generating code for selected tools. For instance, the QGIS \nnative \"Clip\" tool requires parameters such as the Input Layer (the dataset to be clipped), \nOverlay (the boundary layer for clipping), and Output File (the path for saving the clipped data) \n(Appendix 1). By specifying these parameters and providing a code example, the system is able \nto generate more accurate and reliable code for the task. \nIn our current implementation, 390 native QGIS and GDAL tools have been systematically \ncompiled with reference to the resources available on the official QGIS documentation website \n(QGIS, 2024b). In addition, this framework is not limited to QGIS tools and is designed to be \nextensible in a plug-and-play style to allow users to add new customi",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "8cabb777c9bc6fe9",
+          "locator": "提取文本字符 18767–20367",
+          "quote": "zed tools to meet specific \ntasks. For example, a tool used for performing kernel density estimation can be customized using \ngeopandas, scipy, and rasterio Python libraries and registered to the GIS Copilot (Appendix 2).  \n3.1.3 Data understanding module \nThe data understanding module enables the agent to extract and interpret the structure and \nattributes of spatial data before being used for any analysis. It functions similarly as the initial \nstep a human analyst would take when approaching a spatial analysis task -understanding the \ndata to be analyzed. Specifically, it collects a wide range of critical information of the data for \nspatial analysis, such as file format, field names of the attribute table, coordinate reference \nsystem, data extent, and raster resolution. This information provides the GIS Copilot with a \nthorough overview and understanding of the data inputs, which guides it in selecting appropriate \ntools for the task and the right attributes for performing geospatial operations. As a result, users \nare not required to specify data details such as field names in their task requests, making the \nCopilot more user-friendly. \n3.1.4 Code review/debugging module \nThe code review/debugging module is an essential component designed to enhance the \nreliability and accuracy of generated code. This module enables the GIS Copilot to actively \nreview the generated code and monitor the execution of the generated code in real-time to \ncapture any errors that may arise. Upon detecting an error, it attempts to correct the error \nautomatically and re-generate the code f",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "GIS Copilot 的工作流为：把用户自然语言任务拆解为步骤；依据步骤从 QGIS 原生、GDAL 或自定义工具中选出合适工具；按工具文档生成可执行 Python 代码并设置参数；执行代码，结果作为图层加载回 QGIS 或作为表格、图表、文本报告呈现。工具选择考虑数据类型（矢量/栅格）、投影、数据结构（多边形/线）及用户偏好。",
+      "scope": "GIS Copilot 工作流与界面设计，QGIS 插件",
+      "source_ids": [
+        "8cabb777c9bc6fe9"
+      ],
+      "id": "giscopilot-workflow-steps",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "8cabb777c9bc6fe9",
+          "locator": "提取文本字符 20367–21967",
+          "quote": "or execution. This self-debugging functionality is \niterative, allowing for continuous refinement and improvement of the code to increase the \nchances of successful execution.  \n3.1.5 GIS interface interaction \nThe GIS interface interaction module enables the GIS Copilot to engage directly with the \nhost GIS’ (QGIS) graphic user interface. It allows the Copilot to perform actions such as \n\n \n7 \n \ndynamic loading and data handling within the GIS software. For example, data layers that users \nload into GIS software can be automatically accessed by the Copilot. Additionally, results \ngenerated from the Copilot are directly reloaded into the host GIS, which allows immediate \nvisualization and further processing or manipulation by the user. \n3.2 Workflow of the GIS Copilot \n The GIS Copilot is implemented as a plugin within QGIS. It interprets user requests in \nnatural language and translates them into executable geoprocessing commands. As shown in \nFigure 2, the overall workflow begins by breaking down the user’s task into detailed steps.  Once \nthe task is well understood, the system identifies the appropriate geoprocessing tool(s) from a \nwide range of options, including QGIS native tools, GDAL, or customized tools.The tools are \nselected based on the steps analyzed during the task breakdown to ensure each step of the \nprocess is addressed by the most suitable tool. Based on the selected tool (s), the system \ngenerates executable Python code that is specifically designed to solve the spatial task. \nThroughout these steps, the system is guided by a set of predefined instructio",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "8cabb777c9bc6fe9",
+          "locator": "提取文本字符 21967–23196",
+          "quote": "ns, automatically \ngenerated metadata and a comprehensive tool list to ensure reliable task analysis, tool selection, \nand code generation. Finally, the code is executed, and the results are either loaded as map layers \ninto QGIS or presented as reports including tables and charts. \n \nFigure 2: Workflow of the GIS Copilot \n3.2.1 Task analysis and tool selection \nWhen a user submits a spatial query in natural language, the first step is that the agent \nprocesses the request to understand the underlying spatial problem. After the initial \ninterpretation, the agent performs a task breakdown to determine what is needed to achieve the \nintended outcome. For instance, a user may request, \"Identify all residential areas within a 5-\nminute driving distance from hospitals.\" The agent first identifies the spatial entities involved - \nresidential areas, hospitals, and the concept of a 5-minute drive. Based on these insights, it \nmatches the request to a set of geoprocessing tools available within the spatial analysis toolbox. \nThe decision-making process for selecting the appropriate tool involves considering several \nfactors, such as the nature of the data (e.g., vector or raster), the geographic projection, and the",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "8cabb777c9bc6fe9",
+          "locator": "提取文本字符 23196–24796",
+          "quote": "8 \n \ndata structure (e.g., polygons, lines). Additionally, any user preferences specified during the \nquery, such as the choice of tools or specific processing techniques, are taken into account. \n3.2.2 Code generation and parameter setting \n Once the appropriate tools are selected, the next step in the workflow is the code generation \nphase. The agent generates Python code to execute the operation based on the selected tools. The \ngeneration process is guided by predefined documentation for each tool, which includes usage \nguides, parameter requirements, and sample code templates so that the generated code is well-\nformed and ready for execution. To personalize the generated code to fit the user’s requirements, \nthe agent adjusts the parameters to align with the task’s specific details. For instance, suppose a \nuser request is to “select counties with a population greater than 50,000”. The agent customizes \nthe code based on the user’s specific requirement by setting the filter condition to “Population” > \n50,000, where “population” is assumed to be the relevant attribute name.  \n3.2.3 Execution and visualization of results \nAfter generating the code, the next step involves executing it to perform the spatial analysis. \nThis stage is facilitated by an execution and self-debugging module, which oversees the entire \nprocess. The generated code is executed directly within the host GIS environment, allowing the \nspatial analysis to be performed without leaving the QGIS interface. Depending on the nature of \nthe task, results can take various forms: the outputs of geoprocessi",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "GIS Copilot 评测含基础60、中级30、高级20个任务，记录至多三次尝试。归档v4的正文给出95%、80%、75%，同节Table 1给出92%、83%、75%；基础与中级的报告不一致，不能把任一组当成无争议成功率。",
+      "scope": "GIS Copilot 2024-11-22 v4，PDF第20页正文与第21页Table 1；作者未在该处解释差异。",
+      "source_ids": [
+        "8cabb777c9bc6fe9"
+      ],
+      "id": "giscopilot-evaluation",
+      "status": "未解决冲突",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "8cabb777c9bc6fe9",
+          "locator": "PDF第20–21页；第4节与Table 1",
+          "quote": "Tasks that remained unsuccessful after three attempts \nwere categorized as failures. The overall accuracy is determined by calculating the percentage of \nsuccessful cases. As shown in Table 1, with 60 cases at the basic level (Appendix 3), the success \nrate recorded was 95%; among 30 intermediate-level tasks (Appendix 4), a success rate of 80% \nwas observed, and for the advanced level, which included 20 cases (Appendix 5), the success \nrate was 75%. \n\n\n \n21 \n \nTable 1: Performance evaluation of the GIS Copilot \nLevel of \ncomplexities \nTotal count \nof tasks \nCount of successful cases  Count of \nfailed cases \nOverall \nsuccess rate  \n  First \nattempt \nSecond \nattempt \nThird \nattempt \n  \nBasic 60 52 3 - 5 92 % \nIntermediate 30 13 4 8 5 83 % \nAdvanced 20 10 4 1 5 75 %",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "GIS Copilot 通过实时展示工具选择过程与生成的代码、允许用户手动编辑和执行代码来提升透明度，作者主张用户应主动审查生成代码与结果，把系统定位为支持而非替代专家决策的“copilot”。",
+      "scope": "GIS Copilot 设计理念与界面功能，作者观点",
+      "source_ids": [
+        "8cabb777c9bc6fe9"
+      ],
+      "id": "giscopilot-transparency",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "8cabb777c9bc6fe9",
+          "locator": "提取文本字符 49121–50721",
+          "quote": "23 \n \nanalyses and recommendations. To reduce these concerns, this GIS Copilot has been designed to \nenhance transparency at every step. Unlike traditional black-box models, the Copilot clearly \npresents each stage of the process, including tool selection and code generation, with generated \ncode displayed in real time. Additionally, the generated code can be further edited and executed \nmanually as needed. This approach allows users to inspect and understand each action taken by \nthe Copilot, so that they can trace how results are achieved. Users are encouraged to review the \ngenerated code and results actively, rather than relying on them blindly. This approach highlights \nthe collaborative nature of a “copilot” system that supports rather than replaces expert decision-\nmaking. \n6 Limitations and Future Work \nThe GIS Copilot shows promising performance across the three levels of task complexities; \nhowever, certain issues were observed. These challenges point to potential areas for \nimprovement and future research directions. \n6.1 The need for a data validation module to reduce tool and parameter mismatch \nThe GIS Copilot shows potential in handling tasks of varying complexity, but issues like \nincorrect parameter assignment were observed, hindering its performance. For instance, the agent \noccasionally assigns vector data to parameters that require raster input. A good example of such \nis the gdal:proximity tool, where the input layer should be raster; however, the agent assigns a \nvector layer provided by the user without first converting it to raster, resulting in co",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "8cabb777c9bc6fe9",
+          "locator": "提取文本字符 26396–27996",
+          "quote": "code from the local machine or save generated code for \nfuture use. The geoprocessing workflow tab illustrates the steps involved in completing the \nuser’s request in a visual flow. Reports tab allows users to view outputs like charts, plots, and \nstatistical summaries. The Settings tab lets users configure the plugin, such as setting API keys, \nselecting the AI model, and defining the default workspace where results are saved. Help tab \noffers the users the details on how to use the plugin. \n \n\n \n9 \n \n \nFigure 3: The graphic user interface of the GIS Copilot \n \n4 Case Studies  \nTo demonstrate the capabilities of the GIS Copilot, cases are categorized into three levels of \ncomplexity: basic, intermediate, and advanced.    \n4.1 Basic level tasks \nAt this level, the tasks are straightforward, involving a single tool along with one (or \noccasionally two) data layers. The agent is expected to perform a straightforward operation that \nusually requires a single step, such as calculating the area of polygons or selecting features based \non attributes.  \n4.1.1 Health facilities coverage zone in Washington D.C., USA \nThis case involves creating service zones around health facilities in Washington D.C, United \nStates. The input data was a vector layer of health facilities (hospitals, clinics, and pharmacies) \nobtained from OpenStreetMap. In this task, the agent was prompted to create 2,000-foot zones \naround each health facility to identify areas of service coverage (Figure 4). The agent \nsuccessfully selected the appropriate spatial analysis tool (the buffer tool) and generated \nexe",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "GeoFlow 在 Flow 的 AOV（Activity-on-Vertex）工作流生成基础上做扩展：工作流表示为有向无环图 G=(V,E,A,O)，顶点是子任务、边是依赖、A 是智能体集合、O 把每个顶点映射到具体的智能体目标。生成时要求 LLM 为每个子智能体指定明确的函数调用目标与对应 API 名称，并填入感兴趣区、时间范围、数据源与具体地图操作等参数，输出 JSON 字典作为执行轨迹。",
+      "scope": "GeoFlow 方法定义，Geo-OLM 平台上的实现",
+      "source_ids": [
+        "19f9b059cd25c958"
+      ],
+      "id": "geoflow-aov-objectives",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "19f9b059cd25c958",
+          "locator": "提取文本字符 6400–8000",
+          "quote": "odels trained on EO\nversus SAR imagery for various ground-object categories).\nGeoFlow. In this study, we investigate a simple extension to the\nAOV formulation: at workflow generation, GeoFlow is prompted to\npopulate each vertex with a precise “agentic scope and objective” con-\ntaining detailed instructions. For example, instead of “run detector, ”\nthe objective would read: “The database agent should be providing\nyou with loaded EO imagery for dates 2024-XX to YY over AOI Z; run\nthe Swin-L EO detector and return class A. ” By fully contextualizing\ninter-agent dependencies and required operations, our workflow\ngives subagents the context they need to invoke the correct geospa-\ntial APIs. Formally, we denote the AOV graph 𝐺 =(𝑉,𝐸,𝐴,𝑂 ),\nwhere𝑉 is the set of all subtasks (vertices);𝐸 is the set of directed\nedges indicating subtasks dependencies,𝐴 is the set of agents, and\n𝑂 maps each vertex to a concrete agentic objective.\nSample prompt: Geospatial workflow generation\nYou are a workflow planner for geospatial tasks [..]\nchoosing only from the following GIS agents [..]:\n- database_agent: APIs fetching satellite images [..]\n- vision_agent: satellite vision APIs [..] ...\nValid output format example: { tasks: { \"task0\": {\n\"id\": \"task0\", \"objective\": \"Load satellite imagery\nfrom ..\", \"next\": [ \"task1\" ], \"prev\": [], \"status\":\n\"pending\", \"agent\": \"database_agent\" }, \"task1\": {\n\"id\": \"task1\", \"objective\": \"Run vision model ..\",\n\"next\": [ \"task2\" ], \"prev\": [ \"task0\" ], \"status\":\n\"pending\", \"agent\": \"vision_agent\" } } }\nWorkflow generation. Given a geospatial task𝑇 , the meta-agent\nLLM",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "19f9b059cd25c958",
+          "locator": "提取文本字符 8000–9600",
+          "quote": "is prompted to generate the workflow graph𝐺 in the dictionary-\nbased format of [6] (sample above). The LLM is supplied with de-\nscriptions of the agents in our geospatial platform and their avail-\nable APIs. Unlike Flow, where the agent set𝐴 serves as ordering\nindexing (agent_0, agent_1,... ) and API matching is left implicit,\nwe require the LLM to return each agent with its designated API\nname. The LLM then populates the objectives𝑂 with all GIS study\nparameters – area of interest, target time range, data source, and\nspecific map operations. A JSON dictionary output is generated,\nwhich is fed into the geospatial system as an execution trace.\nWorkflow execution. Once the meta-agent produces the AOV\ngraph, the execution order is calculated using a topological sort on\nits indexed vertices, as seen in Flow [6]. For each subtask𝑣 in the\nsorted sequence, we invoke the corresponding tool-augmented LLM\nsubagent𝑎 via standard function-calling. Each subagent uses its\nAPI tools to complete the objective and returns results (e.g., loaded\ndatasets or vision detection outputs) that feed into downstream\nsubtasks. The meta-agent tracks progress through the global chat\nhistory and reports overall task completion to the user. If an error\noccurs, control returns to the meta-agent, which uses the chat\nhistory and error message to refine𝐺 via update prompts [6].\n3 Experimental Setup\nGeospatial platform. We conduct our experiments within the Geo-\nOLM [10] platform, an open-source implementation of GeoLLM-\nEngine that integrates non-proprietary (Ollama) LLMs. Following\nthe official Flow codebas",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "GeoFlow 的执行按拓扑排序遍历顶点，每个子任务通过标准函数调用交给对应的工具增强子智能体，子智能体用 API 工具完成目标并把结果（如加载的数据集或视觉检测输出）传给下游子任务；元智能体通过全局聊天历史跟踪进度并报告完成情况。若发生错误，控制权返回元智能体，它用聊天历史与错误信息通过更新提示修正图 G。",
+      "scope": "GeoFlow 执行与反馈机制，Geo-OLM 平台",
+      "source_ids": [
+        "19f9b059cd25c958"
+      ],
+      "id": "geoflow-execution-feedback",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "19f9b059cd25c958",
+          "locator": "提取文本字符 8000–9600",
+          "quote": "is prompted to generate the workflow graph𝐺 in the dictionary-\nbased format of [6] (sample above). The LLM is supplied with de-\nscriptions of the agents in our geospatial platform and their avail-\nable APIs. Unlike Flow, where the agent set𝐴 serves as ordering\nindexing (agent_0, agent_1,... ) and API matching is left implicit,\nwe require the LLM to return each agent with its designated API\nname. The LLM then populates the objectives𝑂 with all GIS study\nparameters – area of interest, target time range, data source, and\nspecific map operations. A JSON dictionary output is generated,\nwhich is fed into the geospatial system as an execution trace.\nWorkflow execution. Once the meta-agent produces the AOV\ngraph, the execution order is calculated using a topological sort on\nits indexed vertices, as seen in Flow [6]. For each subtask𝑣 in the\nsorted sequence, we invoke the corresponding tool-augmented LLM\nsubagent𝑎 via standard function-calling. Each subagent uses its\nAPI tools to complete the objective and returns results (e.g., loaded\ndatasets or vision detection outputs) that feed into downstream\nsubtasks. The meta-agent tracks progress through the global chat\nhistory and reports overall task completion to the user. If an error\noccurs, control returns to the meta-agent, which uses the chat\nhistory and error message to refine𝐺 via update prompts [6].\n3 Experimental Setup\nGeospatial platform. We conduct our experiments within the Geo-\nOLM [10] platform, an open-source implementation of GeoLLM-\nEngine that integrates non-proprietary (Ollama) LLMs. Following\nthe official Flow codebas",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "在 GeoLLM-Engine 基准的 20 个任务上，GeoFlow 取得最高平均成功率 74.2% 与正确率 64.1%；相比 Flow 成功率提升 6.8 个百分点（74.2% 对 67.4%），正确率提升 3.3 个百分点（64.1% 对 61.2%）。相比 AutoGen Group Chat，平均成功率 74.2% 对 62.8%，平均 token 用量约少 4 倍（6.2k 对 27.1k）。作者认为显式目标改善了函数调用。",
+      "scope": "作者在 GeoLLM-Engine 20 个任务上的评测，含多种 LLM 家族",
+      "source_ids": [
+        "19f9b059cd25c958"
+      ],
+      "id": "geoflow-results",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "19f9b059cd25c958",
+          "locator": "提取文本字符 11200–12800",
+          "quote": "ieves the highest average perfor-\nmance across both success rate (74.2%) and correctness rate (64.1%)\namong all evaluated methods (Fig. 2). Compared to the closest base-\nline, Flow, we improve agentic success by 6.8% (74.2%vs. 67.4%) and\ncorrectness by 3.3% (64.1% vs. 61.2%), validating our hypothesis that\nincorporating explicit objectives improves agentic function-calling.\nIn contrast, AutoGen baselines (Sequential and Group Chat) exhibit\nconsiderably lower correctness. In our experiments, we observed\nfrequent cases where agents in these baselines attempted actions be-\nyond the task scope due to ambiguity in return conditions. Notably,\nSwarm performs competitively with OpenAI models, suggesting\nstrong alignment with their internal handoff protocols. However,\nits performance degrades sharply with open-source models.\nModel families. GeoFlow maintains robust agentic performance\nwith non-proprietary LLM models. We note that Qwen models,\nknown for their strong function-calling capabilities, achieve 77.3%\nsuccess and 70.0% correctness, consistent with prior geospatial\nAPI evaluations [10]. Interestingly, we observe degraded perfor-\nmance when using OpenAI models in the Sequential method. In\nour experimentation, we observed that these models would often\n“over-reason” and revise plans, eventually trying to erroneously\ninvoke tools beyond their scope (tool set).\nPerformance vs. cost trade-off. GeoFlow shows the best trade-\noff between performance and cost among all evaluated methods.\nCompared to Flow, the second-best performing baseline, GeoFlow\nachieves higher agentic rates at nea",
+          "proposed_by": "LLM"
+        },
+        {
+          "source_id": "19f9b059cd25c958",
+          "locator": "提取文本字符 12800–13446",
+          "quote": "rly the same token usage (6.2k\nvs. 6.5k). When comparing to AutoGen Group Chat, the strongest\nnon-Flow baseline, GeoFlow achieves significant improvement in\naverage success rate (74.2% vs. 62.8%), while requiring 4× fewer\ntokens on average (6.2kvs. 27.1k). This is expected, as orchestration-\nbased approaches like Group Chat rely on consensus coordination\nbetween the central meta-agent and subagents, incurring substan-\ntial communication overhead.\nWorkflow “correctness” ablation. To assess the quality of gener-\nated AOVs𝐺, we adapt the existing correctness metric – as orig-\ninally defined over sequence of function-calls – by performing a",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "作者用 LLM-Score 评估生成的 AOV 图质量：对 20 个地理空间任务，各模型生成的 AOV 正确率接近 95%（如 OpenAI o3 96.61%、Qwen3 14B 97.73%、Llama3.3 70B 94.86%）。作者同时指出 GeoLLM-Engine 任务多为线性逻辑与依赖，建议未来在更复杂的交互式多轮任务上评估工作流生成。",
+      "scope": "作者自建评估方法（LLM-Score 与人工真值对比），20 个任务",
+      "source_ids": [
+        "19f9b059cd25c958"
+      ],
+      "id": "geoflow-workflow-correctness",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "19f9b059cd25c958",
+          "locator": "提取文本字符 13446–15046",
+          "quote": "Bhattaram et al.\nTable 1: Workflow correctness based on LLM-Scores [5].\nModel AOV 𝐺. Average Flow Score\nOpenAI o3 96.61%\nOpenAI o4-mini 96.01%\nQwen3 14B 97.73%\nQwen3 8B 95.66%\nLlama3.3 70B 94.86%\nMistral3.1 24B 96.31%\ndepth-first search (DFS) on𝐺 and grouping steps by API agent (e.g.,\nthe sequence of all subtasks assigned to database_agent ). We\napply the LLM-Score technique [5] that evaluates LLM generated\nobjectives: we prompt GPT-4o to assign a score from 1 (poor) to\n5 (perfect) for the objectives against the manually crafted ground\ntruths. We count an error whenever there is a structural 𝐺 mis-\nmatch (missing edges or vertices) or when the objective LLM-Score\nis below 4. We report the average “Flow Score” over the 20 geospa-\ntial tasks considered (Table 1): all models achieve close to 95% AOV\n“correctness”. We note, however, that GeoLLM-Engine tasks exhibit\nmostly linear logic and dependencies. As future work, we motivate\nevaluating workflow generation on more complex, interactive multi-\nround tasks in which a GIS analyst actively updates the system\nenvironment (e.g., maps and databases).\nFigure 3: Workflow visualizations rendered using the open-\nsource AutoGen Studio UI tool [ 2] (left). We motivate the\npotential of human-in-the-loop geospatial agentic systems:\nusers can update AOV-generated workflows in a no-code\nUI [2] and execute them directly in GIS platforms [10] (right).\n5 Discussion and Future Work\nWe highlight an overlooked aspect in current workflow automation\nresearch: its potential as an agenticno-code design tool that would\nallow GIS practitioners to build",
+          "proposed_by": "LLM"
+        }
+      ]
+    },
+    {
+      "text": "作者提出把元 LLM 生成的 AOV 图同时用作执行轨迹和可编辑设计：用户可在无代码界面中可视化、调整智能体分配与依赖关系，再把最终工作流直接送入 GIS 平台执行。作者将其列为未来工作方向，用 AutoGen Studio UI 渲染示例工作流做了概念演示。",
+      "scope": "作者提出的未来方向与概念演示，非已验证产品功能",
+      "source_ids": [
+        "19f9b059cd25c958"
+      ],
+      "id": "geoflow-human-in-loop",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "19f9b059cd25c958",
+          "locator": "提取文本字符 15046–16646",
+          "quote": "and refine multi-agent pipelines\nwithout agentic AI expertise. In our investigation, we saw that\nmeta-LLM-generate AOV graphs generated can serve not only as\nexecution traces but also as editable designs in a human-in-the-loop\ninterface. Unlike existing no-code workflow systems (e.g., Azure\nPrompt flow) that still demand manual flow construction, this para-\ndigm would allow users to visualize, adjust agent assignments and\ndependencies, and then execute the finalized workflow directly in\na GIS system. In Figure 3, we illustrate this concept using AutoGen\nStudio UI [2] to render example geospatial workflows before pass-\ning them to our geospatial platform. We believe that integrating\nautomated graph generation with interactive UI controls represents\na promising direction for GIS-focused HCI research and we will\nexplore it in future work.\n6 Conclusion\nIn this paper, we presented GeoFlow, an extension of Flow’s AOV\nworkflow generation that embeds explicit function-calling objec-\ntives and API specifications for geospatial subagents. We integrated\nGeoFlow into Geo-OLM and benchmarked it against Flow, OpenAI\nSwarm, and AutoGen’s multi-agentic designs across major LLM\nfamilies on 20 GeoLLM-Engine tasks. Our evaluation showed that\nGeoFlow raised task success by 6.8% over Flow, while reducing\ntoken usage by up to fourfold.\nReferences\n[1] Yuxing Chen, Weijie Wang, Sylvain Lobry, and Camille Kurtz. 2024. An llm agent\nfor automatic geospatial data analysis. arXiv preprint arXiv:2410.18792 (2024).\n[2] Victor Dibia, Jingya Chen, Gagan Bansal, Suff Syed, Adam Fourney, Erkang Zhu,\nChi Wang",
+          "proposed_by": "LLM"
+        }
+      ]
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "giscopilot-success-rate-table-vs-text",
+      "title": "GIS Copilot 成功率：正文表述与表格数值不一致",
+      "kind": "结论冲突",
+      "sides": [
+        {
+          "text": "正文称基础层成功率 95%、中级 80%、高级 75%。",
+          "scope": "4.4 节 Performance evaluation 正文",
+          "source_ids": [
+            "8cabb777c9bc6fe9"
+          ]
+        },
+        {
+          "text": "表 1 列出基础 92%、中级 83%、高级 75%。",
+          "scope": "同一节的 Table 1",
+          "source_ids": [
+            "8cabb777c9bc6fe9"
+          ]
+        }
+      ],
+      "status": "待核查",
+      "handling": "核对论文正文与 Table 1 的统计口径（是否按首次尝试、多次尝试或总体计算），确认哪组数值对应哪一口径，避免在正文中混用。",
+      "proposed_by": "LLM"
+    },
+    {
+      "id": "giscopilot-success-rate-internal-discrepancy",
+      "title": "GIS Copilot正文与Table 1成功率不一致",
+      "kind": "结论冲突",
+      "sides": [
+        {
+          "text": "正文：基础95%，中级80%，高级75%。",
+          "scope": "v4 PDF第20页第4节",
+          "source_ids": [
+            "8cabb777c9bc6fe9"
+          ]
+        },
+        {
+          "text": "Table 1：基础92%，中级83%，高级75%。",
+          "scope": "v4 PDF第21页Table 1",
+          "source_ids": [
+            "8cabb777c9bc6fe9"
+          ]
+        }
+      ],
+      "status": "待核查",
+      "handling": "保留两处原始报告，不推断差异原因、不选胜者；需作者解释或后续明确版本才能统一。",
+      "proposed_by": "LLM"
+    }
+  ],
+  "related_slugs": [
+    "geospatial-hierarchical-planning-agents"
+  ],
+  "content_review": {},
+  "review_history": [],
+  "updated_at": "2026-10-12T13:52:12+00:00",
+  "writing_guide_version": "5",
+  "publication": {
+    "by": "agent",
+    "policy": "automatic",
+    "at": "2026-10-12T13:52:12+00:00"
+  }
+}

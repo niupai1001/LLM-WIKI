@@ -30,6 +30,16 @@ class SourceTests(unittest.TestCase):
     def item(self, sid):
         return common.load_json(common.RAW / f"{sid}.json")
 
+    def test_malformed_pdf_font_text_remains_archivable(self):
+        page = MagicMock()
+        page.extract_text.return_value = 'Evidence before \ud800 unreadable font \udfff after \ud83d\ude00.'
+        with patch('pypdf.PdfReader') as reader:
+            reader.return_value.pages = [page]
+            text = collector._pdf_text(b'%PDF-test-original')
+        path = common.RAW / 'font-text.json'
+        common.save_json(path, {'text': text})
+        self.assertEqual(common.load_json(path)['text'], 'Evidence before \ufffd unreadable font \ufffd after 😀.')
+
     def test_published_hook_failure_is_not_abstract_full_text(self):
         url = 'https://aclanthology.org/2024.acl-long.123/'
         with patch('station.published_sources.capture_published_original', side_effect=ValueError('no PDF')), patch.object(collector, 'fetch_bytes') as fetch:

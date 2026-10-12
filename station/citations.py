@@ -43,8 +43,19 @@ def _prefix(value):
 def _date(value):
     if not isinstance(value, str) or not value.strip():
         return ''
+    # Publisher metadata can declare only a year or a month. Preserve that
+    # precision instead of hiding it or inventing a publication day.
+    partial = value.strip().replace('/', '-')
+    if re.fullmatch(r'\d{4}', partial) and 1 <= int(partial) <= 9999:
+        return partial
+    if re.fullmatch(r'\d{4}-\d{2}', partial):
+        try:
+            datetime.strptime(partial, '%Y-%m')
+            return partial
+        except ValueError:
+            return ''
     try:
-        return datetime.fromisoformat(value.strip().replace('Z', '+00:00')).date().isoformat()
+        return datetime.fromisoformat(partial.replace('Z', '+00:00')).date().isoformat()
     except ValueError:
         try:
             return parsedate_to_datetime(value).date().isoformat()

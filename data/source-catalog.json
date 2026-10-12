@@ -2,6 +2,76 @@
   "description": "公开来源书目快照；原文、PDF与运行状态在本地保存。",
   "sources": [
     {
+      "id": "014cdafa93ee999c",
+      "title": "Change-Agent: Towards Interactive Comprehensive Remote Sensing Change Interpretation and Analysis",
+      "url": "https://arxiv.org/abs/2403.19646",
+      "kind": "paper",
+      "category": "topic-2c016a4f38e2401d",
+      "captured_at": "2026-10-12T13:46:43+00:00",
+      "published": "2024-03-28T17:55:42+00:00",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Chenyang Liu",
+            "affiliations": []
+          },
+          {
+            "name": "Keyan Chen",
+            "affiliations": []
+          },
+          {
+            "name": "Haotian Zhang",
+            "affiliations": []
+          },
+          {
+            "name": "Zipeng Qi",
+            "affiliations": []
+          },
+          {
+            "name": "Zhengxia Zou",
+            "affiliations": []
+          },
+          {
+            "name": "Zhenwei Shi",
+            "affiliations": []
+          }
+        ],
+        "publisher": "arXiv.org",
+        "doi": "10.1109/TGRS.2024.3425815",
+        "first_published": "2024-03-28T17:55:42+00:00",
+        "updated": "2024-07-16T08:43:23+00:00",
+        "journal_ref": "IEEE Transactions on Geoscience and Remote Sensing 2024",
+        "title": "Change-Agent: Towards Interactive Comprehensive Remote Sensing Change Interpretation and Analysis",
+        "arxiv_doi": "10.48550/arXiv.2403.19646",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2403.19646",
+        "arxiv_doi_checked_at": "2026-10-12T13:46:43+00:00",
+        "arxiv_id": "2403.19646",
+        "original_version": "arxiv-preprint",
+        "publication_status": "arxiv-preprint",
+        "metadata_status": "verified",
+        "method": "official-metadata-page",
+        "metadata_source_url": "https://arxiv.org/abs/2403.19646",
+        "metadata_snapshot": "source_metadata/014cdafa93ee999c-official.html",
+        "checked_at": "2026-10-12T13:46:43+00:00",
+        "affiliations": [],
+        "original_url": "https://arxiv.org/abs/2403.19646",
+        "arxiv_version": 3,
+        "doi_status": "source-provided",
+        "publication_doi": "",
+        "publication_doi_status": "unverified",
+        "captured_at": "2026-10-12T13:46:43+00:00",
+        "source_type": "paper",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "poppler-pdftotext",
+        "content_status": "full-text",
+        "announced_at": "2024/03/28",
+        "field_sources": {},
+        "preprint_url": "https://arxiv.org/abs/2403.19646",
+        "comments": "IEEE Transactions on Geoscience and Remote Sensing 2024"
+      }
+    },
+    {
       "id": "016c52ff81dd4b3c",
       "title": "SOTOPIA: Interactive Evaluation for Social Intelligence in Language Agents",
       "url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/b3075b88e583a0e98d8b24338a613060-Abstract-Conference.html",
@@ -276,6 +346,364 @@
         "reason": "Agent 专题关键词与近期发布时间匹配，全文和原件已取得；支持页中明确范围内的新进展记录。",
         "limitations": "近期预印本，同行评审与独立复现尚未核实；同一批发现不构成多方验证。",
         "checked_at": "2026-10-10T10:53:56+00:00"
+      }
+    },
+    {
+      "id": "19f9b059cd25c958",
+      "title": "GeoFlow: Agentic Workflow Automation for Geospatial Tasks",
+      "url": "https://arxiv.org/abs/2508.04719v1",
+      "kind": "paper",
+      "category": "topic-2c016a4f38e2401d",
+      "captured_at": "2026-10-12T13:36:34+00:00",
+      "published": "2025-08-05T02:14:58+00:00",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Amulya Bhattaram",
+            "affiliations": []
+          },
+          {
+            "name": "Justin Chung",
+            "affiliations": []
+          },
+          {
+            "name": "Stanley Chung",
+            "affiliations": []
+          },
+          {
+            "name": "Ranit Gupta",
+            "affiliations": []
+          },
+          {
+            "name": "Janani Ramamoorthy",
+            "affiliations": []
+          },
+          {
+            "name": "Kartikeya Gullapalli",
+            "affiliations": []
+          },
+          {
+            "name": "Diana Marculescu",
+            "affiliations": []
+          },
+          {
+            "name": "Dimitrios Stamoulis",
+            "affiliations": []
+          }
+        ],
+        "publisher": "arXiv",
+        "doi": "10.1145/3748636.3763217",
+        "first_published": "2025-08-05T02:14:58+00:00",
+        "updated": "2025-08-05T02:14:58+00:00",
+        "journal_ref": "",
+        "title": "GeoFlow: Agentic Workflow Automation for Geospatial Tasks",
+        "metadata_status": "verified",
+        "method": "official-metadata-page",
+        "metadata_source_url": "https://arxiv.org/abs/2508.04719v1",
+        "metadata_snapshot": "source_metadata/19f9b059cd25c958-official.html",
+        "checked_at": "2026-10-12T13:36:34+00:00",
+        "doi_status": "verified-via-crossref",
+        "publication_doi": "10.1145/3748636.3763217",
+        "publication_doi_status": "verified-via-crossref",
+        "field_sources": {
+          "authors": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2508.04719v1"
+          },
+          "publisher": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2508.04719v1"
+          },
+          "first_published": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2508.04719v1"
+          },
+          "updated": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2508.04719v1"
+          },
+          "title": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2508.04719v1"
+          },
+          "publication_record": {
+            "method": "crossref-registry",
+            "source_url": "https://api.crossref.org/works/10.1145/3748636.3763217"
+          }
+        },
+        "arxiv_id": "2508.04719",
+        "original_version": "arxiv-preprint",
+        "publication_status": "arxiv-preprint",
+        "same_work_key": "arxiv:2508.04719",
+        "arxiv_doi": "10.48550/arXiv.2508.04719",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2508.04719v1",
+        "arxiv_doi_checked_at": "2026-10-12T13:36:34+00:00",
+        "arxiv_version": 1,
+        "affiliations": [],
+        "original_url": "https://arxiv.org/abs/2508.04719v1",
+        "captured_at": "2026-10-12T13:36:34+00:00",
+        "source_type": "paper",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "2025/08/05",
+        "version_source_url": "https://arxiv.org/abs/2508.04719v1",
+        "preprint_url": "https://arxiv.org/abs/2508.04719v1",
+        "comments": "Accepted to ACM SIGSPATIAL 2025",
+        "publication_date": "2025-11-03",
+        "publication_record": {
+          "title": "GeoFlow: Agentic Workflow Automation for Geospatial Tasks",
+          "venue": "Proceedings of the 33rd ACM International Conference on Advances in Geographic Information Systems",
+          "journal": "Proceedings of the 33rd ACM International Conference on Advances in Geographic Information Systems",
+          "year": 2025,
+          "date": "2025-11-03",
+          "doi": "10.1145/3748636.3763217",
+          "url": "https://doi.org/10.1145/3748636.3763217",
+          "pdf_url": "",
+          "status": "verified-on-official-site",
+          "method": "crossref-registry",
+          "metadata_source_url": "https://api.crossref.org/works/10.1145/3748636.3763217",
+          "authors": [
+            "Amulya Bhattaram",
+            "Justin Chung",
+            "Stanley Chung",
+            "Ranit Gupta",
+            "Janani Ramamoorthy",
+            "Kartikeya Gullapalli",
+            "Diana Marculescu",
+            "Dimitrios Stamoulis"
+          ],
+          "checked_at": "2026-10-12T13:58:52+00:00",
+          "metadata_snapshot": "source_metadata/19f9b059cd25c958-publication-crossref.json"
+        }
+      }
+    },
+    {
+      "id": "1a874e5d2226c159",
+      "title": "Earth-Agent: Unlocking the Full Landscape of Earth Observation with Agents",
+      "url": "https://arxiv.org/abs/2509.23141",
+      "kind": "paper",
+      "category": "topic-2c016a4f38e2401d",
+      "captured_at": "2026-10-12T13:39:35+00:00",
+      "published": "2025-09-27T06:04:28+00:00",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Peilin Feng",
+            "affiliations": []
+          },
+          {
+            "name": "Zhutao Lv",
+            "affiliations": []
+          },
+          {
+            "name": "Junyan Ye",
+            "affiliations": []
+          },
+          {
+            "name": "Xiaolei Wang",
+            "affiliations": []
+          },
+          {
+            "name": "Xinjie Huo",
+            "affiliations": []
+          },
+          {
+            "name": "Jinhua Yu",
+            "affiliations": []
+          },
+          {
+            "name": "Wanghan Xu",
+            "affiliations": []
+          },
+          {
+            "name": "Wenlong Zhang",
+            "affiliations": []
+          },
+          {
+            "name": "Lei Bai",
+            "affiliations": []
+          },
+          {
+            "name": "Conghui He",
+            "affiliations": []
+          },
+          {
+            "name": "Weijia Li",
+            "affiliations": []
+          }
+        ],
+        "publisher": "arXiv",
+        "doi": "",
+        "first_published": "2025-09-27T06:04:28+00:00",
+        "updated": "2026-03-03T05:05:22+00:00",
+        "journal_ref": "",
+        "title": "Earth-Agent: Unlocking the Full Landscape of Earth Observation with Agents",
+        "metadata_status": "verified",
+        "method": "official-metadata-page",
+        "metadata_source_url": "https://arxiv.org/abs/2509.23141",
+        "metadata_snapshot": "source_metadata/1a874e5d2226c159-official.html",
+        "checked_at": "2026-10-12T13:39:35+00:00",
+        "doi_status": "not-provided-on-official-site",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided-on-official-site",
+        "field_sources": {
+          "authors": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2509.23141"
+          },
+          "publisher": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2509.23141"
+          },
+          "first_published": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2509.23141"
+          },
+          "updated": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2509.23141"
+          },
+          "title": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2509.23141"
+          }
+        },
+        "arxiv_id": "2509.23141",
+        "original_version": "arxiv-preprint",
+        "publication_status": "arxiv-preprint",
+        "same_work_key": "arxiv:2509.23141",
+        "arxiv_doi": "10.48550/arXiv.2509.23141",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2509.23141",
+        "arxiv_doi_checked_at": "2026-10-12T13:39:35+00:00",
+        "arxiv_version": 3,
+        "affiliations": [],
+        "original_url": "https://arxiv.org/abs/2509.23141",
+        "captured_at": "2026-10-12T13:39:35+00:00",
+        "source_type": "paper",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "2025/09/27",
+        "version_source_url": "https://arxiv.org/abs/2509.23141",
+        "preprint_url": "https://arxiv.org/abs/2509.23141",
+        "comments": "Published as a conference paper at ICLR 2026"
+      }
+    },
+    {
+      "id": "3bdb54f327d29558",
+      "title": "GeoGPT: Understanding and Processing Geospatial Tasks through An Autonomous GPT",
+      "url": "https://arxiv.org/abs/2307.07930v1",
+      "kind": "paper",
+      "category": "topic-2c016a4f38e2401d",
+      "captured_at": "2026-10-12T13:44:15+00:00",
+      "published": "2023-07-16T03:03:59+00:00",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Yifan Zhang",
+            "affiliations": []
+          },
+          {
+            "name": "Cheng Wei",
+            "affiliations": []
+          },
+          {
+            "name": "Shangyou Wu",
+            "affiliations": []
+          },
+          {
+            "name": "Zhengting He",
+            "affiliations": []
+          },
+          {
+            "name": "Wenhao Yu",
+            "affiliations": []
+          }
+        ],
+        "publisher": "arXiv",
+        "doi": "10.1016/j.jag.2024.103976",
+        "first_published": "2023-07-16T03:03:59+00:00",
+        "updated": "2023-07-16T03:03:59+00:00",
+        "journal_ref": "",
+        "title": "GeoGPT: Understanding and Processing Geospatial Tasks through An Autonomous GPT",
+        "metadata_status": "verified",
+        "method": "official-metadata-page",
+        "metadata_source_url": "https://arxiv.org/abs/2307.07930v1",
+        "metadata_snapshot": "source_metadata/3bdb54f327d29558-official.html",
+        "checked_at": "2026-10-12T13:44:15+00:00",
+        "doi_status": "verified-via-crossref",
+        "publication_doi": "10.1016/j.jag.2024.103976",
+        "publication_doi_status": "verified-via-crossref",
+        "field_sources": {
+          "authors": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2307.07930v1"
+          },
+          "publisher": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2307.07930v1"
+          },
+          "first_published": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2307.07930v1"
+          },
+          "updated": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2307.07930v1"
+          },
+          "title": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2307.07930v1"
+          },
+          "publication_record": {
+            "method": "crossref-registry",
+            "source_url": "https://api.crossref.org/works/10.1016/j.jag.2024.103976"
+          }
+        },
+        "arxiv_id": "2307.07930",
+        "original_version": "arxiv-preprint",
+        "publication_status": "arxiv-preprint",
+        "same_work_key": "arxiv:2307.07930",
+        "arxiv_doi": "10.48550/arXiv.2307.07930",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2307.07930v1",
+        "arxiv_doi_checked_at": "2026-10-12T13:44:15+00:00",
+        "arxiv_version": 1,
+        "affiliations": [],
+        "original_url": "https://arxiv.org/abs/2307.07930v1",
+        "captured_at": "2026-10-12T13:44:15+00:00",
+        "source_type": "paper",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "2023/07/16",
+        "preprint_url": "https://arxiv.org/abs/2307.07930v1",
+        "comments": "23 pages, 4 figures",
+        "publication_date": "2024-07",
+        "publication_record": {
+          "title": "GeoGPT: An assistant for understanding and processing geospatial tasks",
+          "venue": "International Journal of Applied Earth Observation and Geoinformation",
+          "journal": "International Journal of Applied Earth Observation and Geoinformation",
+          "year": 2024,
+          "date": "2024-07",
+          "doi": "10.1016/j.jag.2024.103976",
+          "url": "https://www.sciencedirect.com/science/article/pii/S1569843224003303",
+          "pdf_url": "",
+          "status": "verified-on-official-site",
+          "method": "crossref-registry",
+          "metadata_source_url": "https://api.crossref.org/works/10.1016/j.jag.2024.103976",
+          "authors": [
+            "Yifan Zhang",
+            "Cheng Wei",
+            "Zhengting He",
+            "Wenhao Yu"
+          ],
+          "checked_at": "2026-10-12T13:58:52+00:00",
+          "metadata_snapshot": "source_metadata/3bdb54f327d29558-publication-crossref.json"
+        }
       }
     },
     {
@@ -617,6 +1045,104 @@
       }
     },
     {
+      "id": "5d666092726c8b5f",
+      "title": "AutoML-Agent: A Multi-Agent LLM Framework for Full-Pipeline AutoML",
+      "url": "https://proceedings.mlr.press/v267/trirat25a.html",
+      "kind": "paper",
+      "category": "topic-f8ccede1b22c4c7e",
+      "captured_at": "2026-10-12T13:42:25+00:00",
+      "published": "2024-10-03T20:01:09+00:00",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Patara Trirat",
+            "affiliations": []
+          },
+          {
+            "name": "Wonyong Jeong",
+            "affiliations": []
+          },
+          {
+            "name": "Sung Ju Hwang",
+            "affiliations": []
+          }
+        ],
+        "publisher": "arXiv",
+        "doi": "",
+        "first_published": "2024-10-03T20:01:09+00:00",
+        "updated": "2025-06-06T10:13:12+00:00",
+        "journal_ref": "International Conference on Machine Learning, PMLR ",
+        "title": "AutoML-Agent: A Multi-Agent LLM Framework for Full-Pipeline AutoML",
+        "metadata_status": "verified",
+        "method": "official-metadata-page",
+        "metadata_source_url": "https://arxiv.org/abs/2410.02958v2",
+        "metadata_snapshot": "source_metadata/5d666092726c8b5f-official.html",
+        "checked_at": "2026-10-12T13:42:25+00:00",
+        "doi_status": "not-provided-on-official-site",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided-on-official-site",
+        "field_sources": {
+          "authors": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2410.02958v2"
+          },
+          "publisher": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2410.02958v2"
+          },
+          "first_published": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2410.02958v2"
+          },
+          "updated": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2410.02958v2"
+          },
+          "title": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2410.02958v2"
+          }
+        },
+        "arxiv_id": "2410.02958",
+        "original_version": "arxiv-preprint",
+        "publication_status": "arxiv-preprint",
+        "same_work_key": "arxiv:2410.02958",
+        "arxiv_doi": "10.48550/arXiv.2410.02958",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2410.02958v2",
+        "arxiv_doi_checked_at": "2026-10-12T13:42:25+00:00",
+        "arxiv_version": 2,
+        "affiliations": [],
+        "original_url": "https://proceedings.mlr.press/v267/trirat25a.html",
+        "captured_at": "2026-10-12T13:42:25+00:00",
+        "source_type": "paper",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "2024/10/03",
+        "publication_record": {
+          "venue": "International Conference on Machine Learning",
+          "journal": "Proceedings of Machine Learning Research",
+          "date": "2025/10/06",
+          "year": 2025,
+          "url": "https://proceedings.mlr.press/v267/trirat25a.html",
+          "pdf_url": "https://raw.githubusercontent.com/mlresearch/v267/main/assets/trirat25a/trirat25a.pdf",
+          "status": "verified-on-official-site",
+          "authors": [
+            "Patara Trirat",
+            "Wonyong Jeong",
+            "Sung Ju Hwang"
+          ],
+          "doi": "",
+          "checked_at": "2026-10-12T13:44:30+00:00",
+          "metadata_snapshot": "source_metadata/5d666092726c8b5f-publication.html"
+        },
+        "publication_date": "2025/10/06",
+        "preprint_url": "https://arxiv.org/abs/2410.02958v2",
+        "comments": "ICML 2025, Project Page: this https URL"
+      }
+    },
+    {
       "id": "7d220dd5706f59fd",
       "title": "Plan-and-Patch: Diffusion Language Models for Agentic Planning",
       "url": "https://arxiv.org/abs/2610.10786",
@@ -783,6 +1309,262 @@
       }
     },
     {
+      "id": "863bccdceb2db4eb",
+      "title": "GeoChat: Grounded Large Vision-Language Model for Remote Sensing",
+      "url": "https://openaccess.thecvf.com/content/CVPR2024/html/Kuckreja_GeoChat_Grounded_Large_Vision-Language_Model_for_Remote_Sensing_CVPR_2024_paper.html",
+      "kind": "paper",
+      "category": "topic-2c016a4f38e2401d",
+      "captured_at": "2026-10-12T13:35:08+00:00",
+      "published": "2024",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Kartik Kuckreja",
+            "affiliations": []
+          },
+          {
+            "name": "Muhammad Sohail Danish",
+            "affiliations": []
+          },
+          {
+            "name": "Muzammal Naseer",
+            "affiliations": []
+          },
+          {
+            "name": "Abhijit Das",
+            "affiliations": []
+          },
+          {
+            "name": "Salman Khan",
+            "affiliations": []
+          },
+          {
+            "name": "Fahad Shahbaz Khan",
+            "affiliations": []
+          }
+        ],
+        "publisher": "",
+        "doi": "",
+        "first_published": "2024",
+        "updated": "",
+        "journal_ref": "CVPR 2024",
+        "title": "GeoChat: Grounded Large Vision-Language Model for Remote Sensing",
+        "metadata_status": "verified",
+        "method": "official-metadata-page",
+        "metadata_source_url": "https://openaccess.thecvf.com/content/CVPR2024/html/Kuckreja_GeoChat_Grounded_Large_Vision-Language_Model_for_Remote_Sensing_CVPR_2024_paper.html",
+        "metadata_snapshot": "source_metadata/863bccdceb2db4eb-official.html",
+        "checked_at": "2026-10-12T13:35:08+00:00",
+        "doi_status": "not-provided-on-official-site",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided-on-official-site",
+        "field_sources": {
+          "authors": {
+            "method": "official-metadata-page",
+            "source_url": "https://openaccess.thecvf.com/content/CVPR2024/html/Kuckreja_GeoChat_Grounded_Large_Vision-Language_Model_for_Remote_Sensing_CVPR_2024_paper.html"
+          },
+          "first_published": {
+            "method": "official-metadata-page",
+            "source_url": "https://openaccess.thecvf.com/content/CVPR2024/html/Kuckreja_GeoChat_Grounded_Large_Vision-Language_Model_for_Remote_Sensing_CVPR_2024_paper.html"
+          },
+          "title": {
+            "method": "official-metadata-page",
+            "source_url": "https://openaccess.thecvf.com/content/CVPR2024/html/Kuckreja_GeoChat_Grounded_Large_Vision-Language_Model_for_Remote_Sensing_CVPR_2024_paper.html"
+          }
+        },
+        "publication_status": "published",
+        "original_version": "published",
+        "publication_record": {
+          "venue": "CVPR 2024",
+          "journal": "",
+          "date": "2024",
+          "url": "https://openaccess.thecvf.com/content/CVPR2024/html/Kuckreja_GeoChat_Grounded_Large_Vision-Language_Model_for_Remote_Sensing_CVPR_2024_paper.html",
+          "pdf_url": "https://openaccess.thecvf.com/content/CVPR2024/papers/Kuckreja_GeoChat_Grounded_Large_Vision-Language_Model_for_Remote_Sensing_CVPR_2024_paper.pdf",
+          "status": "verified-on-official-site",
+          "checked_at": "2026-10-12T13:35:08+00:00",
+          "year": 2024,
+          "date_precision": "year",
+          "authors": [
+            "Kartik Kuckreja",
+            "Muhammad Sohail Danish",
+            "Muzammal Naseer",
+            "Abhijit Das",
+            "Salman Khan",
+            "Fahad Shahbaz Khan"
+          ]
+        },
+        "publication_date": "2024",
+        "date_precision": "year"
+      }
+    },
+    {
+      "id": "8cabb777c9bc6fe9",
+      "title": "GIS Copilot: Towards an Autonomous GIS Agent for Spatial Analysis",
+      "url": "https://arxiv.org/abs/2411.03205",
+      "kind": "paper",
+      "category": "topic-2c016a4f38e2401d",
+      "captured_at": "2026-10-12T13:34:17+00:00",
+      "published": "2024-11-05T15:53:59+00:00",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Temitope Akinboyewa",
+            "affiliations": []
+          },
+          {
+            "name": "Zhenlong Li",
+            "affiliations": []
+          },
+          {
+            "name": "Huan Ning",
+            "affiliations": []
+          },
+          {
+            "name": "M. Naser Lessani",
+            "affiliations": []
+          }
+        ],
+        "publisher": "arXiv",
+        "doi": "",
+        "first_published": "2024-11-05T15:53:59+00:00",
+        "updated": "2024-11-22T02:00:21+00:00",
+        "journal_ref": "",
+        "title": "GIS Copilot: Towards an Autonomous GIS Agent for Spatial Analysis",
+        "metadata_status": "verified",
+        "method": "official-metadata-page",
+        "metadata_source_url": "https://arxiv.org/abs/2411.03205",
+        "metadata_snapshot": "source_metadata/8cabb777c9bc6fe9-official.html",
+        "checked_at": "2026-10-12T13:34:17+00:00",
+        "doi_status": "not-provided-on-official-site",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided-on-official-site",
+        "field_sources": {
+          "authors": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2411.03205"
+          },
+          "publisher": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2411.03205"
+          },
+          "first_published": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2411.03205"
+          },
+          "updated": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2411.03205"
+          },
+          "title": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2411.03205"
+          }
+        },
+        "arxiv_id": "2411.03205",
+        "original_version": "arxiv-preprint",
+        "publication_status": "arxiv-preprint",
+        "same_work_key": "arxiv:2411.03205",
+        "arxiv_doi": "10.48550/arXiv.2411.03205",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2411.03205",
+        "arxiv_doi_checked_at": "2026-10-12T13:34:17+00:00",
+        "arxiv_version": 4,
+        "affiliations": [],
+        "original_url": "https://arxiv.org/abs/2411.03205",
+        "captured_at": "2026-10-12T13:34:17+00:00",
+        "source_type": "paper",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "2024/11/05",
+        "version_source_url": "https://arxiv.org/abs/2411.03205",
+        "preprint_url": "https://arxiv.org/abs/2411.03205"
+      }
+    },
+    {
+      "id": "8db3263052b0cab1",
+      "title": "TerraLogic: A Benchmark for Hierarchical Geospatial Reasoning in Earth Observation",
+      "url": "https://arxiv.org/abs/2607.12497",
+      "kind": "paper",
+      "category": "topic-2c016a4f38e2401d",
+      "captured_at": "2026-10-12T13:41:52+00:00",
+      "published": "2026-07-14T08:30:45+00:00",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Yuhang Yan",
+            "affiliations": []
+          },
+          {
+            "name": "Linchao Mou",
+            "affiliations": []
+          },
+          {
+            "name": "Bokang Yang",
+            "affiliations": []
+          },
+          {
+            "name": "Qingyu Li",
+            "affiliations": []
+          }
+        ],
+        "publisher": "arXiv",
+        "doi": "",
+        "first_published": "2026-07-14T08:30:45+00:00",
+        "updated": "2026-07-14T08:30:45+00:00",
+        "journal_ref": "",
+        "title": "TerraLogic: A Benchmark for Hierarchical Geospatial Reasoning in Earth Observation",
+        "metadata_status": "verified",
+        "method": "official-metadata-page",
+        "metadata_source_url": "https://arxiv.org/abs/2607.12497",
+        "metadata_snapshot": "source_metadata/8db3263052b0cab1-official.html",
+        "checked_at": "2026-10-12T13:41:52+00:00",
+        "doi_status": "not-provided-on-official-site",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided-on-official-site",
+        "field_sources": {
+          "authors": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2607.12497"
+          },
+          "publisher": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2607.12497"
+          },
+          "first_published": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2607.12497"
+          },
+          "updated": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2607.12497"
+          },
+          "title": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2607.12497"
+          }
+        },
+        "arxiv_id": "2607.12497",
+        "original_version": "arxiv-preprint",
+        "publication_status": "arxiv-preprint",
+        "same_work_key": "arxiv:2607.12497",
+        "arxiv_doi": "10.48550/arXiv.2607.12497",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2607.12497",
+        "arxiv_doi_checked_at": "2026-10-12T13:41:52+00:00",
+        "arxiv_version": 1,
+        "affiliations": [],
+        "original_url": "https://arxiv.org/abs/2607.12497",
+        "captured_at": "2026-10-12T13:41:52+00:00",
+        "source_type": "paper",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "2026/07/14",
+        "preprint_url": "https://arxiv.org/abs/2607.12497",
+        "comments": "8 pages, 3 figures, and 7 tables. Dataset and agent code are available at this https URL"
+      }
+    },
+    {
       "id": "926ac126f2443b70",
       "title": "Curating Always-Loaded Context for LLM Agents: A Capacitated Assortment Model with Censored Feedback",
       "url": "https://arxiv.org/abs/2610.11007",
@@ -898,6 +1680,216 @@
         "reason": "Agent 专题关键词与近期发布时间匹配，全文和原件已取得；支持页中明确范围内的新进展记录。",
         "limitations": "近期预印本，同行评审与独立复现尚未核实；同一批发现不构成多方验证。",
         "checked_at": "2026-10-10T10:53:54+00:00"
+      }
+    },
+    {
+      "id": "94853529d326ac72",
+      "title": "Large Language Model Agent for Hyper-Parameter Optimization",
+      "url": "https://proceedings.mlr.press/v280/liu25c.html",
+      "kind": "paper",
+      "category": "topic-f8ccede1b22c4c7e",
+      "captured_at": "2026-10-12T13:42:01+00:00",
+      "published": "2024-02-02T20:12:05+00:00",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Siyi Liu",
+            "affiliations": []
+          },
+          {
+            "name": "Chen Gao",
+            "affiliations": []
+          },
+          {
+            "name": "Yong Li",
+            "affiliations": []
+          }
+        ],
+        "publisher": "arXiv",
+        "doi": "",
+        "first_published": "2024-02-02T20:12:05+00:00",
+        "updated": "2025-02-26T13:57:13+00:00",
+        "journal_ref": "Conference on Parsimony and Learning, PMLR ",
+        "title": "Large Language Model Agent for Hyper-Parameter Optimization",
+        "metadata_status": "verified",
+        "method": "official-metadata-page",
+        "metadata_source_url": "https://arxiv.org/abs/2402.01881v3",
+        "metadata_snapshot": "source_metadata/94853529d326ac72-official.html",
+        "checked_at": "2026-10-12T13:42:01+00:00",
+        "doi_status": "not-provided-on-official-site",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided-on-official-site",
+        "field_sources": {
+          "authors": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2402.01881v3"
+          },
+          "publisher": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2402.01881v3"
+          },
+          "first_published": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2402.01881v3"
+          },
+          "updated": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2402.01881v3"
+          },
+          "title": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2402.01881v3"
+          }
+        },
+        "arxiv_id": "2402.01881",
+        "original_version": "arxiv-preprint",
+        "publication_status": "arxiv-preprint",
+        "same_work_key": "arxiv:2402.01881",
+        "arxiv_doi": "10.48550/arXiv.2402.01881",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2402.01881v3",
+        "arxiv_doi_checked_at": "2026-10-12T13:42:01+00:00",
+        "arxiv_version": 3,
+        "affiliations": [],
+        "original_url": "https://proceedings.mlr.press/v280/liu25c.html",
+        "captured_at": "2026-10-12T13:42:01+00:00",
+        "source_type": "paper",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "2024/02/02",
+        "publication_record": {
+          "venue": "Conference on Parsimony and Learning",
+          "journal": "Proceedings of Machine Learning Research",
+          "date": "2025/06/15",
+          "year": 2025,
+          "url": "https://proceedings.mlr.press/v280/liu25c.html",
+          "pdf_url": "https://raw.githubusercontent.com/mlresearch/v280/main/assets/liu25c/liu25c.pdf",
+          "status": "verified-on-official-site",
+          "authors": [
+            "Siyi Liu",
+            "Chen Gao",
+            "Yong Li"
+          ],
+          "doi": "",
+          "checked_at": "2026-10-12T13:44:30+00:00",
+          "metadata_snapshot": "source_metadata/94853529d326ac72-publication.html"
+        },
+        "publication_date": "2025/06/15",
+        "preprint_url": "https://arxiv.org/abs/2402.01881v3"
+      }
+    },
+    {
+      "id": "a58012192462df16",
+      "title": "OpenEarthAgent: A Unified Framework for Tool-Augmented Geospatial Agents",
+      "url": "https://arxiv.org/abs/2602.17665",
+      "kind": "paper",
+      "category": "topic-2c016a4f38e2401d",
+      "captured_at": "2026-10-12T13:36:40+00:00",
+      "published": "2026-02-19T18:59:54+00:00",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Akashah Shabbir",
+            "affiliations": []
+          },
+          {
+            "name": "Muhammad Umer Sheikh",
+            "affiliations": []
+          },
+          {
+            "name": "Muhammad Akhtar Munir",
+            "affiliations": []
+          },
+          {
+            "name": "Hiyam Debary",
+            "affiliations": []
+          },
+          {
+            "name": "Mustansar Fiaz",
+            "affiliations": []
+          },
+          {
+            "name": "Muhammad Zaigham Zaheer",
+            "affiliations": []
+          },
+          {
+            "name": "Paolo Fraccaro",
+            "affiliations": []
+          },
+          {
+            "name": "Fahad Shahbaz Khan",
+            "affiliations": []
+          },
+          {
+            "name": "Muhammad Haris Khan",
+            "affiliations": []
+          },
+          {
+            "name": "Xiao Xiang Zhu",
+            "affiliations": []
+          },
+          {
+            "name": "Salman Khan",
+            "affiliations": []
+          }
+        ],
+        "publisher": "arXiv",
+        "doi": "",
+        "first_published": "2026-02-19T18:59:54+00:00",
+        "updated": "2026-07-12T17:48:41+00:00",
+        "journal_ref": "",
+        "title": "OpenEarthAgent: A Unified Framework for Tool-Augmented Geospatial Agents",
+        "metadata_status": "verified",
+        "method": "official-metadata-page",
+        "metadata_source_url": "https://arxiv.org/abs/2602.17665",
+        "metadata_snapshot": "source_metadata/a58012192462df16-official.html",
+        "checked_at": "2026-10-12T13:36:40+00:00",
+        "doi_status": "not-provided-on-official-site",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided-on-official-site",
+        "field_sources": {
+          "authors": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2602.17665"
+          },
+          "publisher": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2602.17665"
+          },
+          "first_published": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2602.17665"
+          },
+          "updated": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2602.17665"
+          },
+          "title": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2602.17665"
+          }
+        },
+        "arxiv_id": "2602.17665",
+        "original_version": "arxiv-preprint",
+        "publication_status": "arxiv-preprint",
+        "same_work_key": "arxiv:2602.17665",
+        "arxiv_doi": "10.48550/arXiv.2602.17665",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2602.17665",
+        "arxiv_doi_checked_at": "2026-10-12T13:36:40+00:00",
+        "arxiv_version": 4,
+        "affiliations": [],
+        "original_url": "https://arxiv.org/abs/2602.17665",
+        "captured_at": "2026-10-12T13:36:40+00:00",
+        "source_type": "paper",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "2026/02/19",
+        "version_source_url": "https://arxiv.org/abs/2602.17665",
+        "preprint_url": "https://arxiv.org/abs/2602.17665",
+        "comments": "Accepted at the European Conference on Computer Vision (ECCV 2026)"
       }
     },
     {
@@ -1486,6 +2478,304 @@
       }
     },
     {
+      "id": "cf1e618aae1ce2d6",
+      "title": "Designing Domain-Specific Agents via Hierarchical Task Abstraction Mechanism",
+      "url": "https://arxiv.org/abs/2511.17198",
+      "kind": "paper",
+      "category": "topic-2c016a4f38e2401d",
+      "captured_at": "2026-10-12T13:39:21+00:00",
+      "published": "2025-11-21T12:25:47+00:00",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Kaiyu Li",
+            "affiliations": []
+          },
+          {
+            "name": "Jiayu Wang",
+            "affiliations": []
+          },
+          {
+            "name": "Zhi Wang",
+            "affiliations": []
+          },
+          {
+            "name": "Hui Qiao",
+            "affiliations": []
+          },
+          {
+            "name": "Weizhan Zhang",
+            "affiliations": []
+          },
+          {
+            "name": "Deyu Meng",
+            "affiliations": []
+          },
+          {
+            "name": "Xiangyong Cao",
+            "affiliations": []
+          }
+        ],
+        "publisher": "arXiv",
+        "doi": "",
+        "first_published": "2025-11-21T12:25:47+00:00",
+        "updated": "2025-11-21T12:25:47+00:00",
+        "journal_ref": "",
+        "title": "Designing Domain-Specific Agents via Hierarchical Task Abstraction Mechanism",
+        "metadata_status": "verified",
+        "method": "official-metadata-page",
+        "metadata_source_url": "https://arxiv.org/abs/2511.17198",
+        "metadata_snapshot": "source_metadata/cf1e618aae1ce2d6-official.html",
+        "checked_at": "2026-10-12T13:39:21+00:00",
+        "doi_status": "not-provided-on-official-site",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided-on-official-site",
+        "field_sources": {
+          "authors": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2511.17198"
+          },
+          "publisher": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2511.17198"
+          },
+          "first_published": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2511.17198"
+          },
+          "updated": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2511.17198"
+          },
+          "title": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2511.17198"
+          }
+        },
+        "arxiv_id": "2511.17198",
+        "original_version": "arxiv-preprint",
+        "publication_status": "arxiv-preprint",
+        "same_work_key": "arxiv:2511.17198",
+        "arxiv_doi": "10.48550/arXiv.2511.17198",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2511.17198",
+        "arxiv_doi_checked_at": "2026-10-12T13:39:21+00:00",
+        "arxiv_version": 1,
+        "affiliations": [],
+        "original_url": "https://arxiv.org/abs/2511.17198",
+        "captured_at": "2026-10-12T13:39:21+00:00",
+        "source_type": "paper",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "2025/11/21",
+        "version_source_url": "https://arxiv.org/abs/2511.17198",
+        "preprint_url": "https://arxiv.org/abs/2511.17198",
+        "comments": "Page: this https URL"
+      }
+    },
+    {
+      "id": "d7eeabd9156ed311",
+      "title": "AgentHPOBench: A Benchmark For Evaluating LLM Agents as Sequential Hyperparameter Optimizers",
+      "url": "https://arxiv.org/abs/2607.29626",
+      "kind": "paper",
+      "category": "topic-f8ccede1b22c4c7e",
+      "captured_at": "2026-10-12T13:46:44+00:00",
+      "published": "2026-07-31T16:58:00+00:00",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Tianyu Huai",
+            "affiliations": []
+          },
+          {
+            "name": "Tingshuo Fan",
+            "affiliations": []
+          },
+          {
+            "name": "Xinchi Chen",
+            "affiliations": []
+          },
+          {
+            "name": "Yining Zheng",
+            "affiliations": []
+          },
+          {
+            "name": "Yuxin Wang",
+            "affiliations": []
+          },
+          {
+            "name": "Shuang Chen",
+            "affiliations": []
+          },
+          {
+            "name": "Jie Zhou",
+            "affiliations": []
+          },
+          {
+            "name": "Xuanjing Huang",
+            "affiliations": []
+          }
+        ],
+        "publisher": "arXiv.org",
+        "doi": "",
+        "first_published": "2026-07-31T16:58:00+00:00",
+        "updated": "2026-07-31T16:58:00+00:00",
+        "journal_ref": "",
+        "title": "AgentHPOBench: A Benchmark For Evaluating LLM Agents as Sequential Hyperparameter Optimizers",
+        "arxiv_doi": "10.48550/arXiv.2607.29626",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2607.29626",
+        "arxiv_doi_checked_at": "2026-10-12T13:46:44+00:00",
+        "arxiv_id": "2607.29626",
+        "original_version": "arxiv-preprint",
+        "publication_status": "arxiv-preprint",
+        "metadata_status": "verified",
+        "method": "official-metadata-page",
+        "metadata_source_url": "https://arxiv.org/abs/2607.29626",
+        "metadata_snapshot": "source_metadata/d7eeabd9156ed311-official.html",
+        "checked_at": "2026-10-12T13:46:44+00:00",
+        "affiliations": [],
+        "original_url": "https://arxiv.org/abs/2607.29626",
+        "arxiv_version": 1,
+        "doi_status": "not-provided-on-official-site",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided-on-official-site",
+        "captured_at": "2026-10-12T13:46:44+00:00",
+        "source_type": "paper",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "2026/07/31",
+        "field_sources": {},
+        "preprint_url": "https://arxiv.org/abs/2607.29626"
+      }
+    },
+    {
+      "id": "d97a83738e867ba8",
+      "title": "RS-Agent: Automating Remote Sensing Tasks through Intelligent Agent",
+      "url": "https://arxiv.org/abs/2406.07089v4",
+      "kind": "paper",
+      "category": "topic-2c016a4f38e2401d",
+      "captured_at": "2026-10-12T13:38:11+00:00",
+      "published": "2024-06-11T09:30:02+00:00",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Wenjia Xu",
+            "affiliations": []
+          },
+          {
+            "name": "Zijian Yu",
+            "affiliations": []
+          },
+          {
+            "name": "Boyang Mu",
+            "affiliations": []
+          },
+          {
+            "name": "Jiuniu Wang",
+            "affiliations": []
+          },
+          {
+            "name": "Zhiwei Wei",
+            "affiliations": []
+          },
+          {
+            "name": "Mugen Peng",
+            "affiliations": []
+          }
+        ],
+        "publisher": "arXiv",
+        "doi": "10.1007/s11432-026-5026-5",
+        "first_published": "2024-06-11T09:30:02+00:00",
+        "updated": "2026-07-07T07:03:43+00:00",
+        "journal_ref": "SCIENCE CHINA Information Sciences, 69(8), 180302 (2026)",
+        "title": "RS-Agent: Automating Remote Sensing Tasks through Intelligent Agent",
+        "metadata_status": "verified",
+        "method": "official-metadata-page",
+        "metadata_source_url": "https://arxiv.org/abs/2406.07089v4",
+        "metadata_snapshot": "source_metadata/d97a83738e867ba8-official.html",
+        "checked_at": "2026-10-12T13:38:11+00:00",
+        "doi_status": "verified-via-crossref",
+        "publication_doi": "10.1007/s11432-026-5026-5",
+        "publication_doi_status": "verified-via-crossref",
+        "field_sources": {
+          "authors": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2406.07089v4"
+          },
+          "publisher": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2406.07089v4"
+          },
+          "doi": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2406.07089v4"
+          },
+          "first_published": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2406.07089v4"
+          },
+          "updated": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2406.07089v4"
+          },
+          "title": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2406.07089v4"
+          },
+          "publication_record": {
+            "method": "crossref-registry",
+            "source_url": "https://api.crossref.org/works/10.1007/s11432-026-5026-5"
+          }
+        },
+        "arxiv_id": "2406.07089",
+        "original_version": "arxiv-preprint",
+        "publication_status": "arxiv-preprint",
+        "same_work_key": "arxiv:2406.07089",
+        "arxiv_doi": "10.48550/arXiv.2406.07089",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2406.07089v4",
+        "arxiv_doi_checked_at": "2026-10-12T13:38:11+00:00",
+        "arxiv_version": 4,
+        "affiliations": [],
+        "original_url": "https://arxiv.org/abs/2406.07089v4",
+        "captured_at": "2026-10-12T13:38:11+00:00",
+        "source_type": "paper",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "2024/06/11",
+        "version_source_url": "https://arxiv.org/abs/2406.07089v4",
+        "preprint_url": "https://arxiv.org/abs/2406.07089v4",
+        "publication_date": "2026-07-27",
+        "publication_record": {
+          "title": "RS-Agent: automating remote sensing tasks through intelligent agent",
+          "venue": "Science China Information Sciences",
+          "journal": "Science China Information Sciences",
+          "year": 2026,
+          "date": "2026-07-27",
+          "doi": "10.1007/s11432-026-5026-5",
+          "url": "https://link.springer.com/article/10.1007/s11432-026-5026-5",
+          "pdf_url": "",
+          "status": "verified-on-official-site",
+          "method": "crossref-registry",
+          "metadata_source_url": "https://api.crossref.org/works/10.1007/s11432-026-5026-5",
+          "authors": [
+            "Wenjia Xu",
+            "Zijian Yu",
+            "Boyang Mu",
+            "Jiuniu Wang",
+            "Zhiwei Wei",
+            "Mugen Peng"
+          ],
+          "checked_at": "2026-10-12T13:58:52+00:00",
+          "metadata_snapshot": "source_metadata/d97a83738e867ba8-publication-crossref.json"
+        }
+      }
+    },
+    {
       "id": "e0c0d198c4709cc7",
       "title": "NOMOS: Compiling Written Policies into Statically Verified Tool-Call Gates for LLM Agents",
       "url": "https://arxiv.org/abs/2610.11030",
@@ -1730,6 +3020,99 @@
       }
     },
     {
+      "id": "e80b94c99e711343",
+      "title": "Remote Sensing ChatGPT: Solving Remote Sensing Tasks with ChatGPT and Visual Models",
+      "url": "https://arxiv.org/abs/2401.09083",
+      "kind": "paper",
+      "category": "topic-2c016a4f38e2401d",
+      "captured_at": "2026-10-12T13:33:17+00:00",
+      "published": "2024-01-17T09:44:07+00:00",
+      "bibliography": {
+        "authors": [
+          {
+            "name": "Haonan Guo",
+            "affiliations": []
+          },
+          {
+            "name": "Xin Su",
+            "affiliations": []
+          },
+          {
+            "name": "Chen Wu",
+            "affiliations": []
+          },
+          {
+            "name": "Bo Du",
+            "affiliations": []
+          },
+          {
+            "name": "Liangpei Zhang",
+            "affiliations": []
+          },
+          {
+            "name": "Deren Li",
+            "affiliations": []
+          }
+        ],
+        "publisher": "arXiv",
+        "doi": "",
+        "first_published": "2024-01-17T09:44:07+00:00",
+        "updated": "2024-01-17T09:44:07+00:00",
+        "journal_ref": "",
+        "title": "Remote Sensing ChatGPT: Solving Remote Sensing Tasks with ChatGPT and Visual Models",
+        "metadata_status": "verified",
+        "method": "official-metadata-page",
+        "metadata_source_url": "https://arxiv.org/abs/2401.09083",
+        "metadata_snapshot": "source_metadata/e80b94c99e711343-official.html",
+        "checked_at": "2026-10-12T13:33:17+00:00",
+        "doi_status": "not-provided-on-official-site",
+        "publication_doi": "",
+        "publication_doi_status": "not-provided-on-official-site",
+        "field_sources": {
+          "authors": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2401.09083"
+          },
+          "publisher": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2401.09083"
+          },
+          "first_published": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2401.09083"
+          },
+          "updated": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2401.09083"
+          },
+          "title": {
+            "method": "official-metadata-page",
+            "source_url": "https://arxiv.org/abs/2401.09083"
+          }
+        },
+        "arxiv_id": "2401.09083",
+        "original_version": "arxiv-preprint",
+        "publication_status": "arxiv-preprint",
+        "same_work_key": "arxiv:2401.09083",
+        "arxiv_doi": "10.48550/arXiv.2401.09083",
+        "arxiv_doi_status": "verified-on-arxiv",
+        "arxiv_doi_source_url": "https://arxiv.org/abs/2401.09083",
+        "arxiv_doi_checked_at": "2026-10-12T13:33:17+00:00",
+        "arxiv_version": 1,
+        "affiliations": [],
+        "original_url": "https://arxiv.org/abs/2401.09083",
+        "captured_at": "2026-10-12T13:33:17+00:00",
+        "source_type": "paper",
+        "acquisition_method": "public-download",
+        "text_acquisition_method": "pdf",
+        "content_status": "full-text",
+        "announced_at": "2024/01/17",
+        "version_source_url": "https://arxiv.org/abs/2401.09083",
+        "preprint_url": "https://arxiv.org/abs/2401.09083",
+        "comments": "The manuscript is submitted to IEEE International Geoscience and Remote Sensing Symposium(IGARSS2024). Looking forward to seeing you in July!"
+      }
+    },
+    {
       "id": "eddf2edee3305425",
       "title": "ReCast: Attribution-Oriented Step Representation Learning for LLM-Based Agent Systems",
       "url": "https://arxiv.org/abs/2610.11334",
@@ -1885,6 +3268,131 @@
         "reason": "Agent 专题关键词与近期发布时间匹配，全文和原件已取得；支持页中明确范围内的新进展记录。",
         "limitations": "近期预印本，同行评审与独立复现尚未核实；同一批发现不构成多方验证。",
         "checked_at": "2026-10-10T10:53:52+00:00"
+      }
+    },
+    {
+      "id": "f8a9212514d96b57",
+      "title": "A conversational multi-agent AI system for automated plant phenotyping",
+      "url": "https://www.nature.com/articles/s41467-026-71090-y",
+      "kind": "paper",
+      "category": "topic-f8ccede1b22c4c7e",
+      "captured_at": "2026-10-12T13:36:29+00:00",
+      "published": "2026-04-03",
+      "bibliography": {
+        "title": "A conversational multi-agent AI system for automated plant phenotyping",
+        "authors": [
+          {
+            "name": "Feng Chen",
+            "affiliations": []
+          },
+          {
+            "name": "Ilias Stogiannidis",
+            "affiliations": []
+          },
+          {
+            "name": "Andrew Wood",
+            "affiliations": []
+          },
+          {
+            "name": "Danilo Bueno",
+            "affiliations": []
+          },
+          {
+            "name": "Dominic Williams",
+            "affiliations": []
+          },
+          {
+            "name": "Fraser Macfarlane",
+            "affiliations": []
+          },
+          {
+            "name": "Bruce D. Grieve",
+            "affiliations": []
+          },
+          {
+            "name": "Darren Wells",
+            "affiliations": []
+          },
+          {
+            "name": "Jonathan A. Atkinson",
+            "affiliations": []
+          },
+          {
+            "name": "Malcolm J. Hawkesford",
+            "affiliations": []
+          },
+          {
+            "name": "Stephen A. Rolfe",
+            "affiliations": []
+          },
+          {
+            "name": "Tracy Lawson",
+            "affiliations": []
+          },
+          {
+            "name": "Tony Pridmore",
+            "affiliations": []
+          },
+          {
+            "name": "Sotirios A. Tsaftaris",
+            "affiliations": []
+          },
+          {
+            "name": "Mario Valerio Giuffrida",
+            "affiliations": []
+          }
+        ],
+        "publisher": "Springer Science and Business Media LLC",
+        "doi": "10.1038/s41467-026-71090-y",
+        "first_published": "2026-04-03",
+        "updated": "",
+        "journal_ref": "Nature Communications",
+        "metadata_status": "verified",
+        "method": "official-metadata-page",
+        "metadata_source_url": "https://api.crossref.org/works/10.1038/s41467-026-71090-y",
+        "metadata_snapshot": "source_metadata/f8a9212514d96b57-crossref.json",
+        "checked_at": "2026-10-12T13:36:29+00:00",
+        "doi_status": "source-provided",
+        "publication_doi": "10.1038/s41467-026-71090-y",
+        "publication_doi_status": "source-provided",
+        "field_sources": {
+          "title": {
+            "method": "official-metadata-page",
+            "source_url": "https://www.nature.com/articles/s41467-026-71090-y"
+          },
+          "authors": {
+            "method": "official-metadata-page",
+            "source_url": "https://www.nature.com/articles/s41467-026-71090-y"
+          },
+          "publisher": {
+            "method": "official-metadata-page",
+            "source_url": "https://www.nature.com/articles/s41467-026-71090-y"
+          },
+          "doi": {
+            "method": "official-metadata-page",
+            "source_url": "https://www.nature.com/articles/s41467-026-71090-y"
+          },
+          "first_published": {
+            "method": "official-metadata-page",
+            "source_url": "https://www.nature.com/articles/s41467-026-71090-y"
+          },
+          "journal_ref": {
+            "method": "official-metadata-page",
+            "source_url": "https://www.nature.com/articles/s41467-026-71090-y"
+          }
+        },
+        "publication_status": "published",
+        "original_version": "published",
+        "publication_record": {
+          "venue": "Nature Communications",
+          "journal": "Nature Communications",
+          "date": "2026-04-03",
+          "url": "https://www.nature.com/articles/s41467-026-71090-y",
+          "pdf_url": "https://www.nature.com/articles/s41467-026-71090-y.pdf",
+          "status": "verified-on-official-site",
+          "checked_at": "2026-10-12T13:36:29+00:00"
+        },
+        "publication_date": "2026-04-03"
       }
     }
   ]
