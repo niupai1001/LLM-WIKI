@@ -36,7 +36,7 @@ Earth-Agent、EarthAgent/HTAM、OpenEarthAgent、OpenEarth-Agent仍是不同研�
 .venv/bin/python -m station.cli prepare --source-id <新来源ID> --target <已有页面slug>
 ```
 
-默认仍为一次LLM调用、一次页面提案，检查后发布。当前没有自动遍历所有文献、补齐所有知识维度或跨页面事务；需要按问题选择材料并复用原文。本轮六个机制页与13个更新由Agent对照归档证据完成，没有额外调用项目LLM。
+默认仍为一次LLM调用、一次概念提案，检查后发布。概念发布现在同时合并主题导航，详见[自动主题入口维护](topic-navigation.md)。当前没有自动遍历所有文献、补齐所有知识维度或跨概念的事实更新事务；需要按问题选择材料并复用原文。本轮六个机制页与13个更新由Agent对照归档证据完成，没有额外调用项目LLM。
 
 ## 验证
 

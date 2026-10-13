@@ -1,0 +1,58 @@
+{
+  "slug": "agent-tools-knowledge",
+  "title": "工具能力与知识积累",
+  "category": "agents",
+  "source_ids": [],
+  "page_kind": "topic",
+  "claims": [],
+  "conflicts": [],
+  "related_slugs": [],
+  "relations": [],
+  "page_role": "knowledge",
+  "topic_navigation": {
+    "overview": "按工具能力形成和使用的过程阅读：接口及产物怎样衔接，文档与流程怎样支持选择，缺少操作时怎样创建脚本，以及执行经验怎样进入训练。运行时知识、保存的程序和模型权重分别在相应概念页中解释。",
+    "entries": [
+      {
+        "slug": "agent-tool-interface-contracts",
+        "question": "工具参数与中间产物怎样交给后续步骤？"
+      },
+      {
+        "slug": "agent-tool-knowledge-selection",
+        "question": "怎样利用工具文档、专家流程和成功历史？"
+      },
+      {
+        "slug": "tool-creation-agent",
+        "question": "已有工具不够时，怎样生成和检查新操作？"
+      },
+      {
+        "slug": "agent-tool-experience-learning",
+        "question": "执行经验怎样成为训练数据或可复用程序？"
+      },
+      {
+        "slug": "toolformer-self-supervised-tool-use-training",
+        "question": "Toolformer怎样筛选有帮助的API调用样本？"
+      },
+      {
+        "slug": "remote-sensing-tool-augmented-agents",
+        "question": "遥感工具生态与轨迹训练怎样具体实现？"
+      },
+      {
+        "slug": "llm-gis-workflow-generation",
+        "question": "工具文档和接口怎样支持GIS操作？"
+      },
+      {
+        "slug": "scientific-automl-agent-workflows",
+        "question": "科学工作流怎样保存和复用执行成果？"
+      }
+    ]
+  },
+  "content_review": {},
+  "review_history": [],
+  "updated_at": "2026-10-13T07:55:29+00:00",
+  "writing_guide_version": "7",
+  "publication": {
+    "by": "agent",
+    "policy": "automatic",
+    "at": "2026-10-13T07:55:29+00:00"
+  }
+}

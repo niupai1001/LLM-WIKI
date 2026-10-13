@@ -90,6 +90,9 @@ class SinglePassTests(unittest.TestCase):
             self.assertEqual(context['target_slug'], 'concept')
             self.assertIn('capacity', [c['id'] for c in context['candidates'][0]['claims']])
             return {'action': 'update', 'slug': 'concept', 'title': self.meta['title'],
+                    'topic_routes': [{'slug': 'test-methods', 'title': '测试方法',
+                                      'overview': '这里按具体知识问题组织测试方法的阅读。',
+                                      'question': '如何理解这一方法的机制和适用条件？'}],
                     'body_markdown': self.rewritten + f' 新研究也限定在受测容量模型中。[S:{sid}]',
                     'used_source_ids': [sid], 'claims': [claim], 'needs_fact_review': False}
         with patch.object(wiki, 'call_llm', side_effect=model) as call:

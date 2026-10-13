@@ -179,6 +179,9 @@ class RewriteTests(unittest.TestCase):
             note.write_text('新的完整来源证据，讨论一个独立问题及其限制。'*12)
             sid = collector.import_file('新来源'+str(legacy), note, 'agents')
             reply = {'action': 'create', 'slug': 'new-'+str(legacy).lower(), 'title': '新概念',
+                     'topic_routes': [{'slug': 'test-methods', 'title': '测试方法',
+                                       'overview': '这里按具体知识问题组织测试方法的阅读。',
+                                       'question': '如何理解这一方法的机制和适用条件？'}],
                      'body_markdown': '新概念讨论明确的问题，机制需要对照原始资料，结论限定在该研究条件内。'*3+f'[S:{sid}]',
                      'needs_fact_review': False}
             with patch.object(wiki, 'call_llm', return_value=reply):

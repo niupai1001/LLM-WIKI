@@ -87,6 +87,18 @@ def _wikilinks(body):
     return {m.group(1).strip() for m in re.finditer(r"(?<!!)\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]", body)}
 
 
+def topic_details(topic, pages=None):
+    """Count direct reading routes and deduplicate their originals, not citations."""
+    from .wiki import page_body
+    pages = pages if pages is not None else wiki_pages()
+    targets = _wikilinks(page_body(topic['body']))
+    members = [p for p in pages if p['slug'] in targets and p.get('page_kind', 'concept') == 'concept'
+               and p.get('page_role', 'knowledge') != 'source_collection']
+    return {'concepts': [p for p in members if p.get('page_role') != 'comparison'],
+            'comparisons': [p for p in members if p.get('page_role') == 'comparison'],
+            'source_ids': sorted({sid for p in members for sid in p.get('source_ids', [])})}
+
+
 def semantic_backlinks(slug, pages=None):
     """Reuse published, cited comparisons on their other method's reading page.
 
@@ -165,7 +177,7 @@ def graph_data():
         key = "wiki:" + page["slug"]
         membership(key, page["category"])
         for sid in page["source_ids"]:
-            if sid in source_by_id and source_by_id[sid]["stage"] == "approved":
+            if page['page_kind'] != 'topic' and sid in source_by_id and source_by_id[sid]["stage"] == "approved":
                 edge(key, "source:" + sid, "evidence", "原始证据")
         typed_targets = set()
         meta_path = META / (page['slug'] + '.json')

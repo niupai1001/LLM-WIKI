@@ -1,17 +1,17 @@
 # 编程智能体评测
 
-一次补丁正确，不能完整代表持续协作可靠。长周期评测同时关注多轮需求、累积代码状态和旧功能回归。
+<!-- wiki-topic:start -->
 
-## 从问题开始
+本主题以长周期、多轮协作的编程评测为主线，阅读如何同时检查新需求、累积代码状态和已有功能。其他通用机制的设计与评测，可以继续从规划执行和可靠性主题进入。
 
-- 如何评估持续协作，而非只评一次补丁？ → [[coding-agent-long-horizon-evaluation|长周期编程评测]]
+## 按问题阅读
 
-## 阅读顺序
+- 怎样评估持续协作中的代码状态和旧功能？ → [[coding-agent-long-horizon-evaluation|长周期编程评测]]
 
-先读长周期编程评测，再对照计划修补、记忆准入等概念，思考每个机制需要怎样的测试。后两者是可延伸的设计问题，不是该基准已经验证的因果结论。
+<!-- wiki-topic:end -->
 
 ---
 
 ## 原始证据
 
-- [SWE-Journey: Towards More Realistic Evaluation of Coding Assistants through Long-Horizon, Multi-Turn Interaction](/source/c59a22e9fb289ff4) · 2026-10-08 · [原文](https://arxiv.org/abs/2610.11559)
+- [SWE-Journey: Towards More Realistic Evaluation of Coding Assistants through Long-Horizon, Multi-Turn Interaction](/source/c59a22e9fb289ff4) · 来源ID `c59a22e9fb289ff4`

@@ -28,6 +28,9 @@ def model(messages):
     assert context['category_focus'] == '长期记忆的评测与边界'
     sid = context['sources'][0]['source_id']
     return {'action':'create', 'slug':'agent-memory', 'title':'智能体记忆',
+            'topic_routes':[{'slug':'test-methods', 'title':'测试方法',
+                             'overview':'这里按具体知识问题组织测试方法的阅读。',
+                             'question':'如何理解这一方法的机制和适用条件？'}],
             'body_markdown':'这是从测试原文提炼的概念。当前证据来自一份资料，结论限于原文条件。' * 4 + '[S:' + sid + ']'}
 wiki.call_llm = model
 import uvicorn

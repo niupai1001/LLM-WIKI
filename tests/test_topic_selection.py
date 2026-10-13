@@ -25,7 +25,11 @@ class TopicSelectionTests(unittest.TestCase):
                     context = json.loads(messages[-1]['content'].split('JSON数据：\n', 1)[1])
                     self.assertEqual(context['knowledge_topic'], '智能体规划机制')
                     self.assertEqual({s['source_id'] for s in context['sources']}, set(ids[:2]))
-                    return {'action': 'create', 'slug': 'agent-planning', 'title': '智能体规划机制', 'body_markdown': '这是针对规划问题的知识提炼。证据限定于选中的两份原文，仍需核查结论与局限。'*3 + f'[S:{ids[0]}][:{ids[1]}] 相关概念 [[future-page|上下文管理]]。'}
+                    return {'action': 'create', 'slug': 'agent-planning', 'title': '智能体规划机制',
+                            'topic_routes': [{'slug': 'test-methods', 'title': '测试方法',
+                                              'overview': '这里按具体知识问题组织测试方法的阅读。',
+                                              'question': '如何理解这一方法的机制和适用条件？'}],
+                            'body_markdown': '这是针对规划问题的知识提炼。证据限定于选中的两份原文，仍需核查结论与局限。'*3 + f'[S:{ids[0]}][:{ids[1]}] 相关概念 [[future-page|上下文管理]]。'}
                 with patch.object(wiki, 'call_llm', side_effect=reply):
                     self.assertEqual(wiki.prepare(category='agents', source_ids=ids[:2], topic='智能体规划机制'), 1)
                 proposal = common.load_json(next(common.PENDING.glob('*.json')))
@@ -34,7 +38,12 @@ class TopicSelectionTests(unittest.TestCase):
                 self.assertEqual(proposal['unresolved_wiki_links'], ['future-page'])
                 self.assertIn('/source/' + ids[1], proposal['body_markdown'])
                 self.assertNotIn('[:', proposal['body_markdown'])
-                with patch.object(wiki, 'call_llm', return_value={'action': 'create', 'slug': 'unknown-evidence', 'body_markdown': '来源必须属于已提供原文。'*8 + '[:ffffffffffffffff]'}):
+                with patch.object(wiki, 'call_llm', return_value={
+                        'action': 'create', 'slug': 'unknown-evidence',
+                        'topic_routes': [{'slug': 'test-methods', 'title': '测试方法',
+                                          'overview': '这里按具体知识问题组织测试方法的阅读。',
+                                          'question': '如何理解这一方法的机制和适用条件？'}],
+                        'body_markdown': '来源必须属于已提供原文。'*8 + '[:ffffffffffffffff]'}):
                     self.assertEqual(wiki.prepare(source_ids=[ids[2]]), 0)
                 with common.connect() as db:
                     self.assertEqual(db.execute('SELECT stage FROM sources WHERE id=?', (ids[2],)).fetchone()[0], 'new')

@@ -169,7 +169,7 @@ def evidence_jump(entries, prefix='knowledge'):
     return f'<div class="citation-navigation"><a href="#evidence-{_prefix(prefix)}">原始证据 ↓</a><span>{len(entries)} 份原文 · 编号对应正文引用</span></div>'
 
 
-def evidence_html(entries, prefix='knowledge'):
+def evidence_html(entries, prefix='knowledge', label='原始证据'):
     if not entries:
         return ''
     prefix = _prefix(prefix)
@@ -189,4 +189,4 @@ def evidence_html(entries, prefix='knowledge'):
         publication = '<span>arXiv 预印本</span>' if citation.publication_status == 'arxiv-preprint' else '<span>正式发表版本</span>' if citation.publication_status == 'published' else ''
         identifier = '<span>' + _escape(citation.identifier) + '</span>' if citation.identifier else ''
         items.append(f'<li id="evidence-{prefix}-{citation.number}"><span class="evidence-number">[{citation.number}]</span><div class="evidence-details"><a class="evidence-title" href="/source/{citation.source_id}">{_escape(citation.title)}</a>{author_line}<div class="evidence-meta"><span>发布日期 {date}</span>{identifier}{doi}{publication}{external}{missing}</div></div></li>')
-    return f'<section class="evidence-panel" id="evidence-{prefix}"><h2>原始证据 <span>{len(entries)} 份来源</span></h2><ol class="evidence-list">' + ''.join(items) + '</ol></section>'
+    return f'<section class="evidence-panel" id="evidence-{prefix}"><h2>{_escape(label)} <span>{len(entries)} 份来源</span></h2><ol class="evidence-list">' + ''.join(items) + '</ol></section>'

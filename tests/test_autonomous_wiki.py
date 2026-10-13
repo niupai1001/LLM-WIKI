@@ -21,6 +21,9 @@ class AutonomousWikiTests(unittest.TestCase):
 
     def model_reply(self, sid, quotes=True):
         return {'action': 'create', 'slug': 'new-method', 'title': '新方法', 'needs_fact_review': False,
+                'topic_routes': [{'slug': 'test-methods', 'title': '测试方法',
+                                  'overview': '这里按具体知识问题组织测试方法的阅读。',
+                                  'question': '如何理解这一方法的机制和适用条件？'}],
                 'body_markdown': '新方法在受测容量条件下选择指令。选择过程需要比较收益与成本，结果不能推广到其他模型。'*2 + f'[S:{sid}]',
                 'claims': [{'id': 'selection', 'text': '方法选择有用指令', 'scope': '受测容量条件',
                             'source_ids': [sid], 'status': '单源支持',
@@ -65,6 +68,9 @@ class AutonomousWikiTests(unittest.TestCase):
 
     def test_refresh_approved_knowledge_neither_reserves_nor_resets_sources(self):
         reply = {'action': 'update', 'slug': 'concept', 'title': self.meta['title'],
+                 'topic_routes': [{'slug': 'test-methods', 'title': '测试方法',
+                                   'overview': '这里按具体知识问题组织测试方法的阅读。',
+                                   'question': '如何理解这一方法的机制和适用条件？'}],
                  'body_markdown': self.rewritten, 'claims': self.meta['claims'], 'needs_fact_review': False}
         with patch.object(wiki, 'call_llm', return_value=reply):
             created = []; self.assertEqual(wiki.prepare(target_slug='concept', source_ids=[self.sid], revisit=True, _created_ids=created), 1)

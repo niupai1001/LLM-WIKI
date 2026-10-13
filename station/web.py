@@ -19,7 +19,7 @@ from starlette.concurrency import run_in_threadpool
 
 from .common import ASSETS, PENDING, RAW, WIKI, connect, load_json, safe_slug
 from .citations import prepare_citations, evidence_html, evidence_jump, _external_url, _date
-from .knowledge import categories, category_name, graph_data, wiki_pages, validate_category, semantic_backlinks
+from .knowledge import categories, category_name, graph_data, wiki_pages, validate_category, semantic_backlinks, topic_details
 from .wiki import approve, prepare, prepare_rewrite, reject, proposal_key, page_body, compile_and_publish, automatic_publish
 
 app = FastAPI(title='LLM Wiki')
@@ -66,7 +66,7 @@ def layout(title, body, active='wiki'):
     return HTMLResponse(f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{E(title)} · LLM Wiki</title><script>try{{document.documentElement.dataset.theme=localStorage.getItem('wiki-theme')==='dark'?'dark':'light'}}catch(e){{}}</script><link rel="stylesheet" href="/static/app.css?v={ASSET_VERSIONS["app.css"]}"></head><body><a class="skip-link" href="#main">跳到内容</a><aside class="sidebar"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 6 4 12 4-8 4 8 4-12"/></svg></span> LLM Wiki</a><a class="sidebar-import" href="/sources#import"><span>＋</span> 导入资料</a><div class="workspace-label">工作空间</div><nav aria-label="工作空间">{nav}</nav><div class="topic-nav"><div class="workspace-label">主题</div>{topic_links}</div><div class="sidebar-bottom"><span class="status-dot"></span> 本地工作空间</div></aside><div class="main-shell"><header class="topbar"><div class="topbar-path"><span>工作空间</span><span class="path-divider">/</span><strong>{E(title)}</strong></div><div class="topbar-actions"><span class="local-label"><span class="status-dot"></span>本地</span><button class="icon-button" id="theme-toggle" aria-label="切换深色模式" title="切换深浅色模式"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 13.1A9 9 0 0 1 10.9 3.2 9 9 0 1 0 20.8 13.1Z"/></svg></button></div></header><main id="main">{body}</main></div><div id="toast" role="status" aria-live="polite"></div><script src="/static/app.js?v={ASSET_VERSIONS["app.js"]}" defer></script></body></html>''')
 
 
-def md_render(source, citation_source_ids=None, evidence_prefix="knowledge"):
+def md_render(source, citation_source_ids=None, evidence_prefix="knowledge", topic=False):
     import markdown, bleach
     citations = []
     if citation_source_ids is not None:
@@ -86,6 +86,10 @@ def md_render(source, citation_source_ids=None, evidence_prefix="knowledge"):
     def allowed_attribute(tag, name, value):
         return tag == 'a' and (name in {'href', 'title'} or (name == 'class' and value == 'source-citation'))
     clean = bleach.clean(raw, tags=allowed, attributes=allowed_attribute, protocols=['http','https','mailto'], strip=True)
+    if topic:
+        references = (f'<details class="page-evidence-records"><summary>关联原文 · {len(citations)} 份</summary>'
+                      + evidence_html(citations, evidence_prefix, label='关联原文') + '</details>') if citations else ''
+        return clean + references
     return evidence_jump(citations, evidence_prefix) + clean + evidence_html(citations, evidence_prefix)
 
 
@@ -120,11 +124,20 @@ def empty(title, text, action=''):
 
 
 def knowledge_excerpt(body):
+    body = re.sub(r'<!--.*?-->', '', body, flags=re.S)
     body = re.sub(r'^#{1,6} .*$', '', body, flags=re.M)
     body = re.sub(r'\[来源 [^\]]*\]\(/source/[^)]*\)', '', body)
     body = re.sub(r'\[\[([^\]|]+)\|([^\]]+)\]\]', r'\2', body)
     body = re.sub(r'\[([^\]]+)\]\([^)]*\)', r'\1', body)
     return re.sub(r'\s+', ' ', re.sub(r'[#*`\[\]]', '', body)).strip()[:180]
+
+
+def topic_counts(details):
+    parts = [f'{len(details["concepts"])} 个概念']
+    if details['comparisons']:
+        parts.append(f'{len(details["comparisons"])} 篇研究比较')
+    parts.append(f'{len(details["source_ids"])} 份关联原文')
+    return ' · '.join(parts)
 
 
 @app.get('/', response_class=HTMLResponse)
@@ -134,9 +147,11 @@ def home(q: str = '', category: str = ''):
         originals = db.execute("SELECT count(*) FROM sources WHERE content_status='full-text'").fetchone()[0]
         source_categories = {r['id']: r['category'] for r in db.execute('SELECT id,category FROM sources').fetchall()}
     pages = wiki_pages()
+    topic_stats = {p['slug']: topic_details(p, pages) for p in pages
+                   if p.get('page_kind') == 'topic' and p.get('page_role') != 'source_collection'}
     knowledge_count = sum(p.get('page_role') != 'source_collection' for p in pages)
     visible = [p for p in pages if (not category or p.get('category') == category or
-               any(source_categories.get(sid) == category for sid in p.get('source_ids', []))) and
+               any(source_categories.get(sid) == category for sid in topic_stats.get(p['slug'], p).get('source_ids', []))) and
                (not q or q.casefold() in p['body'].casefold())]
     drafts_count = len(list(PENDING.glob('*.json')))
     pending_pages = [load_json(p) for p in PENDING.glob('*.json')]
@@ -149,7 +164,10 @@ def home(q: str = '', category: str = ''):
         for p in group:
             title = p['title']
             card_title = title if len(title) <= 54 else title[:53].rstrip() + '…'
-            result += f'<a class="wiki-card" href="/page/{quote(p["slug"])}"><span class="tag">{E(category_name(p.get("category", "other")))}</span><h3 title="{E(title)}">{E(card_title)}</h3><p>{E(knowledge_excerpt(p["body"]))}</p><div class="card-foot">{len(p.get("source_ids", []))} 份原始证据 <span>阅读 →</span></div></a>'
+            count = topic_counts(topic_stats[p['slug']]) if p['slug'] in topic_stats else (
+                f'{len(set(p.get("source_ids", [])))} 份' + ('收录原文' if p.get('page_role') == 'source_collection' else '引用来源'))
+            excerpt_body = re.sub(r'<!--.*?-->', '', page_body(p['body']), flags=re.S).strip().split('\n\n', 1)[0] if p['slug'] in topic_stats else p['body']
+            result += f'<a class="wiki-card" href="/page/{quote(p["slug"])}"><span class="tag">{E(category_name(p.get("category", "other")))}</span><h3 title="{E(title)}">{E(card_title)}</h3><p>{E(knowledge_excerpt(excerpt_body))}</p><div class="card-foot">{E(count)} <span>阅读 →</span></div></a>'
         return result + '</div>'
 
     collections = [p for p in visible if p.get('page_role') == 'source_collection']
@@ -179,14 +197,19 @@ def home(q: str = '', category: str = ''):
 def page(slug: str):
     if safe_slug(slug) != slug or slug == 'index':
         raise HTTPException(404)
-    matches = [p for p in wiki_pages() if p['slug'] == slug]
+    pages = wiki_pages()
+    matches = [p for p in pages if p['slug'] == slug]
     if not matches:
         raise HTTPException(404)
     current = matches[0]
-    backlinks = [p for p in wiki_pages() if slug in p.get('related_slugs', []) or re.search(r'\[\[' + re.escape(slug) + r'(?:\||\]\])', p['body'])]
+    backlinks = [p for p in pages if slug in p.get('related_slugs', []) or re.search(r'\[\[' + re.escape(slug) + r'(?:\||\]\])', p['body'])]
     page_kind = {'comparison': '研究比较', 'source_collection': '资料清单'}.get(
         current.get('page_role'), "主题入口" if current.get("page_kind") == "topic" else "概念条目")
-    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><p>{len(current.get("source_ids", []))} 份证据 · 已发布知识 · <a href="#fact-check">逐项事实核查 ↓</a></p></div><div class="button-row"><label class="checkbox-label"><input type="checkbox" data-second-pass> 额外润色（+1 次调用）</label><button class="button" data-rewrite="{E(slug)}">改写表达</button><a class="button" href="/graph">在图谱中探索 ↗</a></div></div><article class="prose">{md_render(current["body"], current.get("source_ids", []), evidence_prefix="wiki-" + slug)}</article>'
+    is_topic = current.get('page_kind') == 'topic' and current.get('page_role') != 'source_collection'
+    details = topic_details(current, pages) if is_topic else None
+    summary = topic_counts(details) if is_topic else f'{len(current.get("source_ids", []))} 份引用来源 · 已发布知识 · <a href="#fact-check">逐项事实核查 ↓</a>'
+    reading_sources = details['source_ids'] if is_topic else current.get('source_ids', [])
+    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><p>{summary}</p></div><div class="button-row"><label class="checkbox-label"><input type="checkbox" data-second-pass> 额外润色（+1 次调用）</label><button class="button" data-rewrite="{E(slug)}">改写表达</button><a class="button" href="/graph">在图谱中探索 ↗</a></div></div><article class="prose">{md_render(current["body"], reading_sources, evidence_prefix="wiki-" + slug, topic=is_topic)}</article>'
     connections = semantic_backlinks(slug)
     if connections:
         body += '<section class="prose"><h2>方法之间的联系</h2>'
@@ -197,7 +220,8 @@ def page(slug: str):
     from .evidence import knowledge_evidence
     from .fact_checks import render as fact_checks_html
     body += f'<link rel="stylesheet" href="/static/fact-checks.css?v={ASSET_VERSIONS["fact-checks.css"]}">'
-    body += '<details class="page-evidence-records"><summary>断言与原文证据</summary>' + fact_checks_html(slug, editable=False) + '</details>'
+    if not is_topic:
+        body += '<details class="page-evidence-records"><summary>断言与原文证据</summary>' + fact_checks_html(slug, editable=False) + '</details>'
     body += '<details class="page-evidence-records"><summary>来源、编辑记录与差异记录</summary>' + knowledge_evidence(slug) + '</details>'
     body += f'<script src="/static/fact-checks.js?v={ASSET_VERSIONS["fact-checks.js"]}" defer></script>'
     if backlinks:

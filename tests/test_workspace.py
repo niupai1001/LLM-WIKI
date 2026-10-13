@@ -35,6 +35,9 @@ def llm(messages):
     assert all('text' in s for s in context['sources'])
     assert not any(s['is_excerpt'] for s in context['sources']), 'originals fitting the budget must be passed in full'
     return {'action':'create','slug':'evidence-synthesis','title':'证据综合',
+            'topic_routes':[{'slug':'test-methods', 'title':'测试方法',
+                             'overview':'这里按具体知识问题组织测试方法的阅读。',
+                             'question':'如何理解这一方法的机制和适用条件？'}],
             'related_slugs':[], 'needs_fact_review':False, 'body_markdown':'综合两份原始资料来组织可维护的主题知识。来源相互补充，但仍需实验验证。\n\n证据依据：' + ''.join('[S:'+sid+']' for sid in ids)}
 wiki.call_llm = llm
 import uvicorn
@@ -133,7 +136,9 @@ wiki.call_llm = lambda messages: (_ for _ in ()).throw(AssertionError('summary m
 assert wiki.prepare() == 0
 p=root/'note.md';p.write_text('原始笔记正文，明确这是作者提出的观点，尚未经实验证实。' * 8)
 sid=collector.add_note('原始观点',p)
-wiki.call_llm = lambda messages: {'action':'create','slug':'test-topic','title':'主题','body_markdown':'个人观点需要验证，现有证据仅来自一份笔记，不能作为领域共识。' * 4}
+wiki.call_llm = lambda messages: {'action':'create','slug':'test-topic','title':'主题',
+    'topic_routes':[{'slug':'test-methods', 'title':'测试方法', 'overview':'这里按具体知识问题组织测试方法的阅读。', 'question':'如何理解这一方法的机制和适用条件？'}],
+    'body_markdown':'个人观点需要验证，现有证据仅来自一份笔记，不能作为领域共识。' * 4}
 assert wiki.prepare() == 1
 (common.WIKI/'test-topic.md').write_text('# 人工并行创建的页面\n保留现有内容')
 try:
@@ -174,7 +179,11 @@ def model(messages):
         raise AssertionError('category change during generation should be blocked')
     except ValueError:
         pass
-    return {'action':'create','slug':'long-topic','title':'综合主题','body_markdown':'综合多份长资料时，每份证据都有阅读预算，并保留来源和不确定性。'*3 + '[伪造引用](/source/ffffffffffffffff)'}
+    return {'action':'create','slug':'long-topic','title':'综合主题',
+            'topic_routes':[{'slug':'test-methods', 'title':'测试方法',
+                             'overview':'这里按具体知识问题组织测试方法的阅读。',
+                             'question':'如何理解这一方法的机制和适用条件？'}],
+            'body_markdown':'综合多份长资料时，每份证据都有阅读预算，并保留来源和不确定性。'*3 + '[伪造引用](/source/ffffffffffffffff)'}
 wiki.call_llm=model
 assert wiki.prepare()==0
 with common.connect() as db:
@@ -184,7 +193,11 @@ def retry_model(messages):
     attempts.append(1)
     if len(attempts)==1:
         raise json.JSONDecodeError('Malformed model JSON','extra',0)
-    return {'action':'create','slug':'long-topic','title':'综合主题','body_markdown':'综合多份长资料时，每份证据都有阅读预算，并保留来源和不确定性。'*3}
+    return {'action':'create','slug':'long-topic','title':'综合主题',
+            'topic_routes':[{'slug':'test-methods', 'title':'测试方法',
+                             'overview':'这里按具体知识问题组织测试方法的阅读。',
+                             'question':'如何理解这一方法的机制和适用条件？'}],
+            'body_markdown':'综合多份长资料时，每份证据都有阅读预算，并保留来源和不确定性。'*3}
 wiki.call_llm=retry_model
 assert wiki.prepare()==1
 assert len(attempts)==2, 'JSON retry only; no automatic editorial call'
@@ -203,7 +216,9 @@ import os
 root=Path(os.environ['STATION_DATA'])
 p=root/'one.md';p.write_text('第一份完整原文，讨论主题证据与不确定性。'*6)
 sid=collector.add_note('第一份原文',p,category='ai')
-wiki.call_llm=lambda messages:{'needs_fact_review':False,'action':'create','slug':'evidence-topic','title':'主题','body_markdown':'现有资料只提供作者观点，需要更多验证，不能将其当作共识。'*3}
+wiki.call_llm=lambda messages:{'needs_fact_review':False,'action':'create','slug':'evidence-topic','title':'主题',
+    'topic_routes':[{'slug':'test-methods', 'title':'测试方法', 'overview':'这里按具体知识问题组织测试方法的阅读。', 'question':'如何理解这一方法的机制和适用条件？'}],
+    'body_markdown':'现有资料只提供作者观点，需要更多验证，不能将其当作共识。'*3}
 assert wiki.prepare()==1
 wiki.approve(next(common.PENDING.glob('*.json')).stem)
 p=root/'two.md';p.write_text('第二份完整原文，提供后续实验证据并讨论新的不确定性。'*6)
@@ -211,7 +226,11 @@ sid2=collector.add_note('第二份原文',p,category='ai')
 def model(messages):
     target=common.WIKI/'evidence-topic.md'
     target.write_text(target.read_text()+'\n\n人工同时补充的重要信息。')
-    return {'action':'update','slug':'evidence-topic','title':'主题更新','body_markdown':'模型请求期间知识页面被人工编辑，不能直接覆盖该更新。'*3}
+    return {'action':'update','slug':'evidence-topic','title':'主题更新',
+            'topic_routes':[{'slug':'test-methods', 'title':'测试方法',
+                             'overview':'这里按具体知识问题组织测试方法的阅读。',
+                             'question':'如何理解这一方法的机制和适用条件？'}],
+            'body_markdown':'模型请求期间知识页面被人工编辑，不能直接覆盖该更新。'*3}
 wiki.call_llm=model
 assert wiki.prepare()==1
 try:

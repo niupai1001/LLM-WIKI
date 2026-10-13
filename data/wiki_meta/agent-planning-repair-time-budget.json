@@ -4,15 +4,62 @@
   "category": "agents",
   "page_kind": "topic",
   "source_ids": [
+    "444b00f9850c9716",
     "7d220dd5706f59fd",
-    "b7c8bebd4466160c"
+    "b7c8bebd4466160c",
+    "e504ba1ba9c3fffc"
   ],
   "related_slugs": [],
-  "updated_at": "2026-10-09T06:07:48+00:00",
-  "writing_guide_version": "2",
-  "content_review": {
-    "by": "Codex",
-    "at": "2026-10-09T06:07:48+00:00",
-    "notes": "将综述改为主题阅读入口，具体机制、实验与边界由概念页维护。"
+  "updated_at": "2026-10-13T07:55:29+00:00",
+  "writing_guide_version": "7",
+  "content_review": {},
+  "claims": [],
+  "conflicts": [],
+  "review_history": [
+    {
+      "by": "Codex",
+      "at": "2026-10-09T06:07:48+00:00",
+      "notes": "将综述改为主题阅读入口，具体机制、实验与边界由概念页维护。"
+    }
+  ],
+  "publication": {
+    "by": "agent",
+    "policy": "automatic",
+    "at": "2026-10-13T07:55:29+00:00"
+  },
+  "relations": [],
+  "page_role": "knowledge",
+  "topic_navigation": {
+    "overview": "先从步骤及其依赖理解任务组织，再比较ReAct的交互决策与Plan-and-Execute的组件分工。执行失败和存在截止时间时，继续阅读计划修补与时间预算；领域比较页提供具体实现参考。",
+    "entries": [
+      {
+        "slug": "agent-task-decomposition-dependencies",
+        "question": "任务怎样拆成能执行的依赖步骤？"
+      },
+      {
+        "slug": "react-reasoning-acting-loop",
+        "question": "怎样根据刚取得的观察调整下一步行动？"
+      },
+      {
+        "slug": "plan-and-execute-agents",
+        "question": "怎样先组织多步计划，再交给执行器？"
+      },
+      {
+        "slug": "agent-plan-repair",
+        "question": "执行失败后，哪些部分保留、哪些部分重做？"
+      },
+      {
+        "slug": "agent-time-budget",
+        "question": "怎样在截止时间内分配与使用任务预算？"
+      },
+      {
+        "slug": "geospatial-hierarchical-planning-agents",
+        "question": "领域依赖层级与工具层级分别怎样组织任务？"
+      },
+      {
+        "slug": "llm-gis-workflow-generation",
+        "question": "任务清单怎样落实为GIS代码或依赖图？"
+      }
+    ]
   }
 }

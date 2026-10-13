@@ -37,6 +37,9 @@ def model(messages):
     context = json.loads(messages[-1]['content'].split('JSON数据：\n',1)[1])
     sid = context['sources'][0]['source_id']
     return {'action':'create','slug':'concept','title':'测试知识','needs_fact_review':False,
+            'topic_routes':[{'slug':'test-methods', 'title':'测试方法',
+                             'overview':'这里按具体知识问题组织测试方法的阅读。',
+                             'question':'如何理解这一方法的机制和适用条件？'}],
             'claims':[{'id':'mechanism','text':'机制限于受测任务','scope':'测试原文','status':'单源支持','source_ids':[sid], 'evidence_passages':[{'source_id':sid,'excerpt_id':'e1'}]}],
             'body_markdown':'旧表达解释一个明确的知识问题，机制包含输入、处理与输出；观察限于测试条件，不能推广到所有任务。'*2+'[S:'+sid+']'}
 wiki.call_llm = model
