@@ -10,13 +10,9 @@
     "agent-context-memory-governance",
     "agent-memory-admission"
   ],
-  "updated_at": "2026-10-09T06:07:48+00:00",
-  "writing_guide_version": "2",
-  "content_review": {
-    "by": "Codex",
-    "at": "2026-10-10T11:00:10+00:00",
-    "notes": "对照原文检查定义、机制与指标口径，逐段编辑可读性，并登记断言范围与实验设置差异；未实施独立复现。"
-  },
+  "updated_at": "2026-10-12T02:47:26+00:00",
+  "writing_guide_version": "3",
+  "content_review": {},
   "claims": [
     {
       "id": "capacity-dilution",
@@ -43,6 +39,16 @@
       "by": "Codex",
       "at": "2026-10-09T06:07:48+00:00",
       "notes": "对照完整原文核查，纠正机制/指标口径；人工编辑压缩枝节与解释术语，构造示例与研究结果分开。"
+    },
+    {
+      "by": "Codex",
+      "at": "2026-10-10T11:00:10+00:00",
+      "notes": "对照原文检查定义、机制与指标口径，逐段编辑可读性，并登记断言范围与实验设置差异；未实施独立复现。"
     }
-  ]
+  ],
+  "publication": {
+    "by": "system",
+    "policy": "automatic",
+    "at": "2026-10-12T02:47:26+00:00"
+  }
 }
