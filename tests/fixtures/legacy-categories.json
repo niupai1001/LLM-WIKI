@@ -1,0 +1,32 @@
+[
+  {
+    "id": "agents",
+    "name": "Agent 智能体",
+    "enabled": true
+  },
+  {
+    "id": "ai",
+    "name": "人工智能",
+    "enabled": true
+  },
+  {
+    "id": "vision",
+    "name": "计算机视觉",
+    "enabled": true
+  },
+  {
+    "id": "engineering",
+    "name": "工具与工程",
+    "enabled": true
+  },
+  {
+    "id": "research",
+    "name": "个人研究",
+    "enabled": true
+  },
+  {
+    "id": "other",
+    "name": "其他",
+    "enabled": true
+  }
+]

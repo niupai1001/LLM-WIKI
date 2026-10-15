@@ -1,3 +1,4 @@
+from fixture_config import category_fixture
 import json
 import socket
 import tempfile
@@ -12,7 +13,7 @@ class SourceTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         root = Path(self.temp.name)
-        self.patches = []
+        self.patches = [category_fixture()]
         for name, value in {"ROOT": root, "RAW": root / "raw", "WIKI": root / "wiki", "PENDING": root / "pending", "ASSETS": root / "originals", "META": root / "wiki_meta", "DB": root / "state.db"}.items():
             self.patches.append(patch.object(common, name, value))
             if hasattr(collector, name):
@@ -29,6 +30,14 @@ class SourceTests(unittest.TestCase):
 
     def item(self, sid):
         return common.load_json(common.RAW / f"{sid}.json")
+
+    def test_default_import_uses_only_active_intake_scope(self):
+        note=common.ROOT/'input.txt';note.write_text('Original evidence for the active agent knowledge scope.')
+        values=[{'id':'agents','name':'Agent 智能体','enabled':True},
+                {'id':'other','name':'其他','enabled':False}]
+        with patch('station.knowledge.categories',return_value=values):
+            sid=collector.import_file('Active intake',note)
+        self.assertEqual(self.item(sid)['category'],'agents')
 
     def test_malformed_pdf_font_text_remains_archivable(self):
         page = MagicMock()

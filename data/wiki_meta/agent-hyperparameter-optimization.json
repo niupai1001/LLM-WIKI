@@ -1,7 +1,7 @@
 {
   "slug": "agent-hyperparameter-optimization",
   "title": "实验反馈驱动的 Agent 超参数优化",
-  "category": "topic-f8ccede1b22c4c7e",
+  "category": "agents",
   "source_ids": [
     "84d839e63c28ec29",
     "94853529d326ac72",

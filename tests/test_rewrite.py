@@ -1,3 +1,4 @@
+from fixture_config import category_fixture
 """Expression-only rewrites protect knowledge and remain separate from intake."""
 import copy
 import json
@@ -13,6 +14,7 @@ from station import common, collector, wiki, fact_checks, citations
 class RewriteTests(unittest.TestCase):
     def setUp(self):
         self.stack = ExitStack()
+        self.stack.enter_context(category_fixture())
         self.addCleanup(self.stack.close)
         self.root = Path(self.stack.enter_context(tempfile.TemporaryDirectory()))
         paths = {'ROOT': self.root, 'RAW': self.root/'raw', 'WIKI': self.root/'wiki',
@@ -57,13 +59,15 @@ class RewriteTests(unittest.TestCase):
         self.assertRegex(pid, r'^p_[a-f0-9]{32}$')
         draft = common.load_json(wiki.PENDING/(pid+'.json'))
         for key in wiki.PROTECTED_FIELDS:
-            self.assertEqual(draft[key], self.meta[key])
+            self.assertEqual(key in draft, key in self.meta)
+            self.assertEqual(draft.get(key), self.meta.get(key))
         self.assertEqual(self.page.read_text(), self.body)
         self.assertEqual(self.status(), 'approved')
         wiki.approve(pid)
         published = common.load_json(self.meta_path)
         for key in wiki.PROTECTED_FIELDS:
-            self.assertEqual(published[key], self.meta[key])
+            self.assertEqual(key in published, key in self.meta)
+            self.assertEqual(published.get(key), self.meta.get(key))
         self.assertEqual(published['unknown'], self.meta['unknown'])
         self.assertEqual(published['content_review'], {})
         self.assertEqual(published['review_history'], [self.meta['content_review']])

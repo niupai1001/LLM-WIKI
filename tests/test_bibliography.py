@@ -1,3 +1,4 @@
+from fixture_config import category_fixture
 import json
 import tempfile
 import unittest
@@ -14,6 +15,9 @@ ATOM = b'''<feed xmlns="http://www.w3.org/2005/Atom" xmlns:arxiv="http://arxiv.o
 
 
 class BibliographyTests(unittest.TestCase):
+    def setUp(self):
+        fixture=category_fixture();fixture.start();self.addCleanup(fixture.stop)
+
     def test_published_original_displays_publication_date_without_losing_preprint(self):
         record={'id':SID,'title':'Tool paper','kind':'paper','asset_path':'formal.pdf','bibliography':{
             'arxiv_id':'2301.12345','arxiv_version':3,'original_version':'published','publication_status':'published',

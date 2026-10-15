@@ -313,6 +313,8 @@ async function initializeReader(root) {
     };
     state.pdf = await loadingTask.promise;
     if (state.disposed) return;
+    const initialPage = Number(new URL(location.href).searchParams.get('page'));
+    if (Number.isInteger(initialPage) && initialPage >= 1 && initialPage <= state.pdf.numPages) state.page = initialPage;
     observedWidth = stage.clientWidth;
     updateControls();
     requestRender();

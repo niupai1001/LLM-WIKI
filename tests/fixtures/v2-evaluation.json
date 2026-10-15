@@ -1,0 +1,1241 @@
+{
+  "schema_version": 2,
+  "suite_id": "public-mechanisms-v2.2",
+  "provenance": {
+    "basis": "Tracked data/wiki_meta/*.json and data/source-catalog.json; no archived full text used to author expectations.",
+    "expectation_author": "agent",
+    "human_validated": false,
+    "limits": "Existing wiki claims are review targets, not a truth certificate. Human reviewers must check source originals, conditions, and both baseline/candidate claims.",
+    "retrieval_measurement": "24 knowledge cases, page candidates only, limit 8; actual hybrid retrieval required. Lexical fallback is diagnostic.",
+    "core_claim_measurement": "Human claim_records cover every current claim on the fixture target pages, unique by target_slug and claim_id. Case dimensions are retained separately."
+  },
+  "thresholds": {
+    "human_case_pass_rate": 0.95,
+    "recall_at_8": 0.9,
+    "citation_location_rate": 1.0,
+    "core_claim_support_precision": 0.95
+  },
+  "knowledge_cases": [
+    {
+      "id": "extraction-01",
+      "operation": "extraction",
+      "question": "ReAct 如何让推理、行动和环境观察形成循环？",
+      "expected_target_slug": "react-reasoning-acting-loop",
+      "expected_target_title": "ReAct 推理与行动循环",
+      "expected_source_ids": [
+        "e504ba1ba9c3fffc"
+      ],
+      "source_references": [
+        {
+          "source_id": "e504ba1ba9c3fffc",
+          "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+          "url": "https://arxiv.org/abs/2210.03629"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "interleaved-thought-action",
+        "text": "ReAct 让语言模型交替生成推理轨迹与任务动作，并把环境观察接回上下文。",
+        "scope": "论文第 2 节对动作空间 A∪L 的定义与图 1 轨迹示例；thought 不改变环境、不产生观察。"
+      },
+      "preserve_baseline_claim_ids": [],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。",
+      "expected_page_slugs": [
+        "react-reasoning-acting-loop"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved"
+      ]
+    },
+    {
+      "id": "update-01",
+      "operation": "update",
+      "question": "ReAct 如何让推理、行动和环境观察形成循环？",
+      "expected_target_slug": "react-reasoning-acting-loop",
+      "expected_target_title": "ReAct 推理与行动循环",
+      "expected_source_ids": [
+        "e504ba1ba9c3fffc"
+      ],
+      "source_references": [
+        {
+          "source_id": "e504ba1ba9c3fffc",
+          "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+          "url": "https://arxiv.org/abs/2210.03629"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "reasoning-acting-tradeoff",
+        "text": "推理与行动结合在知识任务上提升事实性，但结构化约束会降低推理灵活性。",
+        "scope": "论文第 3.3 节对 HotpotQA 轨迹的条件抽样人工分析：每种方法各抽 50 条正确和 50 条错误轨迹，共 200 条；不能把抽样比例解释为整体错误发生率。"
+      },
+      "preserve_baseline_claim_ids": [
+        "interleaved-thought-action"
+      ],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved",
+        "old_claims_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。更新必须追踪旧断言去向及条件，不能仅检查ID存在。",
+      "expected_page_slugs": [
+        "react-reasoning-acting-loop"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved",
+        "old_claims_preserved"
+      ]
+    },
+    {
+      "id": "extraction-02",
+      "operation": "extraction",
+      "question": "Toolformer 如何采样、执行并按损失筛选 API 调用？",
+      "expected_target_slug": "toolformer-self-supervised-tool-use-training",
+      "expected_target_title": "Toolformer 自监督工具调用训练",
+      "expected_source_ids": [
+        "4a3710e0ff43d563"
+      ],
+      "source_references": [
+        {
+          "source_id": "4a3710e0ff43d563",
+          "title": "Toolformer: Language Models Can Teach Themselves to Use Tools",
+          "url": "https://arxiv.org/abs/2302.04761"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "self-supervised-pipeline",
+        "text": "Toolformer 通过采样候选 API 调用、执行、按损失筛选、再用筛选后的数据微调模型，实现自监督的工具使用学习。",
+        "scope": "论文第 2 节方法流程；基于 GPT-J 与 CCNet 子集的实验设置。"
+      },
+      "preserve_baseline_claim_ids": [],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。",
+      "expected_page_slugs": [
+        "toolformer-self-supervised-tool-use-training"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved"
+      ]
+    },
+    {
+      "id": "update-02",
+      "operation": "update",
+      "question": "Toolformer 如何采样、执行并按损失筛选 API 调用？",
+      "expected_target_slug": "toolformer-self-supervised-tool-use-training",
+      "expected_target_title": "Toolformer 自监督工具调用训练",
+      "expected_source_ids": [
+        "4a3710e0ff43d563"
+      ],
+      "source_references": [
+        {
+          "source_id": "4a3710e0ff43d563",
+          "title": "Toolformer: Language Models Can Teach Themselves to Use Tools",
+          "url": "https://arxiv.org/abs/2302.04761"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "loss-filter-criterion",
+        "text": "筛选标准是加入 API 调用及其结果后，模型预测后续 token 的加权损失至少下降 τf。",
+        "scope": "论文第 2 节过滤步骤；L-_i 取不做调用与只给输入不给结果两者损失的较小值。"
+      },
+      "preserve_baseline_claim_ids": [
+        "self-supervised-pipeline"
+      ],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved",
+        "old_claims_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。更新必须追踪旧断言去向及条件，不能仅检查ID存在。",
+      "expected_page_slugs": [
+        "toolformer-self-supervised-tool-use-training"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved",
+        "old_claims_preserved"
+      ]
+    },
+    {
+      "id": "extraction-03",
+      "operation": "extraction",
+      "question": "常驻上下文容量有限时为什么追加指令可能稀释收益？",
+      "expected_target_slug": "agent-context-selection",
+      "expected_target_title": "常驻上下文选择",
+      "expected_source_ids": [
+        "926ac126f2443b70"
+      ],
+      "source_references": [
+        {
+          "source_id": "926ac126f2443b70",
+          "title": "Curating Always-Loaded Context for LLM Agents: A Capacitated Assortment Model with Censored Feedback",
+          "url": "https://arxiv.org/abs/2610.11007"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "capacity-dilution",
+        "text": "把所有指令追加进常驻文件可能降低整体收益。",
+        "scope": "论文的有限容量、共享稀释和成本模型；指令遵循实验不能直接证明完整任务质量下降。"
+      },
+      "preserve_baseline_claim_ids": [],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。",
+      "expected_page_slugs": [
+        "agent-context-selection"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved"
+      ]
+    },
+    {
+      "id": "update-03",
+      "operation": "update",
+      "question": "常驻上下文容量有限时为什么追加指令可能稀释收益？",
+      "expected_target_slug": "agent-context-selection",
+      "expected_target_title": "常驻上下文选择",
+      "expected_source_ids": [
+        "926ac126f2443b70"
+      ],
+      "source_references": [
+        {
+          "source_id": "926ac126f2443b70",
+          "title": "Curating Always-Loaded Context for LLM Agents: A Capacitated Assortment Model with Censored Feedback",
+          "url": "https://arxiv.org/abs/2610.11007"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "censored-feedback",
+        "text": "已加载与未加载指令的价值反馈具有不对称的可观察性。",
+        "scope": "论文的删失反馈设定；遵循数据本身不足以识别指令收益的大小及一般情况下的正负。"
+      },
+      "preserve_baseline_claim_ids": [
+        "capacity-dilution"
+      ],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved",
+        "old_claims_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。更新必须追踪旧断言去向及条件，不能仅检查ID存在。",
+      "expected_page_slugs": [
+        "agent-context-selection"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved",
+        "old_claims_preserved"
+      ]
+    },
+    {
+      "id": "extraction-04",
+      "operation": "extraction",
+      "question": "长期记忆的准入与呈现有什么区别和收益权衡？",
+      "expected_target_slug": "agent-memory-admission",
+      "expected_target_title": "长期记忆准入",
+      "expected_source_ids": [
+        "accd5feccfb2c025"
+      ],
+      "source_references": [
+        {
+          "source_id": "accd5feccfb2c025",
+          "title": "What to Admit and How to Present: Governing Persistent Memory in LLM Agents",
+          "url": "https://arxiv.org/abs/2610.11188"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "admission-presentation",
+        "text": "决定哪些记忆进入提示与如何组织同一记忆是两类控制。",
+        "scope": "论文的持久记忆治理实验，区分准入与呈现；不推定所有记忆架构采用同一流程。"
+      },
+      "preserve_baseline_claim_ids": [],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。",
+      "expected_page_slugs": [
+        "agent-memory-admission"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved"
+      ]
+    },
+    {
+      "id": "update-04",
+      "operation": "update",
+      "question": "长期记忆的准入与呈现有什么区别和收益权衡？",
+      "expected_target_slug": "agent-memory-admission",
+      "expected_target_title": "长期记忆准入",
+      "expected_source_ids": [
+        "accd5feccfb2c025"
+      ],
+      "source_references": [
+        {
+          "source_id": "accd5feccfb2c025",
+          "title": "What to Admit and How to Present: Governing Persistent Memory in LLM Agents",
+          "url": "https://arxiv.org/abs/2610.11188"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "memory-tradeoff",
+        "text": "降低某些记忆相关失败可能同时损失个性化能力。",
+        "scope": "论文的失败率与个性化指标分别衡量；部分策略未达到预注册的双重目标，不能仅以安全指标判断收益。"
+      },
+      "preserve_baseline_claim_ids": [
+        "admission-presentation"
+      ],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved",
+        "old_claims_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。更新必须追踪旧断言去向及条件，不能仅检查ID存在。",
+      "expected_page_slugs": [
+        "agent-memory-admission"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved",
+        "old_claims_preserved"
+      ]
+    },
+    {
+      "id": "extraction-05",
+      "operation": "extraction",
+      "question": "Plan-and-Patch 如何修补计划，其优势受什么实验条件限制？",
+      "expected_target_slug": "agent-plan-repair",
+      "expected_target_title": "计划修补",
+      "expected_source_ids": [
+        "7d220dd5706f59fd"
+      ],
+      "source_references": [
+        {
+          "source_id": "7d220dd5706f59fd",
+          "title": "Plan-and-Patch: Diffusion Language Models for Agentic Planning",
+          "url": "https://arxiv.org/abs/2610.10786"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "repair-definition",
+        "text": "计划修补是在执行反馈出现后修改原计划的受影响部分。",
+        "scope": "Plan-and-Patch 的规划/修补框架；修补属于重新规划的一种方式，不能假定任意系统都能保留有效前缀。"
+      },
+      "preserve_baseline_claim_ids": [],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。",
+      "expected_page_slugs": [
+        "agent-plan-repair"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved"
+      ]
+    },
+    {
+      "id": "update-05",
+      "operation": "update",
+      "question": "Plan-and-Patch 如何修补计划，其优势受什么实验条件限制？",
+      "expected_target_slug": "agent-plan-repair",
+      "expected_target_title": "计划修补",
+      "expected_source_ids": [
+        "7d220dd5706f59fd"
+      ],
+      "source_references": [
+        {
+          "source_id": "7d220dd5706f59fd",
+          "title": "Plan-and-Patch: Diffusion Language Models for Agentic Planning",
+          "url": "https://arxiv.org/abs/2610.10786"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "repair-benchmark-boundary",
+        "text": "扩散模型的修补优势依赖任务与训练条件。",
+        "scope": "无训练规划基准中报告较高修补成功率；经任务训练的 ALFWorld/TextCraft 不能沿用同一优势结论。"
+      },
+      "preserve_baseline_claim_ids": [
+        "repair-definition"
+      ],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved",
+        "old_claims_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。更新必须追踪旧断言去向及条件，不能仅检查ID存在。",
+      "expected_page_slugs": [
+        "agent-plan-repair"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved",
+        "old_claims_preserved"
+      ]
+    },
+    {
+      "id": "extraction-06",
+      "operation": "extraction",
+      "question": "HTAM 如何把任务依赖图转成层级规划约束？",
+      "expected_target_slug": "agent-task-decomposition-dependencies",
+      "expected_target_title": "任务分解与依赖约束",
+      "expected_source_ids": [
+        "e504ba1ba9c3fffc"
+      ],
+      "source_references": [
+        {
+          "source_id": "e504ba1ba9c3fffc",
+          "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+          "url": "https://arxiv.org/abs/2210.03629"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "react-plans-with-observation",
+        "text": "ReAct的推理轨迹可以生成、跟踪和更新计划，行动从外部环境获得信息。",
+        "scope": "ReAct原论文机制；不把思考步当成无计划动作。"
+      },
+      "preserve_baseline_claim_ids": [],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。",
+      "expected_page_slugs": [
+        "agent-task-decomposition-dependencies"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved"
+      ]
+    },
+    {
+      "id": "update-06",
+      "operation": "update",
+      "question": "HTAM 如何把任务依赖图转成层级规划约束？",
+      "expected_target_slug": "agent-task-decomposition-dependencies",
+      "expected_target_title": "任务分解与依赖约束",
+      "expected_source_ids": [
+        "cf1e618aae1ce2d6"
+      ],
+      "source_references": [
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "title": "Designing Domain-Specific Agents via Hierarchical Task Abstraction Mechanism",
+          "url": "https://arxiv.org/abs/2511.17198"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "htam-task-dependency-hierarchy",
+        "text": "HTAM 从领域任务依赖图（有向无环图）出发，对顶点做拓扑分层，把整个求解过程划分为若干有序功能层；层数 L 由领域任务图的内在复杂度决定，而非固定值。",
+        "scope": "HTAM 框架的形式化定义，任务图由专家知识与既有流程标准给出"
+      },
+      "preserve_baseline_claim_ids": [
+        "react-plans-with-observation"
+      ],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved",
+        "old_claims_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。更新必须追踪旧断言去向及条件，不能仅检查ID存在。",
+      "expected_page_slugs": [
+        "agent-task-decomposition-dependencies"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved",
+        "old_claims_preserved"
+      ]
+    },
+    {
+      "id": "extraction-07",
+      "operation": "extraction",
+      "question": "智能体运行时限如何同时影响准时性和任务质量？",
+      "expected_target_slug": "agent-time-budget",
+      "expected_target_title": "智能体时间预算",
+      "expected_source_ids": [
+        "b7c8bebd4466160c"
+      ],
+      "source_references": [
+        {
+          "source_id": "b7c8bebd4466160c",
+          "title": "On the Clock: Towards Punctual and Productive Time-Budgeted AI Agents",
+          "url": "https://arxiv.org/abs/2610.10833"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "budget-quality",
+        "text": "时间预算约束要求同时衡量是否按时结束与最终任务质量。",
+        "scope": "On the Clock 的带运行时限任务；遵守预算不是答案正确率，实际部署还受工具延迟影响。"
+      },
+      "preserve_baseline_claim_ids": [],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。",
+      "expected_page_slugs": [
+        "agent-time-budget"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved"
+      ]
+    },
+    {
+      "id": "update-07",
+      "operation": "update",
+      "question": "智能体运行时限如何同时影响准时性和任务质量？",
+      "expected_target_slug": "agent-time-budget",
+      "expected_target_title": "智能体时间预算",
+      "expected_source_ids": [
+        "b7c8bebd4466160c"
+      ],
+      "source_references": [
+        {
+          "source_id": "b7c8bebd4466160c",
+          "title": "On the Clock: Towards Punctual and Productive Time-Budgeted AI Agents",
+          "url": "https://arxiv.org/abs/2610.10833"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "feedback-and-training",
+        "text": "运行过程中的时间反馈和面向预算的强化学习是不同的改进方式。",
+        "scope": "论文的运行框架与训练方案；不是所有智能体都必须同时采用两种方式。"
+      },
+      "preserve_baseline_claim_ids": [
+        "budget-quality"
+      ],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved",
+        "old_claims_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。更新必须追踪旧断言去向及条件，不能仅检查ID存在。",
+      "expected_page_slugs": [
+        "agent-time-budget"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved",
+        "old_claims_preserved"
+      ]
+    },
+    {
+      "id": "extraction-08",
+      "operation": "extraction",
+      "question": "NOMOS 如何在模型之外执行工具调用门控，有哪些安全边界？",
+      "expected_target_slug": "agent-tool-call-gates",
+      "expected_target_title": "工具调用门控",
+      "expected_source_ids": [
+        "e0c0d198c4709cc7"
+      ],
+      "source_references": [
+        {
+          "source_id": "e0c0d198c4709cc7",
+          "title": "NOMOS: Compiling Written Policies into Statically Verified Tool-Call Gates for LLM Agents",
+          "url": "https://arxiv.org/abs/2610.11030"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "outside-model-enforcement",
+        "text": "工具调用门控把部分策略约束放在模型之外执行。",
+        "scope": "NOMOS 的编译与验证框架；静态校验与运行时事实/参数检查不同，不保证所有自然语言策略都能完整形式化。"
+      },
+      "preserve_baseline_claim_ids": [],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。",
+      "expected_page_slugs": [
+        "agent-tool-call-gates"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved"
+      ]
+    },
+    {
+      "id": "update-08",
+      "operation": "update",
+      "question": "NOMOS 如何在模型之外执行工具调用门控，有哪些安全边界？",
+      "expected_target_slug": "agent-tool-call-gates",
+      "expected_target_title": "工具调用门控",
+      "expected_source_ids": [
+        "e0c0d198c4709cc7"
+      ],
+      "source_references": [
+        {
+          "source_id": "e0c0d198c4709cc7",
+          "title": "NOMOS: Compiling Written Policies into Statically Verified Tool-Call Gates for LLM Agents",
+          "url": "https://arxiv.org/abs/2610.11030"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "safety-scope",
+        "text": "阻止攻击者账户收款不等于阻止所有恶意付款。",
+        "scope": "论文银行任务的攻击者账户指标；已知收款人的注入诱导付款仍可能通过，正常任务效用需单独评估。"
+      },
+      "preserve_baseline_claim_ids": [
+        "outside-model-enforcement"
+      ],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved",
+        "old_claims_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。更新必须追踪旧断言去向及条件，不能仅检查ID存在。",
+      "expected_page_slugs": [
+        "agent-tool-call-gates"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved",
+        "old_claims_preserved"
+      ]
+    },
+    {
+      "id": "extraction-09",
+      "operation": "extraction",
+      "question": "EMFA 与 ReCast 如何定义失败归因的最早反事实可恢复步骤？",
+      "expected_target_slug": "multi-agent-failure-attribution",
+      "expected_target_title": "多智能体失败归因",
+      "expected_source_ids": [
+        "0b44ee6389202cb6",
+        "eddf2edee3305425"
+      ],
+      "source_references": [
+        {
+          "source_id": "0b44ee6389202cb6",
+          "title": "Error-Propagation Modeling for Failure Attribution in LLM-Based Multi-Agent Systems",
+          "url": "https://arxiv.org/abs/2610.11600"
+        },
+        {
+          "source_id": "eddf2edee3305425",
+          "title": "ReCast: Attribution-Oriented Step Representation Learning for LLM-Based Agent Systems",
+          "url": "https://arxiv.org/abs/2610.11334"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "earliest-counterfactual-target",
+        "text": "两项研究都以最早的反事实可恢复步骤作为失败归因目标。",
+        "scope": "EMFA 任务定义公式(3)与 ReCast 任务定义；同一类基准协议的一致采用不代表独立因果验证。"
+      },
+      "preserve_baseline_claim_ids": [],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。",
+      "expected_page_slugs": [
+        "multi-agent-failure-attribution"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved"
+      ]
+    },
+    {
+      "id": "update-09",
+      "operation": "update",
+      "question": "EMFA 与 ReCast 如何定义失败归因的最早反事实可恢复步骤？",
+      "expected_target_slug": "multi-agent-failure-attribution",
+      "expected_target_title": "多智能体失败归因",
+      "expected_source_ids": [
+        "0b44ee6389202cb6"
+      ],
+      "source_references": [
+        {
+          "source_id": "0b44ee6389202cb6",
+          "title": "Error-Propagation Modeling for Failure Attribution in LLM-Based Multi-Agent Systems",
+          "url": "https://arxiv.org/abs/2610.11600"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "emfa-no-replay",
+        "text": "EMFA 使用轨迹与模型评估反事实，不实际重放环境验证恢复。",
+        "scope": "EMFA 方法流程；归因结果是可供修复验证的预测线索。"
+      },
+      "preserve_baseline_claim_ids": [
+        "earliest-counterfactual-target"
+      ],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved",
+        "old_claims_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。更新必须追踪旧断言去向及条件，不能仅检查ID存在。",
+      "expected_page_slugs": [
+        "multi-agent-failure-attribution"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved",
+        "old_claims_preserved"
+      ]
+    },
+    {
+      "id": "extraction-10",
+      "operation": "extraction",
+      "question": "SWE-Journey 为什么区分交互过程、最终结果和用户反馈？",
+      "expected_target_slug": "coding-agent-long-horizon-evaluation",
+      "expected_target_title": "长周期编程评测",
+      "expected_source_ids": [
+        "c59a22e9fb289ff4"
+      ],
+      "source_references": [
+        {
+          "source_id": "c59a22e9fb289ff4",
+          "title": "SWE-Journey: Towards More Realistic Evaluation of Coding Assistants through Long-Horizon, Multi-Turn Interaction",
+          "url": "https://arxiv.org/abs/2610.11559"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "process-final-separation",
+        "text": "最终完成任务不能充分说明多轮交互过程的表现。",
+        "scope": "SWE-Journey 的长周期多轮编程任务；过程指标、最终结果和用户反馈应分别记录。"
+      },
+      "preserve_baseline_claim_ids": [],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。",
+      "expected_page_slugs": [
+        "coding-agent-long-horizon-evaluation"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved"
+      ]
+    },
+    {
+      "id": "update-10",
+      "operation": "update",
+      "question": "SWE-Journey 为什么区分交互过程、最终结果和用户反馈？",
+      "expected_target_slug": "coding-agent-long-horizon-evaluation",
+      "expected_target_title": "长周期编程评测",
+      "expected_source_ids": [
+        "c59a22e9fb289ff4"
+      ],
+      "source_references": [
+        {
+          "source_id": "c59a22e9fb289ff4",
+          "title": "SWE-Journey: Towards More Realistic Evaluation of Coding Assistants through Long-Horizon, Multi-Turn Interaction",
+          "url": "https://arxiv.org/abs/2610.11559"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "feedback-not-autonomy",
+        "text": "多轮后的净改进不能单独证明智能体自主纠错能力。",
+        "scope": "论文不同用户画像与反馈条件；交互中新增的信息和用户纠正可能共同贡献结果。"
+      },
+      "preserve_baseline_claim_ids": [
+        "process-final-separation"
+      ],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved",
+        "old_claims_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。更新必须追踪旧断言去向及条件，不能仅检查ID存在。",
+      "expected_page_slugs": [
+        "coding-agent-long-horizon-evaluation"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved",
+        "old_claims_preserved"
+      ]
+    },
+    {
+      "id": "extraction-11",
+      "operation": "extraction",
+      "question": "OpenEarth-Agent 如何从工具调用扩展到运行时工具创建？",
+      "expected_target_slug": "tool-creation-agent",
+      "expected_target_title": "工具创建智能体",
+      "expected_source_ids": [
+        "84d839e63c28ec29"
+      ],
+      "source_references": [
+        {
+          "source_id": "84d839e63c28ec29",
+          "title": "OpenEarth-Agent: From Tool Calling to Tool Creation for Open-Environment Earth Observation",
+          "url": "https://notes.local.invalid/84d839e63c28ec29"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "tool-creation-vs-calling",
+        "text": "工具创建智能体在运行时根据数据与任务上下文生成工具，而非在预定义工具集内调用。",
+        "scope": "OpenEarth-Agent 的框架定义与第 1 节问题陈述；针对开放环境地球观测任务，不推定适用于所有智能体场景。"
+      },
+      "preserve_baseline_claim_ids": [],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。",
+      "expected_page_slugs": [
+        "tool-creation-agent"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved"
+      ]
+    },
+    {
+      "id": "update-11",
+      "operation": "update",
+      "question": "OpenEarth-Agent 如何从工具调用扩展到运行时工具创建？",
+      "expected_target_slug": "tool-creation-agent",
+      "expected_target_title": "工具创建智能体",
+      "expected_source_ids": [
+        "84d839e63c28ec29"
+      ],
+      "source_references": [
+        {
+          "source_id": "84d839e63c28ec29",
+          "title": "OpenEarth-Agent: From Tool Calling to Tool Creation for Open-Environment Earth Observation",
+          "url": "https://notes.local.invalid/84d839e63c28ec29"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "probe-plan-verify-loop",
+        "text": "数据探查、DAG 规划与结果校验反馈构成工具创建的核心闭环。",
+        "scope": "论文第 3.1 节多智能体架构与公式(1)(2)；消融实验显示去掉规划或检查模块后端到端准确率下降，但均为作者自建基准结果。"
+      },
+      "preserve_baseline_claim_ids": [
+        "tool-creation-vs-calling"
+      ],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved",
+        "old_claims_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。更新必须追踪旧断言去向及条件，不能仅检查ID存在。",
+      "expected_page_slugs": [
+        "tool-creation-agent"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved",
+        "old_claims_preserved"
+      ]
+    },
+    {
+      "id": "extraction-12",
+      "operation": "extraction",
+      "question": "AgentHPO 的 Creator 和 Executor 如何通过实验日志迭代超参数？",
+      "expected_target_slug": "agent-hyperparameter-optimization",
+      "expected_target_title": "实验反馈驱动的 Agent 超参数优化",
+      "expected_source_ids": [
+        "94853529d326ac72"
+      ],
+      "source_references": [
+        {
+          "source_id": "94853529d326ac72",
+          "title": "Large Language Model Agent for Hyper-Parameter Optimization",
+          "url": "https://proceedings.mlr.press/v280/liu25c.html"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "agent-hpo-creator-executor-loop",
+        "text": "AgentHPO 用两个专职 LLM 智能体构成迭代回路：Creator 读取自然语言背景信息（超参数列表与取值范围、数据集统计、优化目标、模型结构）生成初始超参数及选择理由；Executor 用这些超参数训练模型、分析训练日志并记录结果；Creator 再依据累积的实验日志生成下一轮超参数，循环 T 次后由 Creator 做最终分析并输出最优配置与理由。",
+        "scope": "AgentHPO 方法设计（GPT-4 与 GPT-3.5 作为 LLM，LangChain zero-shot-react-description，Creator temperature=1）"
+      },
+      "preserve_baseline_claim_ids": [],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。",
+      "expected_page_slugs": [
+        "agent-hyperparameter-optimization"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved"
+      ]
+    },
+    {
+      "id": "update-12",
+      "operation": "update",
+      "question": "AgentHPO 的 Creator 和 Executor 如何通过实验日志迭代超参数？",
+      "expected_target_slug": "agent-hyperparameter-optimization",
+      "expected_target_title": "实验反馈驱动的 Agent 超参数优化",
+      "expected_source_ids": [
+        "94853529d326ac72"
+      ],
+      "source_references": [
+        {
+          "source_id": "94853529d326ac72",
+          "title": "Large Language Model Agent for Hyper-Parameter Optimization",
+          "url": "https://proceedings.mlr.press/v280/liu25c.html"
+        }
+      ],
+      "expected_claim": {
+        "baseline_claim_id": "agent-hpo-executor-tools",
+        "text": "Executor 智能体通过四个工具完成实验：Change HP Configs 修改配置、Training Models 执行训练脚本、Analyze Results 读取训练日志（含训练/验证指标轨迹）并总结、Record Results 把结果与分析写入实验日志；日志同时保存超参数、选择理由和实验结果，作为后续决策的记忆。",
+        "scope": "AgentHPO Executor 工具集与实验日志结构（Algorithm 1 第 8–10 步）"
+      },
+      "preserve_baseline_claim_ids": [
+        "agent-hpo-creator-executor-loop"
+      ],
+      "required_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "claim_support",
+        "scope_preserved",
+        "old_claims_preserved"
+      ],
+      "review_instruction": "核对公开原文中对应机制与限定条件，并比较候选正文与结构化断言；不将旧Wiki文字或模型评审作为事实证明。更新必须追踪旧断言去向及条件，不能仅检查ID存在。",
+      "expected_page_slugs": [
+        "agent-hyperparameter-optimization"
+      ],
+      "blocking_human_dimensions": [
+        "source_mapping",
+        "target_mapping",
+        "scope_preserved",
+        "old_claims_preserved"
+      ]
+    }
+  ],
+  "query_cases": [
+    {
+      "id": "query-01",
+      "question": "ReAct 如何让推理、行动和环境观察形成循环？",
+      "expected_target_slug": "react-reasoning-acting-loop",
+      "expected_source_ids": [
+        "e504ba1ba9c3fffc"
+      ],
+      "expected_status": "answered",
+      "source_references": [
+        {
+          "source_id": "e504ba1ba9c3fffc",
+          "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+          "url": "https://arxiv.org/abs/2210.03629"
+        }
+      ],
+      "review_instruction": "引用必须能定位到当前版本归档原文。定位正确不代表答案语义充分，语义判断须另由人工记录。",
+      "expected_page_slugs": [
+        "react-reasoning-acting-loop"
+      ]
+    },
+    {
+      "id": "query-02",
+      "question": "Toolformer 如何采样、执行并按损失筛选 API 调用？",
+      "expected_target_slug": "toolformer-self-supervised-tool-use-training",
+      "expected_source_ids": [
+        "4a3710e0ff43d563"
+      ],
+      "expected_status": "answered",
+      "source_references": [
+        {
+          "source_id": "4a3710e0ff43d563",
+          "title": "Toolformer: Language Models Can Teach Themselves to Use Tools",
+          "url": "https://arxiv.org/abs/2302.04761"
+        }
+      ],
+      "review_instruction": "引用必须能定位到当前版本归档原文。定位正确不代表答案语义充分，语义判断须另由人工记录。",
+      "expected_page_slugs": [
+        "toolformer-self-supervised-tool-use-training"
+      ]
+    },
+    {
+      "id": "query-03",
+      "question": "常驻上下文容量有限时为什么追加指令可能稀释收益？",
+      "expected_target_slug": "agent-context-selection",
+      "expected_source_ids": [
+        "926ac126f2443b70"
+      ],
+      "expected_status": "answered",
+      "source_references": [
+        {
+          "source_id": "926ac126f2443b70",
+          "title": "Curating Always-Loaded Context for LLM Agents: A Capacitated Assortment Model with Censored Feedback",
+          "url": "https://arxiv.org/abs/2610.11007"
+        }
+      ],
+      "review_instruction": "引用必须能定位到当前版本归档原文。定位正确不代表答案语义充分，语义判断须另由人工记录。",
+      "expected_page_slugs": [
+        "agent-context-selection"
+      ]
+    },
+    {
+      "id": "query-04",
+      "question": "长期记忆的准入与呈现有什么区别和收益权衡？",
+      "expected_target_slug": "agent-memory-admission",
+      "expected_source_ids": [
+        "accd5feccfb2c025"
+      ],
+      "expected_status": "answered",
+      "source_references": [
+        {
+          "source_id": "accd5feccfb2c025",
+          "title": "What to Admit and How to Present: Governing Persistent Memory in LLM Agents",
+          "url": "https://arxiv.org/abs/2610.11188"
+        }
+      ],
+      "review_instruction": "引用必须能定位到当前版本归档原文。定位正确不代表答案语义充分，语义判断须另由人工记录。",
+      "expected_page_slugs": [
+        "agent-memory-admission"
+      ]
+    },
+    {
+      "id": "query-05",
+      "question": "Plan-and-Patch 如何修补计划，其优势受什么实验条件限制？",
+      "expected_target_slug": "agent-plan-repair",
+      "expected_source_ids": [
+        "7d220dd5706f59fd"
+      ],
+      "expected_status": "answered",
+      "source_references": [
+        {
+          "source_id": "7d220dd5706f59fd",
+          "title": "Plan-and-Patch: Diffusion Language Models for Agentic Planning",
+          "url": "https://arxiv.org/abs/2610.10786"
+        }
+      ],
+      "review_instruction": "引用必须能定位到当前版本归档原文。定位正确不代表答案语义充分，语义判断须另由人工记录。",
+      "expected_page_slugs": [
+        "agent-plan-repair"
+      ]
+    },
+    {
+      "id": "query-06",
+      "question": "HTAM 如何把任务依赖图转成层级规划约束？",
+      "expected_target_slug": "agent-task-decomposition-dependencies",
+      "expected_source_ids": [
+        "cf1e618aae1ce2d6",
+        "e504ba1ba9c3fffc"
+      ],
+      "expected_status": "answered",
+      "source_references": [
+        {
+          "source_id": "cf1e618aae1ce2d6",
+          "title": "Designing Domain-Specific Agents via Hierarchical Task Abstraction Mechanism",
+          "url": "https://arxiv.org/abs/2511.17198"
+        },
+        {
+          "source_id": "e504ba1ba9c3fffc",
+          "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+          "url": "https://arxiv.org/abs/2210.03629"
+        }
+      ],
+      "review_instruction": "引用必须能定位到当前版本归档原文。定位正确不代表答案语义充分，语义判断须另由人工记录。",
+      "expected_page_slugs": [
+        "agent-task-decomposition-dependencies"
+      ]
+    },
+    {
+      "id": "query-07",
+      "question": "智能体运行时限如何同时影响准时性和任务质量？",
+      "expected_target_slug": "agent-time-budget",
+      "expected_source_ids": [
+        "b7c8bebd4466160c"
+      ],
+      "expected_status": "answered",
+      "source_references": [
+        {
+          "source_id": "b7c8bebd4466160c",
+          "title": "On the Clock: Towards Punctual and Productive Time-Budgeted AI Agents",
+          "url": "https://arxiv.org/abs/2610.10833"
+        }
+      ],
+      "review_instruction": "引用必须能定位到当前版本归档原文。定位正确不代表答案语义充分，语义判断须另由人工记录。",
+      "expected_page_slugs": [
+        "agent-time-budget"
+      ]
+    },
+    {
+      "id": "query-08",
+      "question": "NOMOS 如何在模型之外执行工具调用门控，有哪些安全边界？",
+      "expected_target_slug": "agent-tool-call-gates",
+      "expected_source_ids": [
+        "e0c0d198c4709cc7"
+      ],
+      "expected_status": "answered",
+      "source_references": [
+        {
+          "source_id": "e0c0d198c4709cc7",
+          "title": "NOMOS: Compiling Written Policies into Statically Verified Tool-Call Gates for LLM Agents",
+          "url": "https://arxiv.org/abs/2610.11030"
+        }
+      ],
+      "review_instruction": "引用必须能定位到当前版本归档原文。定位正确不代表答案语义充分，语义判断须另由人工记录。",
+      "expected_page_slugs": [
+        "agent-tool-call-gates"
+      ]
+    },
+    {
+      "id": "query-09",
+      "question": "EMFA 与 ReCast 如何定义失败归因的最早反事实可恢复步骤？",
+      "expected_target_slug": "multi-agent-failure-attribution",
+      "expected_source_ids": [
+        "0b44ee6389202cb6",
+        "eddf2edee3305425"
+      ],
+      "expected_status": "answered",
+      "source_references": [
+        {
+          "source_id": "0b44ee6389202cb6",
+          "title": "Error-Propagation Modeling for Failure Attribution in LLM-Based Multi-Agent Systems",
+          "url": "https://arxiv.org/abs/2610.11600"
+        },
+        {
+          "source_id": "eddf2edee3305425",
+          "title": "ReCast: Attribution-Oriented Step Representation Learning for LLM-Based Agent Systems",
+          "url": "https://arxiv.org/abs/2610.11334"
+        }
+      ],
+      "review_instruction": "引用必须能定位到当前版本归档原文。定位正确不代表答案语义充分，语义判断须另由人工记录。",
+      "expected_page_slugs": [
+        "multi-agent-failure-attribution"
+      ]
+    },
+    {
+      "id": "query-10",
+      "question": "SWE-Journey 为什么区分交互过程、最终结果和用户反馈？",
+      "expected_target_slug": "coding-agent-long-horizon-evaluation",
+      "expected_source_ids": [
+        "c59a22e9fb289ff4"
+      ],
+      "expected_status": "answered",
+      "source_references": [
+        {
+          "source_id": "c59a22e9fb289ff4",
+          "title": "SWE-Journey: Towards More Realistic Evaluation of Coding Assistants through Long-Horizon, Multi-Turn Interaction",
+          "url": "https://arxiv.org/abs/2610.11559"
+        }
+      ],
+      "review_instruction": "引用必须能定位到当前版本归档原文。定位正确不代表答案语义充分，语义判断须另由人工记录。",
+      "expected_page_slugs": [
+        "coding-agent-long-horizon-evaluation"
+      ]
+    },
+    {
+      "id": "query-11",
+      "question": "OpenEarth-Agent 如何从工具调用扩展到运行时工具创建？",
+      "expected_target_slug": "tool-creation-agent",
+      "expected_source_ids": [
+        "84d839e63c28ec29"
+      ],
+      "expected_status": "answered",
+      "source_references": [
+        {
+          "source_id": "84d839e63c28ec29",
+          "title": "OpenEarth-Agent: From Tool Calling to Tool Creation for Open-Environment Earth Observation",
+          "url": "https://notes.local.invalid/84d839e63c28ec29"
+        }
+      ],
+      "review_instruction": "引用必须能定位到当前版本归档原文。定位正确不代表答案语义充分，语义判断须另由人工记录。",
+      "expected_page_slugs": [
+        "tool-creation-agent"
+      ]
+    },
+    {
+      "id": "query-12",
+      "question": "AgentHPO 能保证在任意新数据集上找到全局最优超参数吗？请给出覆盖所有数据集的证明。",
+      "expected_target_slug": "agent-hyperparameter-optimization",
+      "expected_source_ids": [
+        "94853529d326ac72"
+      ],
+      "expected_status": "insufficient_evidence",
+      "scenario": "evidence-insufficient",
+      "source_references": [
+        {
+          "source_id": "94853529d326ac72",
+          "title": "Large Language Model Agent for Hyper-Parameter Optimization",
+          "url": "https://proceedings.mlr.press/v280/liu25c.html"
+        }
+      ],
+      "review_instruction": "引用必须能定位到当前版本归档原文。定位正确不代表答案语义充分，语义判断须另由人工记录。",
+      "expected_page_slugs": [
+        "agent-hyperparameter-optimization"
+      ]
+    }
+  ]
+}

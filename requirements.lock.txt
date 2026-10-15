@@ -28,6 +28,8 @@ feedparser==6.0.14
     # via -r requirements.txt
 feedparser-sgmllib==2.1.0
     # via feedparser
+fonttools==4.66.1
+    # via -r requirements.txt
 h11==0.16.0
     # via uvicorn
 htmldate==1.11.0

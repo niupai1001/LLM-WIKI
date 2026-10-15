@@ -95,6 +95,15 @@ def _claim_sources(claim):
 
 
 def snapshot(slug):
+    from .workspaces import current_workspace
+    workspace=current_workspace()
+    if workspace:
+        from .publication import publication_lock
+        with publication_lock(workspace): return _snapshot(slug)
+    return _snapshot(slug)
+
+
+def _snapshot(slug):
     meta, body, version = _page(slug)
     claims = [c for c in _list(meta.get('claims')) if isinstance(c, dict)]
     reviews = _read(REVIEWS / (slug + '.json')).get('reviews', [])

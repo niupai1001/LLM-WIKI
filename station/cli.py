@@ -9,10 +9,11 @@ from .wiki import approve, prepare, prepare_rewrite, proposal_key, compile_and_p
 
 def main():
     p = argparse.ArgumentParser(description="Intelligence Wiki CLI")
+    p.add_argument('--library-id', help='Explicit library; otherwise use the active library')
     sub = p.add_subparsers(dest="action", required=True)
     sub.add_parser("ingest")
-    run = sub.add_parser("loop")
-    run.add_argument("--minutes", type=int, default=30)
+    loop_parser = sub.add_parser("loop")
+    loop_parser.add_argument("--minutes", type=int, default=30)
     draft = sub.add_parser("prepare")
     draft.add_argument("--limit", type=int, default=3)
     draft.add_argument("--category")
@@ -34,19 +35,41 @@ def main():
     note = sub.add_parser("add-note")
     note.add_argument("--title", required=True)
     note.add_argument("--file", required=True)
-    note.add_argument("--category", default="research")
+    note.add_argument("--category")
     original = sub.add_parser("import-file")
     original.add_argument("--title", required=True)
     original.add_argument("--file", required=True)
-    original.add_argument("--category", default="other")
+    original.add_argument("--category")
     url = sub.add_parser("import-url")
     url.add_argument("url")
     url.add_argument("--title")
-    url.add_argument("--category", default="other")
+    url.add_argument("--category")
     decline = sub.add_parser("reject")
     decline.add_argument("proposal_id")
     sub.add_parser("stats")
+    compile_v2=sub.add_parser('compile',help='Queue multi-stage knowledge compilation')
+    compile_v2.add_argument('--source-id',action='append',dest='source_ids')
+    compile_v2.add_argument('--revisit',action='store_true')
+    compile_v2.add_argument('--target',dest='target_slug',help='Update this existing page and defer unrelated questions')
+    compile_v2.add_argument('--run',action='store_true',help='Run queued work in this process')
+    search=sub.add_parser('search');search.add_argument('question')
+    query=sub.add_parser('query');query.add_argument('question')
+    queue=sub.add_parser('jobs');queue.add_argument('--retry');queue.add_argument('--cancel');queue.add_argument('--run',action='store_true');queue.add_argument('--target',dest='retry_target')
+    sub.add_parser('recover')
+    sub.add_parser('compare')
+    sub.add_parser('evaluate')
+    index=sub.add_parser('index');index.add_argument('--embeddings',action='store_true')
+    library=sub.add_parser('library');library.add_argument('operation',choices=['list','init','sync','activate','rollback']);library.add_argument('id',nargs='?',default='candidate-v2')
     args = p.parse_args()
+    from .workspaces import resolve_workspace,use_workspace
+    workspace=resolve_workspace(args.library_id)
+    with use_workspace(workspace):
+        return run(args,workspace)
+
+
+def run(args,workspace):
+    if args.action in {'compile','search','query','jobs','recover','compare','evaluate','index','library'}:
+        return v2_command(args,workspace)
     if args.action == "ingest":
         ingest()
     elif args.action == "prepare":
@@ -81,10 +104,77 @@ def main():
         db.close()
     elif args.action == "loop":
         while True:
-            ingest()
-            if os.getenv("AUTO_DRAFT", "false").lower() == "true":
-                compile_and_publish(limit=3)
+            from .workspaces import resolve_workspace,use_workspace
+            with use_workspace(resolve_workspace(getattr(args,'library_id',None))):
+                ingest()
+                if os.getenv("AUTO_DRAFT", "false").lower() == "true":
+                    from .workspaces import current_workspace
+                    active=current_workspace()
+                    if active.library_id=='legacy': compile_and_publish(limit=3)
+                    else: queue_auto_compile(active)
             time.sleep(max(10, args.minutes) * 60)
+
+
+def v2_command(args,workspace):
+    import json
+    from . import jobs
+    if args.action=='compile':
+        from .compiler import compilation_inputs
+        ids,skipped,versions=compilation_inputs(workspace,args.source_ids)
+        result=jobs.enqueue(workspace,'compile',{'source_ids':ids,'skipped_sources':skipped,'revisit':args.revisit,'target_slug':args.target_slug},input_versions=versions)
+        if args.run:
+            from .worker import run_once
+            while jobs.get(workspace,result['id'])['status']=='queued':
+                if run_once(workspace) is None: break
+            result=jobs.get(workspace,result['id'])
+    elif args.action=='jobs':
+        if args.retry: result=jobs.retry(workspace,args.retry,target_slug=args.retry_target)
+        elif args.cancel: result=jobs.cancel(workspace,args.cancel)
+        elif args.run:
+            from .worker import run_once
+            result=run_once(workspace)
+        else: result=jobs.list_jobs(workspace)
+    elif args.action=='search':
+        from .search import search
+        result=search(workspace,args.question)
+    elif args.action=='query':
+        from .query import answer
+        result=answer(workspace,args.question)
+    elif args.action=='index':
+        from .search import rebuild_index
+        result=rebuild_index(workspace,embeddings=args.embeddings)
+    elif args.action=='recover':
+        from .publication import recover
+        result=recover(workspace)
+    elif args.action=='compare':
+        from .evaluation import compare_libraries
+        from .workspaces import resolve_workspace
+        result=compare_libraries(workspace,resolve_workspace('legacy'))
+    elif args.action=='evaluate':
+        from .evaluation import evaluate_library
+        result=evaluate_library(workspace)
+    else:
+        from .workspaces import registry,initialize_candidate,synchronize_candidate,activate_library
+        if args.operation=='list':result=registry()
+        elif args.operation=='init':result={'library_id':initialize_candidate(args.id).library_id}
+        elif args.operation=='sync':result=synchronize_candidate(args.id)
+        else: result=activate_library(args.id,rollback=args.operation=='rollback')
+    print(json.dumps(result,ensure_ascii=False,indent=2))
+    return result
+
+
+def queue_auto_compile(workspace):
+    from . import jobs
+    from .documents import source_version
+    from .publication import publication_lock
+    with publication_lock(workspace):
+        if any(j['kind']=='compile' and j['status'] in {'queued','running'} for j in jobs.list_jobs(workspace)):
+            return None
+        db=connect()
+        try: ids=[r['id'] for r in db.execute("SELECT id FROM sources WHERE stage='new' AND content_status='full-text'")]
+        finally: db.close()
+        if not ids:return None
+        return jobs.enqueue(workspace,'compile',{'source_ids':ids},input_versions={sid:source_version(workspace,sid) for sid in ids})
 
 
 if __name__ == "__main__":

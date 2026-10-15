@@ -11,13 +11,15 @@ from dotenv import load_dotenv
 # Local runs read the project configuration; explicit process variables win.
 load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=False)
 
-ROOT = Path(os.getenv("STATION_DATA", "data"))
-RAW = ROOT / "raw"
-WIKI = ROOT / "wiki"
-PENDING = ROOT / "pending"
-ASSETS = ROOT / "originals"
-META = ROOT / "wiki_meta"
-DB = ROOT / "state.db"
+from .workspaces import ContextPath
+_DEFAULT_ROOT = Path(os.getenv("STATION_DATA", "data"))
+ROOT = ContextPath('root', _DEFAULT_ROOT)
+RAW = ContextPath('raw', _DEFAULT_ROOT / 'raw')
+WIKI = ContextPath('wiki', _DEFAULT_ROOT / 'wiki')
+PENDING = ContextPath('pending', _DEFAULT_ROOT / 'pending')
+ASSETS = ContextPath('originals', _DEFAULT_ROOT / 'originals')
+META = ContextPath('meta', _DEFAULT_ROOT / 'wiki_meta')
+DB = ContextPath('db', _DEFAULT_ROOT / 'state.db')
 
 
 def utcnow():

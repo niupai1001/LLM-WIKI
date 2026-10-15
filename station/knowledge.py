@@ -7,7 +7,8 @@ from urllib.parse import quote
 from .common import META, WIKI, connect
 from .relations import RELATION_LABELS, validate_relations
 
-_CONFIG = Path(__file__).resolve().parent.parent / "config" / "categories.json"
+from .workspaces import ContextPath
+_CONFIG = ContextPath('config', Path(__file__).resolve().parent.parent / 'config') / 'categories.json'
 _SLUG = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?")
 
 
@@ -42,6 +43,13 @@ def validate_category(value, active_only=False):
     return value
 
 
+def default_category(preferred='other'):
+    active = [c['id'] for c in categories() if c['enabled']]
+    if not active:
+        raise ValueError('请先启用一个采集范围')
+    return preferred if preferred in active else active[0]
+
+
 def category_name(value):
     return next((c["name"] for c in categories() if c["id"] == value), "其他")
 
@@ -51,6 +59,16 @@ def _string_list(value):
 
 
 def wiki_pages():
+    from .workspaces import current_workspace
+    from .publication import publication_lock
+    workspace=current_workspace()
+    if workspace:
+        with publication_lock(workspace):
+            return _wiki_pages()
+    return _wiki_pages()
+
+
+def _wiki_pages():
     """Actual Markdown pages, with approval metadata when available; index is navigation."""
     valid_categories = {c["id"] for c in categories()}
     result = []
@@ -137,6 +155,15 @@ def semantic_backlinks(slug, pages=None):
 
 
 def graph_data():
+    from .workspaces import current_workspace
+    workspace=current_workspace()
+    if workspace:
+        from .publication import publication_lock
+        with publication_lock(workspace): return _graph_data()
+    return _graph_data()
+
+
+def _graph_data():
     """No model-inferred or dangling relations: every endpoint must exist locally."""
     pages = [p for p in wiki_pages() if p.get('page_role') != 'source_collection']
     db = connect()

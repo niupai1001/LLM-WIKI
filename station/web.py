@@ -10,6 +10,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from pathlib import Path
 from difflib import unified_diff
+from functools import wraps
 from urllib.parse import quote, urlsplit
 
 from fastapi import FastAPI, HTTPException, Request
@@ -19,11 +20,13 @@ from starlette.concurrency import run_in_threadpool
 
 from .common import ASSETS, PENDING, RAW, WIKI, connect, load_json, safe_slug
 from .citations import prepare_citations, evidence_html, evidence_jump, _external_url, _date
-from .knowledge import categories, category_name, graph_data, wiki_pages, validate_category, semantic_backlinks, topic_details
+from .knowledge import categories, category_name, graph_data, wiki_pages, validate_category, default_category, semantic_backlinks, topic_details
 from .wiki import approve, prepare, prepare_rewrite, reject, proposal_key, page_body, compile_and_publish, automatic_publish
 
 app = FastAPI(title='LLM Wiki')
 app.mount('/static', StaticFiles(directory=Path(__file__).parent / 'static'), name='static')
+from .v2web import router as v2_router
+app.include_router(v2_router)
 ASSET_VERSIONS = {name: str((Path(__file__).parent / "static" / name).stat().st_mtime_ns) for name in ("app.css", "app.js", "graph.js", "fact-checks.css", "fact-checks.js")}
 MAX_UPLOAD = 15 * 1024 * 1024
 E = lambda value: html.escape(str(value), quote=True)
@@ -48,10 +51,47 @@ async def local_mutations(request: Request, call_next):
             parsed = urlsplit(origin)
             if parsed.scheme != 'http' or parsed.hostname not in {'localhost', '127.0.0.1'} or parsed.netloc != request.headers.get('host'):
                 return JSONResponse({'detail': '只允许本地同源操作。'}, status_code=403)
-    return await call_next(request)
+    if request.url.path.startswith('/static/'):
+        return await call_next(request)
+    from . import common
+    from .workspaces import resolve_workspace, use_workspace
+    try:
+        identity = request.query_params.get('library_id') or request.headers.get('x-library-id')
+        workspace = resolve_workspace(identity, root=Path(common.ROOT))
+    except ValueError as exc:
+        return JSONResponse({'detail':str(exc)},status_code=400)
+    with use_workspace(workspace):
+        from .publication import recover
+        await run_in_threadpool(recover,workspace)
+        response = await call_next(request)
+        content_type=response.headers.get('content-type','')
+        if 'text/html' in content_type:
+            raw=b''.join([chunk async for chunk in response.body_iterator]).decode('utf-8')
+            def pin_link(match):
+                path=html.unescape(match[2])
+                if path.startswith('/static/') or path.startswith('//') or re.search(r'[?&]library_id=',path): return match[0]
+                return match[1]+'="'+E(workspace.url(path))+'"'
+            raw=re.sub(r'(href|action|data-pdf-url)="(/[^"\n]*)"',pin_link,raw)
+            headers=dict(response.headers);headers.pop('content-length',None)
+            return HTMLResponse(raw,status_code=response.status_code,headers=headers)
+        if 'application/json' in content_type:
+            raw=b''.join([chunk async for chunk in response.body_iterator])
+            data=json.loads(raw)
+            def pinned(value):
+                if isinstance(value,dict): return {k:(workspace.url(v) if k in {'url','page_url'} and isinstance(v,str) and v.startswith('/') and not re.search(r'[?&]library_id=',v) else pinned(v)) for k,v in value.items()}
+                if isinstance(value,list): return [pinned(v) for v in value]
+                return value
+            headers=dict(response.headers);headers.pop('content-length',None)
+            return JSONResponse(pinned(data),status_code=response.status_code,headers=headers)
+        return response
 
 
 def layout(title, body, active='wiki'):
+    from .workspaces import current_workspace
+    workspace=current_workspace()
+    library_meta=f'<meta name="library-id" content="{E(workspace.library_id)}"><script src="/static/library.js"></script>' if workspace else ''
+    if workspace:
+        body=f'<div class="library-context"><a href="/libraries">知识库：{E(workspace.library_id)}</a> · <a href="/tasks">处理任务</a> · <a href="/ask">知识问答</a></div>'+body
     icons = {
         'wiki': '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h6M8 17h4"/>',
         'sources': '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>',
@@ -61,9 +101,24 @@ def layout(title, body, active='wiki'):
     nav = ''.join(f'<a class="nav-link {"active" if key == active else ""}" href="{url}" {"aria-current=page" if key == active else ""}><svg viewBox="0 0 24 24" aria-hidden="true">{icons[key]}</svg><span>{name}</span></a>' for key, url, name in [
         ('wiki', '/', '知识 Wiki'), ('sources', '/sources', '原始资料'), ('drafts', '/drafts', '编写记录'), ('graph', '/graph', '知识图谱')])
     topic_links = ''.join(f'<a class="topic-link" href="/?category={quote(c["id"])}"><span class="topic-dot"></span>{E(c["name"])}</a>' for c in categories() if c['enabled'])
+    knowledge_topics = ''.join(f'<a class="topic-link" href="/page/{quote(p["slug"])}"><span class="topic-dot"></span>{E(p["title"])}</a>' for p in wiki_pages() if p.get('page_kind')=='topic' and p.get('page_role')!='source_collection')
+    topic_links += '<div class="workspace-label">知识主题</div>' + (knowledge_topics or '<p class="field-help">编译资料后自动形成</p>')
     nav += f'<a class="nav-link {"active" if active == "collection" else ""}" href="/collection" {"aria-current=page" if active == "collection" else ""}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg><span>采集计划</span></a>'
     nav += f'<a class="nav-link {"active" if active == "settings" else ""}" href="/settings" {"aria-current=page" if active == "settings" else ""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg><span>主题与订阅</span></a>'
-    return HTMLResponse(f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{E(title)} · LLM Wiki</title><script>try{{document.documentElement.dataset.theme=localStorage.getItem('wiki-theme')==='dark'?'dark':'light'}}catch(e){{}}</script><link rel="stylesheet" href="/static/app.css?v={ASSET_VERSIONS["app.css"]}"></head><body><a class="skip-link" href="#main">跳到内容</a><aside class="sidebar"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 6 4 12 4-8 4 8 4-12"/></svg></span> LLM Wiki</a><a class="sidebar-import" href="/sources#import"><span>＋</span> 导入资料</a><div class="workspace-label">工作空间</div><nav aria-label="工作空间">{nav}</nav><div class="topic-nav"><div class="workspace-label">主题</div>{topic_links}</div><div class="sidebar-bottom"><span class="status-dot"></span> 本地工作空间</div></aside><div class="main-shell"><header class="topbar"><div class="topbar-path"><span>工作空间</span><span class="path-divider">/</span><strong>{E(title)}</strong></div><div class="topbar-actions"><span class="local-label"><span class="status-dot"></span>本地</span><button class="icon-button" id="theme-toggle" aria-label="切换深色模式" title="切换深浅色模式"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 13.1A9 9 0 0 1 10.9 3.2 9 9 0 1 0 20.8 13.1Z"/></svg></button></div></header><main id="main">{body}</main></div><div id="toast" role="status" aria-live="polite"></div><script src="/static/app.js?v={ASSET_VERSIONS["app.js"]}" defer></script></body></html>''')
+    return HTMLResponse(f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">{library_meta}<meta name="viewport" content="width=device-width,initial-scale=1"><title>{E(title)} · LLM Wiki</title><script>try{{document.documentElement.dataset.theme=localStorage.getItem('wiki-theme')==='dark'?'dark':'light'}}catch(e){{}}</script><link rel="stylesheet" href="/static/app.css?v={ASSET_VERSIONS["app.css"]}"></head><body><a class="skip-link" href="#main">跳到内容</a><aside class="sidebar"><a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 6 4 12 4-8 4 8 4-12"/></svg></span> LLM Wiki</a><a class="sidebar-import" href="/sources#import"><span>＋</span> 导入资料</a><div class="workspace-label">工作空间</div><nav aria-label="工作空间">{nav}</nav><div class="topic-nav"><div class="workspace-label">采集范围</div>{topic_links}</div><div class="sidebar-bottom"><span class="status-dot"></span> 本地工作空间</div></aside><div class="main-shell"><header class="topbar"><div class="topbar-path"><span>工作空间</span><span class="path-divider">/</span><strong>{E(title)}</strong></div><div class="topbar-actions"><span class="local-label"><span class="status-dot"></span>本地</span><button class="icon-button" id="theme-toggle" aria-label="切换深色模式" title="切换深浅色模式"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 13.1A9 9 0 0 1 10.9 3.2 9 9 0 1 0 20.8 13.1Z"/></svg></button></div></header><main id="main">{body}</main></div><div id="toast" role="status" aria-live="polite"></div><script src="/static/app.js?v={ASSET_VERSIONS["app.js"]}" defer></script></body></html>''')
+
+
+def library_snapshot(fn):
+    """Render related files under the same lock used by publication."""
+    @wraps(fn)
+    def render(*args,**kwargs):
+        from .workspaces import current_workspace
+        from .publication import publication_lock
+        workspace=current_workspace()
+        if workspace:
+            with publication_lock(workspace): return fn(*args,**kwargs)
+        return fn(*args,**kwargs)
+    return render
 
 
 def md_render(source, citation_source_ids=None, evidence_prefix="knowledge", topic=False):
@@ -96,7 +151,8 @@ def md_render(source, citation_source_ids=None, evidence_prefix="knowledge", top
 def category_options(selected='', all_option=False, active_only=False, retain_selected=False):
     entries = categories()
     if active_only and not retain_selected and not any(c['id'] == selected and c['enabled'] for c in entries):
-        selected = 'other'
+        from .knowledge import default_category
+        selected = default_category()
     result = '<option value="">全部主题</option>' if all_option else ''
     return result + ''.join(f'<option value="{E(c["id"])}" {"selected" if c["id"] == selected else ""} {"disabled" if active_only and not c["enabled"] else ""}>{E(c["name"])}{"（已停用）" if not c["enabled"] else ""}</option>' for c in entries if not active_only or c['enabled'] or (retain_selected and c['id'] == selected))
 
@@ -141,6 +197,7 @@ def topic_counts(details):
 
 
 @app.get('/', response_class=HTMLResponse)
+@library_snapshot
 def home(q: str = '', category: str = ''):
     with connect() as db:
         total = db.execute('SELECT count(*) FROM sources').fetchone()[0]
@@ -194,12 +251,21 @@ def home(q: str = '', category: str = ''):
 
 
 @app.get('/page/{slug}', response_class=HTMLResponse)
+@library_snapshot
 def page(slug: str):
     if safe_slug(slug) != slug or slug == 'index':
         raise HTTPException(404)
     pages = wiki_pages()
     matches = [p for p in pages if p['slug'] == slug]
     if not matches:
+        from .workspaces import current_workspace
+        workspace=current_workspace()
+        redirects=workspace.root/'redirects.json' if workspace else None
+        if redirects and redirects.exists():
+            target=load_json(redirects).get(slug)
+            if isinstance(target,str) and safe_slug(target)==target and (WIKI/(target+'.md')).is_file():
+                from fastapi.responses import RedirectResponse
+                return RedirectResponse(workspace.url('/page/'+target),status_code=307)
         raise HTTPException(404)
     current = matches[0]
     backlinks = [p for p in pages if slug in p.get('related_slugs', []) or re.search(r'\[\[' + re.escape(slug) + r'(?:\||\]\])', p['body'])]
@@ -226,10 +292,33 @@ def page(slug: str):
     body += f'<script src="/static/fact-checks.js?v={ASSET_VERSIONS["fact-checks.js"]}" defer></script>'
     if backlinks:
         body += '<section class="panel"><h2>引用这个页面的知识</h2>' + ''.join(f'<a class="text-link" href="/page/{quote(p["slug"])}">{E(p["title"])}</a> ' for p in backlinks) + '</section>'
+    from .common import META
+    metadata=load_json(META/(slug+'.json')) if (META/(slug+'.json')).exists() else {}
+    if metadata.get('semantic_reviews'):
+        body+='<details class="page-evidence-records"><summary>独立 Agent 证据核查</summary><p class="muted">记录原文支持判断，不代表独立研究复现。</p>'
+        from .compiler import digest
+        from .workspaces import current_workspace
+        workspace=current_workspace()
+        last_review=metadata['semantic_reviews'][-1]
+        stale=last_review.get('body_digest')!=digest(page_body(current['body']))
+        if workspace:
+            for sid,version in last_review.get('original_versions',{}).items():
+                parsed_path=workspace.root/'parsed'/(sid+'.json')
+                if (digest(load_json(parsed_path)) if parsed_path.exists() else None)!=version: stale=True
+        if stale:
+            body+='<p class="notice warning">该核查记录未绑定当前正文版本，需重新核对。</p>'
+        for review in metadata['semantic_reviews'][-1].get('reviews',[]):
+            body+=f'<p>{E(review.get("claim_id",""))} · {E(review.get("verdict",""))}：{E(review.get("reason",""))}</p>'
+        for claim in metadata.get('claims',[]):
+            for passage in claim.get('evidence_passages',[]):
+                location='?page='+str(passage.get('page',1))+'&paragraph_id='+quote(passage.get('paragraph_id',''))
+                body+=f'<p><a href="/source/{E(passage["source_id"])}{E(location)}">{E(passage.get("locator","原文"))}</a></p>'
+        body+='</details>'
     return layout(current['title'], body)
 
 
 @app.get('/sources', response_class=HTMLResponse)
+@library_snapshot
 def sources(q: str = '', category: str = '', status: str = ''):
     with connect() as db:
         items = db.execute('SELECT * FROM sources ORDER BY captured_at DESC,id').fetchall()
@@ -336,7 +425,8 @@ def bibliography_html(record):
 
 
 @app.get('/source/{sid}', response_class=HTMLResponse)
-def source(sid: str):
+@library_snapshot
+def source(sid: str, page: int | None=None, paragraph_id: str | None=None, parsed_version: str | None=None):
     d = source_record(sid)
     with connect() as db:
         row = db.execute('SELECT * FROM sources WHERE id=?', (sid,)).fetchone()
@@ -383,6 +473,20 @@ def source(sid: str):
         text = d.get('text', '')
         rendered = md_render(text) if d.get('content_format') in {'markdown','html'} else f'<pre class="original-text">{E(text)}</pre>'
         body += '<article class="prose original-document">' + (rendered if text else '<p class="muted">暂时没有可阅读的提取文字，请查看原件或补充可搜索文件。</p>') + '</article>'
+    from .workspaces import current_workspace
+    workspace=current_workspace()
+    parsed_path=workspace.root / 'parsed' / (sid+'.json') if workspace else None
+    if parsed_path and parsed_path.exists():
+        import hashlib
+        if parsed_version and hashlib.sha256(parsed_path.read_bytes()).hexdigest()!=parsed_version:
+            body+='<div class="notice warning">解析版本已改变，旧证据定位需重新核对。</div>'
+        parsed=load_json(parsed_path)
+        segments=parsed.get('paragraphs',[])
+        if page is not None: segments=[p for p in segments if p.get('page')==page]
+        if paragraph_id: segments=[p for p in segments if p.get('id')==paragraph_id]
+        body+='<details class="panel" open><summary>归档文字与证据定位</summary>'
+        body+=''.join(f'<section id="{E(p["id"])}"><p class="muted">PDF 页序 {E(p.get("page",1))} · {E(p["id"])}</p><blockquote>{E(p["text"])}</blockquote></section>' for p in segments)
+        body+='</details>'
     return layout(d['title'], body, 'sources')
 
 
@@ -403,6 +507,7 @@ def original(sid: str, version: str = 'current'):
 
 
 @app.get('/drafts', response_class=HTMLResponse)
+@library_snapshot
 def drafts():
     connect().close()
     items = [load_json(p) for p in sorted(PENDING.glob('*.json'))]
@@ -593,7 +698,14 @@ async def read_payload(request):
 
 async def operation(fn, *args, **kwargs):
     try:
-        return await run_in_threadpool(fn, *args, **kwargs)
+        from .workspaces import current_workspace
+        workspace=current_workspace()
+        def scoped():
+            if workspace:
+                from .publication import publication_lock
+                with publication_lock(workspace): return fn(*args,**kwargs)
+            return fn(*args,**kwargs)
+        return await run_in_threadpool(scoped)
     except (ValueError, OSError, RuntimeError) as exc:
         # Never forward backend exception text (URLs and upstream error bodies may contain credentials).
         message = str(exc) if isinstance(exc, ValueError) and 'http' not in str(exc).lower() else '处理失败，请检查原文链接、文件或模型接口后重试。'
@@ -604,7 +716,7 @@ async def operation(fn, *args, **kwargs):
 async def api_import_url(request: Request):
     from .collector import import_url
     p = await read_payload(request)
-    category = await operation(validate_category, p.get('category','other'), active_only=True)
+    category = await operation(validate_category, p.get('category',default_category()), active_only=True)
     url = p.get('url','')
     if not isinstance(url,str) or not url.strip():
         raise HTTPException(400, '请输入原始资料链接')
@@ -616,7 +728,7 @@ async def api_import_url(request: Request):
 async def api_import_file(request: Request):
     from .collector import import_file
     p = await read_payload(request)
-    category = await operation(validate_category, p.get('category','other'), active_only=True)
+    category = await operation(validate_category, p.get('category',default_category()), active_only=True)
     filename = p.get('file_name','')
     if not isinstance(filename,str):
         raise HTTPException(400, '文件名无效')
@@ -665,6 +777,17 @@ async def api_compile(request: Request):
     draft_only = p.get('draft_only', False)
     if not isinstance(draft_only, bool):
         raise HTTPException(400, '草稿预览选项必须为布尔值')
+    from .workspaces import current_workspace
+    workspace=current_workspace()
+    if workspace and workspace.library_id!='legacy' and not draft_only:
+        from .jobs import enqueue
+        from .compiler import compilation_inputs
+        def queued_sources():
+            return compilation_inputs(workspace,[sid] if sid else None,category=category)
+        ids,skipped,versions=await operation(queued_sources)
+        if not ids:return {'count':0,'message':'该主题暂无原始资料'}
+        job=await operation(enqueue,workspace,'compile',{'source_ids':ids,'skipped_sources':skipped,'target_slug':options['target_slug'],'revisit':bool(options['target_slug'])},input_versions=versions)
+        return {**job,'url':'/tasks','message':'分阶段编译任务已入队'}
     if draft_only:
         count = await operation(prepare, **options)
         return {'count': count, 'url': '/drafts' if count else None, 'message': f'已生成 {count} 份预览稿'}

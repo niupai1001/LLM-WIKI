@@ -98,7 +98,7 @@ class AutonomousWikiTests(unittest.TestCase):
         common.save_json(wiki.RAW / (self.sid + '.json'), source)
         self.assertEqual(wiki.automatic_publish(pid)['status'], 'published')
         for field in wiki.PROTECTED_FIELDS:
-            self.assertEqual(common.load_json(self.meta_path)[field], self.meta[field])
+            self.assertEqual(common.load_json(self.meta_path).get(field), self.meta.get(field))
         self.assertEqual(self.status(), 'approved')
 
     def test_bare_link_and_shared_category_do_not_manufacture_comparisons(self):

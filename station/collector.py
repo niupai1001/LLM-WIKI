@@ -16,7 +16,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from .common import ASSETS, RAW, canonical, connect, load_json, save_json, source_id, utcnow
-from .knowledge import validate_category
+from .knowledge import validate_category, default_category
 from .bibliography import arxiv_identifier, arxiv_doi_metadata, build_bibliography, parse_arxiv_atom, query_url
 
 MAX_DOWNLOAD = 15 * 1024 * 1024
@@ -396,7 +396,7 @@ def archive(record, db):
     """Idempotent source archive. Explicit text is a caller-provided original."""
     if not public_http(record["url"]):
         raise ValueError("Invalid public source link")
-    category = validate_category(record.get("category", "other"), active_only=True)
+    category = validate_category(record.get("category", default_category()), active_only=True)
     kind = validate_kind(record.get("kind", "article"))
     sid = source_id(record["url"])
     if known_source_id(record['url'], db):
@@ -509,9 +509,9 @@ def ingest():
     return count
 
 
-def import_file(title, file_path, category="other", kind=None):
+def import_file(title, file_path, category=None, kind=None):
     """Import an original .md/.txt/.pdf file; return its id, including duplicates."""
-    category = validate_category(category, active_only=True)
+    category = validate_category(category if category is not None else default_category(), active_only=True)
     path = Path(file_path)
     suffix = path.suffix.lower()
     title = (title or path.stem).strip()
@@ -550,14 +550,14 @@ def import_file(title, file_path, category="other", kind=None):
         db.close()
 
 
-def add_note(title, file_path, category="research"):
+def add_note(title, file_path, category=None):
     """Compatibility helper: duplicate authored notes return None."""
     db = connect()
     try:
         previous = {row[0] for row in db.execute("SELECT id FROM sources")}
     finally:
         db.close()
-    sid = import_file(title, file_path, category, kind="note")
+    sid = import_file(title, file_path, category if category is not None else default_category('research'), kind="note")
     return None if sid in previous else sid
 
 
@@ -595,8 +595,8 @@ def refresh_source(sid):
         db.close()
 
 
-def import_url(url, category="other", title=None, kind="article", verify_metadata=False):
-    validate_category(category, active_only=True)
+def import_url(url, category=None, title=None, kind="article", verify_metadata=False):
+    category=validate_category(category if category is not None else default_category(), active_only=True)
     validate_kind(kind)
     if not public_http(url):
         raise ValueError("Invalid public source link")

@@ -150,7 +150,9 @@ def run_once(project=PROJECT, home=None, runner=None, auto_draft=None):
             log.write(f"[{state['started_at']}] collection started\n")
             log.flush()
             try:
-                for action in ["ingest"] + (["prepare"] if auto_draft else []):
+                from .workspaces import resolve_workspace
+                for requested_action in ["ingest"] + (["auto-compile"] if auto_draft else []):
+                    action=requested_action if requested_action=='ingest' else ('prepare' if resolve_workspace(root=p['logs'].parent).library_id=='legacy' else 'compile')
                     state["phase"] = action
                     _save(p["state"], state)
                     # Retain CLI diagnostics separately from the public status object.

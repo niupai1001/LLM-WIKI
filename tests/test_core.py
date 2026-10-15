@@ -1,3 +1,4 @@
+from fixture_config import CHILD_CONFIG
 import json
 import os
 import shutil
@@ -34,7 +35,7 @@ assert archive(record,db) is None
 assert db.execute('SELECT count(*) FROM sources').fetchone()[0]==1
 print('ARCHIVE_OK')
 """
-            result = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True, env=env, check=True)
+            result = subprocess.run([sys.executable, "-c", CHILD_CONFIG + script], capture_output=True, text=True, env=env, check=True)
             self.assertIn("ARCHIVE_OK", result.stdout)
 
 
@@ -62,7 +63,7 @@ try:
 finally:
     p.unlink(missing_ok=True)
 '''
-            result = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True, env=env, check=True)
+            result = subprocess.run([sys.executable, "-c", CHILD_CONFIG + script], capture_output=True, text=True, env=env, check=True)
             self.assertIn("WIKI_APPROVAL_OK", result.stdout)
 
 

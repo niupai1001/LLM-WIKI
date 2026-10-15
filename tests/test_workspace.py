@@ -1,3 +1,4 @@
+from fixture_config import CHILD_CONFIG
 """Isolated HTTP workflow: original import → topic synthesis → review → graph."""
 import base64
 import json
@@ -44,7 +45,7 @@ import uvicorn
 uvicorn.run('station.web:app', host='127.0.0.1', port=int(os.environ['TEST_PORT']), log_level='error')
 '''
             env['TEST_PORT'] = str(port)
-            process = subprocess.Popen([sys.executable, '-c', script], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+            process = subprocess.Popen([sys.executable, '-c', CHILD_CONFIG + script], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
             base = f'http://127.0.0.1:{port}'
             def request(path, payload=None, origin=None):
                 headers = {'Content-Type':'application/json'}
@@ -152,7 +153,7 @@ with common.connect() as db:
     assert db.execute('SELECT stage FROM sources WHERE id=?',(sid,)).fetchone()[0]=='new'
 print('STATE_AND_CONFLICT_OK')
 '''
-            result = subprocess.run([sys.executable,'-c',script],env=dict(os.environ,STATION_DATA=root),capture_output=True,text=True,check=True)
+            result = subprocess.run([sys.executable,'-c',CHILD_CONFIG+script],env=dict(os.environ,STATION_DATA=root),capture_output=True,text=True,check=True)
             self.assertIn('STATE_AND_CONFLICT_OK',result.stdout)
 
     def test_long_source_budgets_claiming_and_invalid_citations(self):
@@ -204,7 +205,7 @@ assert len(attempts)==2, 'JSON retry only; no automatic editorial call'
 assert len(common.load_json(next(common.PENDING.glob('*.json')))['source_ids'])==8
 print('BUDGET_CLAIM_AND_CITATIONS_OK')
 '''
-            result=subprocess.run([sys.executable,'-c',script],env=dict(os.environ,STATION_DATA=root),capture_output=True,text=True,check=True)
+            result=subprocess.run([sys.executable,'-c',CHILD_CONFIG+script],env=dict(os.environ,STATION_DATA=root),capture_output=True,text=True,check=True)
             self.assertIn('BUDGET_CLAIM_AND_CITATIONS_OK',result.stdout)
 
     def test_page_changed_during_model_request_requires_new_review(self):
@@ -241,5 +242,5 @@ except ValueError:
 assert '人工同时补充的重要信息' in (common.WIKI/'evidence-topic.md').read_text()
 print('CONCURRENT_EDIT_PROTECTED')
 '''
-            result=subprocess.run([sys.executable,'-c',script],env=dict(os.environ,STATION_DATA=root),capture_output=True,text=True,check=True)
+            result=subprocess.run([sys.executable,'-c',CHILD_CONFIG+script],env=dict(os.environ,STATION_DATA=root),capture_output=True,text=True,check=True)
             self.assertIn('CONCURRENT_EDIT_PROTECTED',result.stdout)

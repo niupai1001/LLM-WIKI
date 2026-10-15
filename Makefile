@@ -3,7 +3,7 @@ LIMIT ?= 3
 MINUTES ?= 30
 CATEGORY ?=
 
-.PHONY: setup test web collector ingest stats drafts prepare rewrite approve
+.PHONY: setup test web worker collector ingest stats drafts prepare rewrite approve
 
 setup:
 	@test -f .env || cp .env.example .env
@@ -15,6 +15,9 @@ test:
 
 web:
 	$(PYTHON) -m uvicorn station.web:app --host 127.0.0.1 --port 8765
+
+worker:
+	$(PYTHON) -m station.worker
 
 collector:
 	$(PYTHON) -u -m station.cli loop --minutes $(MINUTES)

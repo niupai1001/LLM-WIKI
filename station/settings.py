@@ -14,7 +14,8 @@ from urllib.parse import urlsplit, urlunsplit
 
 from .common import DB, META, PENDING, RAW, canonical
 
-CONFIG_DIR = Path(__file__).resolve().parent.parent / 'config'
+from .workspaces import ContextPath
+CONFIG_DIR = ContextPath('config', Path(__file__).resolve().parent.parent / 'config')
 TOPICS_FILE = CONFIG_DIR / 'categories.json'
 FEEDS_FILE = CONFIG_DIR / 'feeds.json'
 LOCK_FILE = CONFIG_DIR / '.settings.lock'
@@ -224,8 +225,6 @@ def save_topic(payload):
             value[field] = payload.get(field, value.get(field, default))
         value.update(id=key, name=_text(value['name'], '主题名称', 80, True),
                      description=_text(value['description'], '主题描述', 2000), enabled=_enabled(value['enabled']))
-        if key == 'other' and not value['enabled']:
-            raise ValueError('“其他”主题用于未分类资料，不能停用')
         if any(t['id'] != key and t['name'].casefold() == value['name'].casefold() for t in current['topics']):
             raise ValueError('已存在同名主题，请使用其他名称')
         if existing:
@@ -279,8 +278,6 @@ def delete_topic(key, payload):
         current = _read()
         _check_payload(payload, current)
         _key(key)
-        if key == 'other':
-            raise ValueError('“其他”主题用于未分类资料，不能删除')
         existing = next((t for t in current['topics'] if t['id'] == key), None)
         if existing is None:
             raise ValueError('主题已不存在，请刷新页面后重试')

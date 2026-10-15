@@ -1,5 +1,7 @@
 # LLM Wiki 项目说明与架构设计
 
+> 2026-10-14 增补：已实现独立知识库、持久任务、逐页 OCR、缓存抽取、混合检索、多目标编译、独立核查、只读问答和发布恢复。本文原有流程说明对应兼容编写路径；新流程及当前迁移条件见 [V2 升级与迁移说明](v2-upgrade.md)。候选库验收通过前，正式库继续使用 legacy。
+
 > 文档基准：2026-10-13 当前工作区代码，包含编写期间新增、最终复核时可见的主题导航实现；不代表已提交版本或部署状态。本文描述代码实现的行为；改进建议单独列出。配置默认值以代码和 `.env.example` 为准，不读取或披露本地 `.env`。历史维护记录与当前代码不一致时，以当前代码为准。
 
 ## 1. 项目定位
@@ -14,7 +16,7 @@ LLM Wiki（工程目录 `pi-intel-wiki`）是一个本机优先的资料归档�
 
 ### 2.1 架构形态
 
-当前是一个 **Python 模块化单体应用，配合文件存储和 SQLite 索引**。网页、CLI 和定时采集复用同一套业务模块；定时任务可以在独立进程运行，通过共享目录和锁协调。项目没有独立前端构建服务、消息队列、向量数据库或图数据库。
+当前是一个 **Python 模块化单体应用，配合文件存储和 SQLite 索引**。网页、CLI 和定时采集复用同一套业务模块；worker 在独立进程中消费 SQLite 持久队列，通过库锁和任务租约协调。项目没有独立前端构建服务、外部消息代理、向量数据库或图数据库。
 
 ```mermaid
 flowchart TB
@@ -52,18 +54,61 @@ flowchart TB
 | 前端 | 原生 JavaScript、CSS、SVG | 无 Node 构建链；图谱交互在浏览器执行 |
 | 文本展示 | Python Markdown、Bleach | Markdown 转 HTML，并清洗可展示标签与属性 |
 | PDF 阅读 | 本地 PDF.js、worker、字体与 CMap | 浏览器直接阅读归档 PDF，不依赖 CDN |
-| 资料处理 | feedparser、trafilatura、pypdf | 分别处理订阅、网页正文、PDF 文字 |
+| 资料处理 | feedparser、trafilatura、pypdf、Poppler、Tesseract | 订阅、网页正文、PDF逐页文字与中英OCR |
 | 持久化 | SQLite WAL + JSON + Markdown + 原件文件 | 数据可直接检查，但多文件一致性需要业务层保护 |
 | 模型调用 | Python urllib 请求兼容接口 | 没有独立 Agent 服务或模型 SDK 编排层 |
 | 部署 | 本地进程或 Docker Compose | Web 与采集进程共享 `data/`、`config/` |
 
 依赖范围见 [`requirements.txt`](../requirements.txt)，安装锁定版本见 [`requirements.lock.txt`](../requirements.lock.txt)。两者是不同维护入口，新增依赖时应同步检查锁文件。
 
+### 2.3 V2 新流程的边界
+
+2026-10-15 当前只保留“Agent 智能体”采集范围及其4个订阅，其他范围与非Agent订阅在重新归类资料后移除。`category`负责采集筛选和来源归属；`page_kind=topic`及`topic_routes`负责从结构化知识生成问题导航。两者在侧栏分别显示为“采集范围”和“知识主题”，自动编译不能新增人工分类来代替知识主题。
+
+Web / CLI 明确选择 Workspace，并固定任务的 library_id；旧路径接口经请求上下文解析，不改进程环境变量。worker 消费库内 jobs.db，逐步调用文档解析、缓存抽取、候选检索与多目标 compiler。compiler 将验证通过的正文、元数据和主题导航交给 publication，在同一个来源数据库中保存发布日志与覆盖进度。search.db 是可重建索引；query 只读取可定位证据，不写知识正文。
+
+候选库独立复制来源及原件，并保存旧 Wiki 基线。knowledge_coverage 记录每个来源版本的知识问题是否处理，不能由来源 stage 推导完整覆盖。evaluation 使用固定公开评测集、实际来源及独立人工记录生成切换门槛；程序测试或模型自评分不会替代人工验收。
+
+```mermaid
+flowchart TB
+    Entry[Web / CLI / scheduler] --> Registry[workspaces：注册信息与活动库]
+    Registry --> WS[Workspace：明确的库ID、路径和配置]
+    WS --> Queue[jobs.db：输入版本、状态、心跳与租约]
+    Queue --> Worker[worker：独立进程]
+    Worker --> Parse[documents：逐页解析 / OCR]
+    Parse --> Extract[extraction：概念、问题、断言、原文位置]
+    Extract --> Align[compiler：检索候选并按问题对齐]
+    Align --> Write[按目标概念聚合与编写]
+    Write --> Verify[单独请求核查：正文、条件、旧知识]
+    Verify -->|实质问题| Blocked[受阻目标、覆盖记录与单目标重试]
+    Verify -->|通过| Publish[publication：暂存、旧值与数据库提交日志]
+    Publish --> Facts[正文 / 元数据 / 主题导航 / 来源与覆盖状态]
+    Facts --> Search[search.db：FTS5、别名与远程embedding向量]
+    Align --> Search
+    Ask[网页 / CLI只读问答] --> Search
+    Search --> Original[归档原文、物理页序与段落]
+    Ask --> Answer[带来源位置与范围的回答]
+    Original --> Answer
+    Facts --> Eval[evaluation：基线对照、真实检索、人工核对]
+    Eval -->|满足门槛后用户操作| Switch[备份与活动指针切换 / 回退]
+```
+
+编写与问答共享候选检索，只有编写能进入发布。向量相似度用于召回，不决定概念合并；相同模型的核查请求也不等于独立实验验证。发布的事实以 Markdown 和 JSON 为准，搜索索引可删除重建。
+
 ## 3. 工程目录与模块职责
 
 | 路径 / 模块 | 职责 | 关键关系 |
 | --- | --- | --- |
 | [`station/common.py`](../station/common.py) | 数据路径、SQLite 初始化与迁移、URL 标准化、来源标识、JSON 存取 | 所有持久化模块的基础 |
+| [`station/workspaces.py`](../station/workspaces.py) | 库注册、上下文、独立复制、增量同步、验收门槛、切换备份与回退 | Web、CLI、worker按相同注册信息选库 |
+| [`station/jobs.py`](../station/jobs.py)、[`station/worker.py`](../station/worker.py) | 持久任务、取消/重试、租约围栏、心跳及阶段执行 | 任务绑定库和输入版本；单库一次一个编译 |
+| [`station/documents.py`](../station/documents.py) | 逐页PDF/OCR、段落与字符区间、内容版本 | 为抽取、证据核查和问答提供定位 |
+| [`station/extraction.py`](../station/extraction.py) | 可缓存概念/问题/断言抽取、分批覆盖记录 | 先提炼中间对象，再对齐与编写 |
+| [`station/search.py`](../station/search.py)、[`station/query.py`](../station/query.py) | 统一FTS/别名/向量候选与只读回答 | 编译与问答共用候选；回答引用由程序定位 |
+| [`station/compiler.py`](../station/compiler.py) | 多目标编写、正文与断言绑定、变更记录、独立核查及受限修正 | 通过后交publication；失败可按目标重试 |
+| [`station/publication.py`](../station/publication.py) | 库锁、文件旧/新值、SQLite提交日志、幂等恢复 | 正文、元数据、导航和业务SQL一起提交 |
+| [`station/evaluation.py`](../station/evaluation.py) | 固定评测集、旧知识映射、覆盖、候选召回与人工证据 | 生成版本绑定的切换验收报告 |
+| [`station/v2web.py`](../station/v2web.py) | 库、任务、检索、问答、对照与迁移页面/API | 与原有Web共用库中间件和HTML清洗 |
 | [`station/collector.py`](../station/collector.py) | RSS 发现、筛选、下载、全文提取、导入、刷新、来源分类 | 写入来源索引、原件和 raw JSON |
 | [`station/bibliography.py`](../station/bibliography.py) | 书目结构与元数据处理 | 为来源展示及写作提供作者、日期、版本等信息 |
 | [`station/published_sources.py`](../station/published_sources.py) | 支持的正式出版网站解析 | 为 collector 提供出版信息和全文入口 |
@@ -80,7 +125,7 @@ flowchart TB
 | [`station/settings_view.py`](../station/settings_view.py) | 设置页面 HTML | 由 Web 调用，数据来自 settings 快照 |
 | [`station/web.py`](../station/web.py) | 页面路由、请求校验、业务调用和 HTML 组合 | UI 与业务之间的适配层 |
 | [`station/cli.py`](../station/cli.py) | 导入、采集、编写、发布等命令 | 与网页调用相同业务函数 |
-| [`station/scheduler.py`](../station/scheduler.py) | LaunchAgent 安装、执行锁、状态和日志 | 子进程顺序执行 CLI 的 ingest、prepare |
+| [`station/scheduler.py`](../station/scheduler.py) | LaunchAgent 安装、执行锁、状态和日志 | 子进程执行ingest；依活动库使用兼容prepare或新compile |
 | `station/static/` | 页面交互、主题切换、图谱、PDF 阅读器 | `app.js` 调用 JSON API；`graph.js` 消费图谱数据 |
 | `config/` | 分类、订阅、写作与来源质量规范 | JSON 是运行配置；规范是否运行时使用需看具体调用 |
 | `tests/` | 离线单元测试和 HTTP 工作流测试 | 用模拟模型响应验证确定性逻辑 |
@@ -104,6 +149,12 @@ flowchart TB
 | 冲突 Conflict | `conflicts[]` | 不同来源的差异、范围和处理状态 |
 | 关系 Relation | `relations[].id` | 从当前页指向其他页、有断言与摘录依据的联系 |
 | 核查记录 Review | `claim_reviews/<slug>.json` | 对一条断言和一份来源作出的版本化核查判断 |
+| 知识库 Library | 注册信息的`library_id` | 隔离来源、正文、配置、任务、索引与锁；相同来源ID不能跨库取证 |
+| 解析文档 ParsedDocument | `parsed/<source-id>.json` | 物理页序、显示页码、段落、提取方法与可读性边界 |
+| 抽取对象 Extraction | 来源内容/解析/模型/提示/schema的缓存身份 | 一份资料的多个概念、知识问题及断言候选 |
+| 知识问题覆盖 Coverage | 来源、抽取缓存、问题ID联合键 | 问题的待处理、发布、失败或有原因的暂缓状态 |
+| 后台任务 Job | `j_` + UUID；每库`jobs.db` | 固定输入版本并记录执行状态，租约过期后显式重试 |
+| 发布操作 Publication | 每库`state.db`提交日志 | 将文件与业务SQL组成可恢复的提交单元 |
 
 ```mermaid
 erDiagram
@@ -154,7 +205,7 @@ SQLite 负责资料列表、去重入口、筛选与编写状态；文件负责�
 | `data/source-catalog.json` | 公开书目快照 | 版本管理与资料目录记录，不替代原文库 |
 | `data/logs/` | 调度状态、执行日志、任务锁 | 运行观测 |
 
-以上 `data/` 为默认路径。`STATION_DATA` 可替换数据根目录，默认相对路径依赖当前工作目录；`config/` 则定位于工程根目录，不跟随 `STATION_DATA`。测试隔离或迁移时必须注意二者不同。
+以上 `data/` 为旧库默认路径。`STATION_DATA` 指定注册信息及旧库根目录，省略库ID时读取活动指针。候选库位于该根目录的`libraries/<id>/`，表中业务路径相对于各自库根目录。候选配置在库内`config/`；旧库优先使用其库内config，没有时兼容工程根config。V2新增存储及恢复步骤详见[v2-upgrade.md](v2-upgrade.md)。
 
 ### 5.2 SQLite 字段
 
@@ -183,7 +234,7 @@ SQLite 负责资料列表、去重入口、筛选与编写状态；文件负责�
 5. 保存 raw JSON 与 SQLite 索引；全文失败但有摘要时保留 `summary-only`，没有可用文字时保留缺失状态。
 6. 用户可以重新获取全文、补取 PDF 或调整分类；正在编写或已有草稿的来源存在操作限制。
 
-上传支持 PDF、Markdown、UTF-8 文本，单份上限 15 MB。扫描 PDF 可保留原件，但当前没有 OCR。浏览器显示 PDF 图像，不代表模型读取过其中的图表：模型使用的是提取文本。
+上传支持 PDF、Markdown、UTF-8 文本，单份上限 15 MB。扫描 PDF 保留原件，分阶段任务对文字不足页调用Poppler与Tesseract；失败页明确标为缺失。浏览器显示PDF图像不代表模型读取过图表；首版模型使用提取/OCR文字，复杂公式与图表仍需查看原件。
 
 ### 6.2 知识编写与自动发布
 

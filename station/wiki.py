@@ -1,4 +1,4 @@
-"""Human-reviewed LLM Wiki update proposals. Never auto-overwrite existing pages."""
+"""Evidence-bound proposals with compatible legacy and journaled library publication."""
 import json
 import copy
 import fcntl
@@ -49,14 +49,15 @@ reference_sources是已有知识背后的归档原文，允许用于断言和正
 在有关联时，正文说明与已有方法的具体共同机制、差别、适用条件和可互补的位置，并用[[slug|方法名]]建立文内链接，分别引用双方原文。不能只在页末列名称；不能强凑多源一致。组合设计建议标明推论，未直接比较的实验不写成优劣排名。原始方法定义可以单源，跨方法判断需要双方证据。
 不要在正文中嵌入脚本、HTML或未经核实的外链。"""
 
-WRITING_GUIDE = Path(__file__).resolve().parent.parent / 'config' / 'wiki-writing.md'
+from .workspaces import ContextPath
+WRITING_GUIDE = ContextPath('config', Path(__file__).resolve().parent.parent / 'config') / 'wiki-writing.md'
 
 
 def writing_system():
     return SYSTEM + '\n\n' + WRITING_GUIDE.read_text(encoding='utf-8')
 
 
-def validate_evidence_records(reply, allowed_ids, excerpt_lookup=None):
+def validate_evidence_records(reply, allowed_ids, excerpt_lookup=None, parsed_evidence=None):
     """Validate traceable proposals, without treating model labels as proof."""
     result = {}
     def text(value, limit=2000):
@@ -72,7 +73,7 @@ def validate_evidence_records(reply, allowed_ids, excerpt_lookup=None):
         return {'text': text(item.get('text')), 'scope': text(item.get('scope')), 'source_ids': sorted(set(ids))}
     for key in ['claims', 'conflicts']:
         values = reply.get(key, [])
-        if not isinstance(values, list) or len(values) > 20:
+        if not isinstance(values, list) or len(values) > (200 if parsed_evidence is not None else 20):
             raise ValueError('Invalid evidence record list')
         records, seen = [], set()
         for value in values:
@@ -103,8 +104,11 @@ def validate_evidence_records(reply, allowed_ids, excerpt_lookup=None):
                     locator, quotation = text(passage.get('locator'), 300), text(passage.get('quote'), 3000)
                     source = load_json(RAW / (sid + '.json'))
                     normalized = ' '.join(quotation.split())
-                    if (source.get('content_status') != 'full-text' or len(normalized) < 20
-                            or normalized not in ' '.join(source.get('text', '').split())):
+                    original = (parsed_evidence or {}).get(sid)
+                    original_text = '\n\n'.join(p.get('text','') for p in original.get('paragraphs', [])) if original and original.get('paragraphs') else source.get('text', '')
+                    full_text = bool(original_text) if original is not None else source.get('content_status') == 'full-text'
+                    if (not full_text or len(normalized) < 20
+                            or normalized not in ' '.join(original_text.split())):
                         raise ValueError('Claim passage does not match archived full text')
                     verified.append({'source_id': sid, 'locator': locator, 'quote': quotation, 'proposed_by': 'LLM'})
                 if verified:
@@ -214,7 +218,47 @@ def page_candidates(title, limit=3):
     return [{"slug": path.stem, "title": body.splitlines()[0], "text": body[:10000]} for score, path, body in scores[:limit] if score >= 0.28]
 
 
+def _read_llm_response(response, deadline, limit=8*1024*1024):
+    import socket
+    import threading
+    import time
+    # Providers may send whitespace while queued, which keeps a socket timeout
+    # alive. Close the transport at the request deadline as well as checking
+    # between bounded reads. Never retain credentials in diagnostic output.
+    transport=getattr(getattr(getattr(response,'fp',None),'raw',None),'_sock',None)
+    expired=threading.Event()
+    def interrupt():
+        expired.set()
+        if transport is not None:
+            try: transport.shutdown(socket.SHUT_RDWR)
+            except OSError: pass
+    timer=threading.Timer(max(0,deadline-time.monotonic()),interrupt)
+    timer.daemon=True;timer.start()
+    content=bytearray()
+    try:
+        read=getattr(response,'read1',response.read)
+        while True:
+            if expired.is_set() or time.monotonic()>=deadline:
+                raise TimeoutError('LLM request exceeded its time limit')
+            chunk=read(65536)
+            if expired.is_set() or time.monotonic()>=deadline:
+                raise TimeoutError('LLM request exceeded its time limit')
+            if not chunk: break
+            content.extend(chunk)
+            if len(content)>limit: raise ValueError('LLM response exceeds the size limit')
+        return json.loads(content)
+    except TimeoutError:
+        raise
+    except OSError:
+        if expired.is_set() or time.monotonic()>=deadline:
+            raise TimeoutError('LLM request exceeded its time limit') from None
+        raise
+    finally:
+        timer.cancel()
+
+
 def call_llm(messages):
+    import time
     base = os.getenv("LLM_BASE_URL", "").rstrip("/")
     key = os.getenv("LLM_API_KEY", "")
     model = os.getenv("LLM_MODEL", "")
@@ -230,12 +274,19 @@ def call_llm(messages):
     if key:
         headers["Authorization"] = "Bearer " + key
     request = urllib.request.Request(url, headers=headers, data=json.dumps(payload).encode(), method="POST")
-    with urllib.request.urlopen(request, timeout=300) as response:
-        data = json.load(response)
-    choice = data["choices"][0]
+    timeout=max(1,min(float(os.getenv('LLM_TIMEOUT_SECONDS','300')),1800))
+    deadline=time.monotonic()+timeout
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        data = _read_llm_response(response,deadline)
+    choices=data.get('choices') if isinstance(data,dict) else None
+    if not isinstance(choices,list) or not choices or not isinstance(choices[0],dict):
+        raise ValueError('LLM returned no completion choices')
+    choice = choices[0]
     if choice.get("finish_reason", "stop") != "stop":
         raise ValueError(f"Incomplete LLM response: {choice.get('finish_reason')}")
-    result = choice["message"].get("content")
+    message=choice.get('message')
+    if not isinstance(message,dict): raise ValueError('LLM returned no completion message')
+    result = message.get("content")
     if not isinstance(result, str) or not result.strip():
         raise ValueError("LLM returned no text content")
     result = result.strip()
@@ -539,13 +590,21 @@ def strip_generated_navigation(body):
 
 
 PROTECTED_FIELDS = ('slug', 'title', 'claims', 'conflicts', 'source_ids',
-                    'category', 'page_kind', 'page_role', 'related_slugs', 'relations')
+                    'category', 'page_kind', 'page_role', 'related_slugs', 'relations',
+                    'aliases','claim_bindings','claim_changes','legacy_mappings','knowledge_questions','semantic_reviews','pipeline_version')
 _PROPOSAL_MUTEX = threading.RLock()
 _PROPOSAL_ID = re.compile(r'(?:p_[a-f0-9]{32}|[a-f0-9]{16})')
 
 
 @contextmanager
 def proposal_lock():
+    from .workspaces import current_workspace
+    workspace = current_workspace()
+    if workspace is not None:
+        from .publication import publication_lock
+        with publication_lock(workspace):
+            yield
+        return
     PENDING.mkdir(parents=True, exist_ok=True)
     with _PROPOSAL_MUTEX, (PENDING / '.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
@@ -725,6 +784,8 @@ def approve(proposal_id, *, fact_invariance_confirmed=False, fact_review_note=''
     with proposal_lock():
         path = proposal_path(proposal_id)
         proposal = load_json(path)
+        if proposal.get('pipeline_version') and proposal.get('mode','update')!='rewrite':
+            raise ValueError('分阶段提案需通过编译任务重新核查，不允许绕过独立证据检查。')
         mode = proposal.get('mode', 'update')
         if mode not in {'rewrite', 'update'}:
             raise ValueError('Invalid proposal mode')
@@ -745,6 +806,8 @@ def approve(proposal_id, *, fact_invariance_confirmed=False, fact_review_note=''
         if (proposal['action'] == 'create' and target.exists()) or (proposal['action'] == 'update' and not target.exists()):
             raise ValueError('Wiki target state changed')
         old_meta = load_json(meta_path) if meta_path.exists() else {}
+        if mode=='update' and old_meta.get('pipeline_version'):
+            raise ValueError('该页面使用分阶段编译，知识更新需通过 compile 重新进行独立核查。')
         old_body_bytes = target.read_bytes() if target.exists() else None
         old_body = old_body_bytes.decode('utf-8') if old_body_bytes is not None else None
         old_meta_bytes = meta_path.read_bytes() if meta_path.exists() else None
@@ -768,6 +831,7 @@ def approve(proposal_id, *, fact_invariance_confirmed=False, fact_review_note=''
                 if citation_ids(page_body(proposal['body_markdown'])) != citation_ids(page_body(old_body)):
                     raise ValueError('改写改变了正文来源集合。')
                 new_meta = copy.deepcopy(old_meta)
+                if new_meta.get('pipeline_version'): new_meta['claim_bindings_stale']=True
                 source_ids = old_meta.get('source_ids', [])
             else:
                 if proposal.get('source_versions') and source_versions(list(proposal['source_versions'])) != proposal['source_versions']:
@@ -815,6 +879,36 @@ def approve(proposal_id, *, fact_invariance_confirmed=False, fact_review_note=''
             new_body = _publication_body(proposal, source_ids)
             navigation_changes = plan_updates({**proposal, 'page_kind': new_meta.get('page_kind', 'concept'),
                                                'page_role': new_meta.get('page_role', 'knowledge')}, WIKI, META)
+            from .workspaces import current_workspace
+            workspace = current_workspace()
+            if workspace is not None:
+                from .publication import publish
+                changes = {str(target.relative_to(workspace.root)): new_body,
+                           str(meta_path.relative_to(workspace.root)): json.dumps(new_meta, ensure_ascii=False, indent=2)}
+                for change in navigation_changes:
+                    changes[str(change['path'].relative_to(workspace.root))] = change['body']
+                    changes[str(change['meta_path'].relative_to(workspace.root))] = json.dumps(change['metadata'], ensure_ascii=False, indent=2)
+                titles = {p.stem: p.read_text(encoding='utf-8').splitlines()[0].removeprefix('# ') for p in WIKI.glob('*.md') if p.stem != 'index'}
+                titles[slug] = proposal['title']
+                titles.update({c['slug']: c['metadata']['title'] for c in navigation_changes})
+                changes['wiki/index.md'] = '# LLM Wiki\n\n' + '\n'.join(f'- [[{s}|{t}]]' for s,t in sorted(titles.items())) + '\n'
+                changes[f'proposal_history/{path.stem}.json'] = json.dumps({**proposal, 'outcome':'approved', 'handled_at':utcnow(),
+                    'published_body':new_body, 'publication_actor':actor, 'fact_invariance_confirmed':fact_invariance_confirmed,
+                    'fact_review_note':fact_review_note.strip(), 'topics_updated':[c['slug'] for c in navigation_changes]}, ensure_ascii=False, indent=2)
+                changes[f'publication_backups/{path.stem}.json'] = json.dumps({'slug':slug,'body':old_body,'metadata':old_meta,
+                    'topic_navigation':[{'slug':c['slug'],'body':c['old_body'],'metadata':c['old_metadata']} for c in navigation_changes]}, ensure_ascii=False, indent=2)
+                changes[str(path.relative_to(workspace.root))] = None
+                needs_source_update = db is not None
+                if db:
+                    db.rollback(); db.close(); db = None
+                def update_database(connection):
+                    if needs_source_update:
+                        for sid in ids:
+                            row = connection.execute('SELECT stage FROM sources WHERE id=?',(sid,)).fetchone()
+                            if not row or row[0] != 'drafted': raise ValueError('Draft sources changed')
+                        connection.executemany("UPDATE sources SET stage='approved',claim_at=NULL WHERE id=?",[(sid,) for sid in ids])
+                publish(workspace, changes, path.stem, database_callback=update_database)
+                return slug
             # Persist both before-images before any official file is replaced.
             backup = PENDING.parent / 'publication_backups' / (path.stem + '.json')
             save_json(backup, {'slug': slug, 'body': old_body, 'metadata': old_meta if old_meta_bytes is not None else None,
@@ -879,7 +973,7 @@ def reject(proposal_id):
         path = proposal_path(proposal_id)
         draft = load_json(path)
         _archive(path, draft, 'rejected')
-        if draft.get('mode', 'update') == 'update':
+        if draft.get('mode', 'update') == 'update' and not draft.get('pipeline_version'):
             with connect() as db:
                 db.executemany("UPDATE sources SET stage='new' WHERE id=? AND stage='drafted'",
                                [(sid,) for sid in draft.get('reserved_source_ids', draft.get('source_ids', [draft.get('source_id')]))])

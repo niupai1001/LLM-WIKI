@@ -1,3 +1,4 @@
+from fixture_config import CHILD_CONFIG
 import os
 import subprocess
 import sys
@@ -9,7 +10,7 @@ class KnowledgeTests(unittest.TestCase):
     def run_isolated(self, script):
         with tempfile.TemporaryDirectory() as root:
             env = dict(os.environ, STATION_DATA=root)
-            subprocess.run([sys.executable, "-c", script], env=env, text=True,
+            subprocess.run([sys.executable, "-c", CHILD_CONFIG + script], env=env, text=True,
                            capture_output=True, check=True)
 
     def test_empty_graph_does_not_invent_nodes(self):

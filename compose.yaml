@@ -1,4 +1,12 @@
 services:
+  worker:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+    command: ["python", "-m", "station.worker"]
   web:
     build: .
     restart: unless-stopped

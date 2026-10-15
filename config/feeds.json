@@ -87,42 +87,6 @@
     "require_keywords": []
   },
   {
-    "name": "arXiv AI",
-    "url": "https://rss.arxiv.org/rss/cs.AI",
-    "kind": "paper",
-    "category": "ai",
-    "enabled": false,
-    "id": "feed-a7ba3dae24a6f03c",
-    "include_keywords": [],
-    "require_keywords": [],
-    "exclude_keywords": [],
-    "max_age_days": null
-  },
-  {
-    "name": "arXiv Computer Vision",
-    "url": "https://rss.arxiv.org/rss/cs.CV",
-    "kind": "paper",
-    "category": "vision",
-    "enabled": false,
-    "id": "feed-dfbc930ad42d86ab",
-    "include_keywords": [],
-    "require_keywords": [],
-    "exclude_keywords": [],
-    "max_age_days": null
-  },
-  {
-    "name": "LangGraph Releases",
-    "url": "https://github.com/langchain-ai/langgraph/releases.atom",
-    "kind": "news",
-    "category": "engineering",
-    "enabled": false,
-    "id": "feed-c7a549ce52c023f5",
-    "include_keywords": [],
-    "require_keywords": [],
-    "exclude_keywords": [],
-    "max_age_days": null
-  },
-  {
     "name": "LangChain · Agent 工程与资讯",
     "url": "https://www.langchain.com/blog/rss.xml",
     "kind": "article",

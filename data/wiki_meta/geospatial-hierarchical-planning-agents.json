@@ -1,7 +1,7 @@
 {
   "slug": "geospatial-hierarchical-planning-agents",
   "title": "地理空间任务的层级规划与容错：HTAM/EarthAgent 与 HieraPlan/TerraLogic",
-  "category": "topic-2c016a4f38e2401d",
+  "category": "agents",
   "source_ids": [
     "19f9b059cd25c958",
     "7d220dd5706f59fd",

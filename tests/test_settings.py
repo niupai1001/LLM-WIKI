@@ -79,11 +79,11 @@ class SettingsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, '不存在'):
             settings.save_feed(self.payload(id='missing', name='新订阅', url='https://example.org/a'))
 
-    def test_other_protected(self):
-        with self.assertRaisesRegex(ValueError, '不能停用'):
-            settings.save_topic(self.payload(id='other', enabled=False))
-        with self.assertRaisesRegex(ValueError, '不能删除'):
-            settings.delete_topic('other', self.payload())
+    def test_unused_other_can_be_paused_and_removed(self):
+        settings.save_topic(self.payload(id='other', enabled=False))
+        self.assertFalse(next(t for t in settings.snapshot()['topics'] if t['id']=='other')['enabled'])
+        settings.delete_topic('other', self.payload())
+        self.assertNotIn('other',[t['id'] for t in settings.snapshot()['topics']])
 
     def test_pause_topic_disables_feeds_resume_does_not(self):
         saved = settings.save_topic(self.payload(id='agents', enabled=False))

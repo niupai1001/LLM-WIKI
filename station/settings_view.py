@@ -10,7 +10,7 @@ def settings_html(snapshot, notice=''):
         return ''.join(f'<option value="{escape(t["id"])}" {"selected" if t["id"] == selected else ""}>{escape(t["name"])}{"（已停用）" if not t.get("enabled", True) else ""}</option>' for t in topics)
     def topic_form(topic=None):
         topic = topic or {}
-        protected = topic.get('id') == 'other'
+        protected = False
         hidden = f'<input type="hidden" name="id" value="{escape(topic["id"])}">' if topic.get('id') else ''
         enabled = '<input type="hidden" name="enabled" value="true">' if protected else f'<label class="checkbox-label"><input type="checkbox" name="enabled" {"checked" if topic.get("enabled", True) else ""}>启用主题</label>'
         remove = f'<button type="button" class="button danger" data-settings-delete="topic" data-item-id="{escape(topic["id"])}" data-item-name="{escape(topic["name"])}">删除主题</button>' if topic.get('id') and not protected else ''
@@ -29,7 +29,7 @@ def settings_html(snapshot, notice=''):
     if notice:
         body += '<div class="notice settings-saved" role="status">' + escape(notice[:240]) + '</div>'
     body += f'<div class="settings-workspace" data-settings-version="{escape(snapshot["version"])}"><nav class="settings-jumps" aria-label="设置内容"><a href="#topics">主题 <span>{len(topics)}</span></a><a href="#feeds">订阅节点 <span>{len(feeds)}</span></a></nav>'
-    body += '<section id="topics" class="settings-section"><div class="section-heading"><h2>关注主题</h2><span class="muted">用于资料分类、知识导航和订阅归属</span></div><details class="settings-create"><summary>＋ 新增主题</summary>' + topic_form() + '</details><div class="settings-list">'
+    body += '<section id="topics" class="settings-section"><div class="section-heading"><h2>采集范围</h2><span class="muted">用于筛选资料和订阅归属；知识主题由结构化编译自动形成</span></div><details class="settings-create"><summary>＋ 新增采集范围</summary>' + topic_form() + '</details><div class="settings-list">'
     for topic in topics:
         enabled = topic.get('enabled', True)
         count = sum(1 for feed in feeds if feed.get('category') == topic['id'])
