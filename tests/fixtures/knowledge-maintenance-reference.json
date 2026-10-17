@@ -1,0 +1,1899 @@
+{
+  "schema_version": "knowledge-maintenance-reference/v1",
+  "status": "candidate_for_human_review",
+  "human_validated": false,
+  "generated_by": "offline evidence inspection; no model calls",
+  "library_id": "skill-preview",
+  "warning": "Candidate decisions are review hypotheses, not production outputs or human-approved semantic ground truth. Legacy indexes are context snapshots, not automatically valid concept identities.",
+  "sources": [
+    {
+      "source_id": "0b44ee6389202cb6",
+      "source_version": "7a60e5edf93c47fa23200c820e98dc3d1dd972155c791a11756916355a671d9d",
+      "title": "Error-Propagation Modeling for Failure Attribution in LLM-Based Multi-Agent Systems",
+      "label": "EMFA",
+      "acceptance_stage": "approved",
+      "reading_path": "data/libraries/skill-preview/readings/0b44ee6389202cb6/knowledge.json",
+      "reading_sha256": "e154d9339070451a75acbc49de6c4820e4106754b9dd35103e5f0c1d54ff4063",
+      "parsed_path": "data/libraries/skill-preview/parsed/0b44ee6389202cb6.json",
+      "knowledge_point_count": 8
+    },
+    {
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "title": "ReCast: Attribution-Oriented Step Representation Learning for LLM-Based Agent Systems",
+      "label": "ReCast",
+      "acceptance_stage": "approved",
+      "reading_path": "data/libraries/skill-preview/readings/eddf2edee3305425/knowledge.json",
+      "reading_sha256": "419815010e188bb5d24b45607144164873e6217db902c9b6ac97b3b3a56568d9",
+      "parsed_path": "data/libraries/skill-preview/parsed/eddf2edee3305425.json",
+      "knowledge_point_count": 15
+    },
+    {
+      "source_id": "3fb5d6b0a837235b",
+      "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19",
+      "title": "Reflexion: Language Agents with Verbal Reinforcement Learning",
+      "label": "Reflexion",
+      "acceptance_stage": "approved",
+      "reading_path": "data/libraries/skill-preview/readings/3fb5d6b0a837235b/knowledge.json",
+      "reading_sha256": "dfa98cd01a9b4b70e62fa4b79cf45a8dad13602aa15a00f819a2463902d02d9c",
+      "parsed_path": "data/libraries/skill-preview/parsed/3fb5d6b0a837235b.json",
+      "knowledge_point_count": 9
+    },
+    {
+      "source_id": "accd5feccfb2c025",
+      "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+      "title": "What to Admit and How to Present: Governing Persistent Memory in LLM Agents",
+      "label": "MemoryAdmission",
+      "acceptance_stage": "approved",
+      "reading_path": "data/libraries/skill-preview/readings/accd5feccfb2c025/knowledge.json",
+      "reading_sha256": "2644b4855972c3bc32ea75743a93ab3b7f3c1e96c5a4ef9ff960668a0226673a",
+      "parsed_path": "data/libraries/skill-preview/parsed/accd5feccfb2c025.json",
+      "knowledge_point_count": 13
+    }
+  ],
+  "concept_snapshots": [
+    {
+      "kind": "legacy_index_context_only",
+      "path": "data/libraries/skill-preview/wiki/idx-agent-failure-attribution.md",
+      "proposed_concept": "agent-failure-attribution",
+      "title": "LLM 多智能体失败归因",
+      "slug": "idx-agent-failure-attribution",
+      "version": "d9b33b62f36f4eec17f1719eae41a49bf19e1191d0bf0965f751230696aeb1c6",
+      "version_kind": "sha256 of complete archived legacy page",
+      "relevant_old_assertions": [
+        {
+          "point_id": "kp_0d433c1543e3d43baceb",
+          "statement": "把扁平执行日志转成含步骤级生产者–消费者依赖与子任务级依赖的两层结构，是回溯失败相关信息、隔离潜在相关通道的必要前提。"
+        },
+        {
+          "point_id": "kp_3f47630684b322e2696c",
+          "statement": "在 Who&When 基准上，显式错误传播建模在更严格的 step-level 指标上带来一致提升，但 agent-level 优势并不一致（Algorithm-Generated 上低于 CHIEF）。"
+        },
+        {
+          "point_id": "kp_a3f03dbb811b74785e6a",
+          "statement": "在四个失败归因基准上，ReCast 的 Hit@1 一致最优，且在 Hit@5、MRR@K、AUROC、AUPRC 上同样领先，说明优势从轨迹内排序延伸到跨轨迹池化的分数可分性。"
+        },
+        {
+          "point_id": "kp_f19e064468f374278010",
+          "statement": "案例研究显示 ReCast 在六个挑选案例中均将标注根因步骤排在其它高分候选之上，包括早期检索遗漏、缺失来源约束、过早完成、使用模拟数据、错误距离换算与未验证声明等不同失败类型。"
+        }
+      ]
+    },
+    {
+      "kind": "legacy_index_context_only",
+      "path": "data/libraries/skill-preview/wiki/idx-step-representation-learning.md",
+      "proposed_concept": "attribution-oriented-step-representation",
+      "title": "面向归因的步骤表示学习",
+      "slug": "idx-step-representation-learning",
+      "version": "a7d94472ff93e5b478f32af0c35b9fed43675bb0938f3d6f667ee073a141689d",
+      "version_kind": "sha256 of complete archived legacy page",
+      "relevant_old_assertions": []
+    },
+    {
+      "kind": "legacy_index_context_only",
+      "path": "data/libraries/skill-preview/wiki/idx-verbal-reinforcement-reflection.md",
+      "proposed_concept": "verbal-reflection",
+      "title": "语言反思与跨试验策略改进",
+      "slug": "idx-verbal-reinforcement-reflection",
+      "version": "4dd1f8764176a709d295e9cb77a8b05caf841b6b763593b1c88196ce682692a4",
+      "version_kind": "sha256 of complete archived legacy page",
+      "relevant_old_assertions": [
+        {
+          "point_id": "kp_90e210e6b9521cc71062",
+          "statement": "在稀疏或二元反馈的语言智能体任务中，把反馈转成自然语言反思并存入跨试验的长期记忆，可以在不更新模型权重的情况下实现跨试验的策略改进。"
+        }
+      ]
+    },
+    {
+      "kind": "legacy_index_context_only",
+      "path": "data/libraries/skill-preview/wiki/idx-agent-memory-governance.md",
+      "proposed_concept": "persistent-memory-admission",
+      "title": "持久记忆的准入与呈现治理",
+      "slug": "idx-agent-memory-governance",
+      "version": "c8b6a408e751d88ac1eddb4b96762f8feb60d90cec629b524fe884da95e7906e",
+      "version_kind": "sha256 of complete archived legacy page",
+      "relevant_old_assertions": [
+        {
+          "point_id": "kp_93bfa1b586331b4c29ab",
+          "statement": "在记忆增强LLM智能体中，把持久记忆治理拆成“准入（哪些记忆进入工作上下文）”与“呈现（进入后如何组织表达）”两个可分别操纵的决策，是避免把呈现策略的无效误读为准入策略无效的前提。"
+        },
+        {
+          "point_id": "kp_3486dfec37db81969cea",
+          "statement": "记忆-证据冲突下，任何保留冲突记忆的被测治理措辞都未把误导率降到82%以下；只有把记忆从上下文移除才消除该效应，但该消融同时移除有益与冲突内容，不能确定是哪部分内容负责。"
+        }
+      ]
+    }
+  ],
+  "point_decisions": [
+    {
+      "point_id": "kp_c12dc240212dbaf27d5b",
+      "local_id": "k1",
+      "source_id": "0b44ee6389202cb6",
+      "source_version": "7a60e5edf93c47fa23200c820e98dc3d1dd972155c791a11756916355a671d9d",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k1",
+        "statement": "在 LLM 多智能体失败归因中，把归因目标定义为“决定性错误”（纠正该 agent–step 即可恢复失败执行）会使问题本质上是反事实的，因此仅做单步可疑性排序不足以区分决定性错误与下游失败症状。",
+        "explanation": "失败轨迹中常含多个表面错误步骤，包括后来被纠正的偏差和仅继承早期错误的下游症状。若归因只判断某步“看起来错”，就无法回答“纠正哪一步能恢复执行”。反事实定义要求方法重建错误如何影响后续执行，而非孤立判断单步。",
+        "claim_ids": [
+          "c7"
+        ],
+        "result_ids": [],
+        "scope": "Who&When 问题设定；turn-based、每步恰有一个 agent 行动的 LLM 多智能体系统。",
+        "type": "问题",
+        "transferability": "领域",
+        "uncertainty": "问题定义与反事实判据来自原文（Who&When 设定）；“仅排序不足”是作者对既有方法的判断，属作者解释。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_0d433c1543e3d43baceb",
+      "local_id": "k2",
+      "source_id": "0b44ee6389202cb6",
+      "source_version": "7a60e5edf93c47fa23200c820e98dc3d1dd972155c791a11756916355a671d9d",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k2",
+        "statement": "把扁平执行日志转成含步骤级生产者–消费者依赖与子任务级依赖的两层结构，是回溯失败相关信息、隔离潜在相关通道的必要前提。",
+        "explanation": "原始轨迹只记录时间顺序，不显式揭示信息如何跨 agent 与子任务产生、传递、复用。没有依赖结构，就无法从最终失败步反向追踪哪些上游输出被直接或间接复用，也就无法构造错误传播图。",
+        "claim_ids": [
+          "c7"
+        ],
+        "result_ids": [],
+        "scope": "依赖可被语义抽取的多智能体执行轨迹；作者补充确定性后处理补全明显的指令–响应依赖。",
+        "type": "机制",
+        "transferability": "桥接",
+        "uncertainty": "结构化表示的必要性由作者论证；其相对其他表示方式的增益未被单独隔离验证。"
+      },
+      "anchors": [
+        {
+          "source_id": "0b44ee6389202cb6",
+          "source_version": "7a60e5edf93c47fa23200c820e98dc3d1dd972155c791a11756916355a671d9d",
+          "locator": {
+            "page": 2,
+            "paragraph_id": "p0002-0001",
+            "quote_start": 979,
+            "quote_end": 1121
+          },
+          "quote": "EMFA first\ntransforms flat execution logs into structured dependency\nrepresentations to recover how information flows across\nagents and steps.",
+          "quote_sha256": "efff7f20d2ef45f3f16ab225c3af4f267b83aebbd143e03087e221de4c10702d"
+        },
+        {
+          "source_id": "0b44ee6389202cb6",
+          "source_version": "7a60e5edf93c47fa23200c820e98dc3d1dd972155c791a11756916355a671d9d",
+          "locator": {
+            "page": 3,
+            "paragraph_id": "p0003-0003",
+            "quote_start": 291,
+            "quote_end": 599
+          },
+          "quote": "Acrosssubtasks,E sub connectsanearliersubtasktoalater\none that reuses its outputs, including dependencies between\nnon-adjacentsubtasks.Thesubtask-levelstructureprovidesa\ncoarse tracing scope, while the step-level dependencies sup-\nport fine-grained producer identification during subsequent\nbackward tracing.",
+          "quote_sha256": "721da85700b49b1f1b08dd35ef31f1a5112adf43d0153bc36f00530a418c196e"
+        }
+      ],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          },
+          {
+            "concept_slug": "trajectory-dependency-representation",
+            "role": "required",
+            "reason": "该点同时说明归因如何依赖轨迹信息流表示，可独立支撑依赖表示概念；不是因同名而多归属。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_48f69c8e357486135421",
+      "local_id": "k3",
+      "source_id": "0b44ee6389202cb6",
+      "source_version": "7a60e5edf93c47fa23200c820e98dc3d1dd972155c791a11756916355a671d9d",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k3",
+        "statement": "级联错误传播与持续交互循环是两类互补的失败模式：前者沿生产者–消费者依赖发生，后者是智能体反复追求同一未解决目标而无实质进展，可能跨子任务且不沿普通依赖路径，因此需要独立抽取。",
+        "explanation": "只建模依赖传播会漏掉“反复行动但无进展”的失败；只建模循环会漏掉沿依赖链传播的早期偏差。两者提供互补的因果解释，合并后候选覆盖更完整。",
+        "claim_ids": [
+          "c3",
+          "c4"
+        ],
+        "result_ids": [
+          "r2"
+        ],
+        "scope": "作者聚焦的这两类失败模式；不声称覆盖所有失败类型。",
+        "type": "机制",
+        "transferability": "桥接",
+        "uncertainty": "两类模式的互补性由消融结果支持（移除任一分支均下降），但消融不能证明它们是结果变化的唯一原因；作者也承认存在未建模的失败传播模式。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_95b3f67d383a503d8751",
+      "local_id": "k4",
+      "source_id": "0b44ee6389202cb6",
+      "source_version": "7a60e5edf93c47fa23200c820e98dc3d1dd972155c791a11756916355a671d9d",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k4",
+        "statement": "在候选筛选后加入基于模型的反事实验证（判断最小修复该步能否阻止下游失败并满足成功规范），比直接让 LLM 筛选候选更能贴近“决定性错误”的定义。",
+        "explanation": "反事实验证直接检验“纠正该步是否恢复执行”，与决定性错误的定义一致；当多个候选都能恢复时，用责任边界原则区分“引入错误”与“仅执行/传播/暴露错误”的步骤。",
+        "claim_ids": [
+          "c1"
+        ],
+        "result_ids": [
+          "r1"
+        ],
+        "scope": "与 Who&When 专家判断标注协议一致；采用模型反事实而非环境重放。",
+        "type": "设计",
+        "transferability": "桥接",
+        "uncertainty": "反事实验证的贡献未与候选筛选完全解耦；其相对环境重放的保真度差异原文未量化。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_3f47630684b322e2696c",
+      "local_id": "k5",
+      "source_id": "0b44ee6389202cb6",
+      "source_version": "7a60e5edf93c47fa23200c820e98dc3d1dd972155c791a11756916355a671d9d",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k5",
+        "statement": "在 Who&When 基准上，显式错误传播建模在更严格的 step-level 指标上带来一致提升，但 agent-level 优势并不一致（Algorithm-Generated 上低于 CHIEF）。",
+        "explanation": "step-level 要求精确定位决定性步骤，更依赖对错误传播路径的重建；agent-level 只要求定位负责 agent，可能被结构引导方法的归纳偏置影响。两个指标的分化说明方法优势具有指标依赖性。",
+        "claim_ids": [
+          "c1",
+          "c2"
+        ],
+        "result_ids": [
+          "r1"
+        ],
+        "scope": "Who&When 两个子集，GPT-4o 骨干，不使用任务 ground truth G。",
+        "type": "证据",
+        "transferability": "领域",
+        "uncertainty": "提升幅度为原文报告值；agent-level 劣势的原因属作者推测（归纳偏置），未被隔离验证。"
+      },
+      "anchors": [
+        {
+          "source_id": "0b44ee6389202cb6",
+          "source_version": "7a60e5edf93c47fa23200c820e98dc3d1dd972155c791a11756916355a671d9d",
+          "locator": {
+            "page": 6,
+            "paragraph_id": "p0006-0001",
+            "quote_start": 976,
+            "quote_end": 1173
+          },
+          "quote": "Agent-level accuracy measures whether a method\ncorrectly identifies the responsible failure agent, while step-\nlevel accuracy measures whether it correctly identifies the\nexact decisive error step.",
+          "quote_sha256": "1b339373dfe6d9bcf5831573dd5bc4d9a61a94be07753cab77e098a2b7eddf81"
+        },
+        {
+          "source_id": "0b44ee6389202cb6",
+          "source_version": "7a60e5edf93c47fa23200c820e98dc3d1dd972155c791a11756916355a671d9d",
+          "locator": {
+            "page": 6,
+            "paragraph_id": "p0006-0002",
+            "quote_start": 526,
+            "quote_end": 661
+          },
+          "quote": "At the agent level, EMFA achieves the best result\non the Hand-Crafted subset and remains competitive on the\nAlgorithm-Generated subset.",
+          "quote_sha256": "433c8b0c1d4e4d4277ec07da789d9989f94047da79af1bac4eb4b49485db19a3"
+        }
+      ],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_23a0d98b380a61d9bc2b",
+      "local_id": "k6",
+      "source_id": "0b44ee6389202cb6",
+      "source_version": "7a60e5edf93c47fa23200c820e98dc3d1dd972155c791a11756916355a671d9d",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k6",
+        "statement": "EMFA 的性能依赖底层 LLM 骨干：GPT-4o 最佳，开放权重模型在 Algorithm-Generated step-level 上明显较低。",
+        "explanation": "方法中的结构化抽取、传播标注、循环抽取与反事实验证都依赖 LLM 的语义判断能力，因此骨干能力直接影响归因质量。",
+        "claim_ids": [
+          "c5"
+        ],
+        "result_ids": [
+          "r3"
+        ],
+        "scope": "四种测试骨干；结论限于所测模型。",
+        "type": "证据",
+        "transferability": "领域",
+        "uncertainty": "骨干差异的机制原因原文未深入分析。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_59ea805c42ed227bdd14",
+      "local_id": "k7",
+      "source_id": "0b44ee6389202cb6",
+      "source_version": "7a60e5edf93c47fa23200c820e98dc3d1dd972155c791a11756916355a671d9d",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k7",
+        "statement": "结构引导的失败归因方法存在归纳偏置风险：当失败源于其结构未表示的传播模式时，可能漏掉负责 agent，这在部分长轨迹上表现为 agent-level 准确率下降。",
+        "explanation": "EMFA 聚焦传播与持续交互模式，CHIEF 依赖预定义 agent 依赖；两者在长轨迹上 agent-level 下降，作者推测是归纳偏置所致。这提示结构引导方法需扩展失败模式覆盖。",
+        "claim_ids": [
+          "c6"
+        ],
+        "result_ids": [
+          "r4"
+        ],
+        "scope": "Hand-Crafted 子集分层分析；CHIEF 为作者复现。",
+        "type": "边界",
+        "transferability": "桥接",
+        "uncertainty": "该解释是作者提出的可能原因，未被隔离验证；分层样本量小（每层 9–11 条）。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_58eac770473edfd7be88",
+      "local_id": "k8",
+      "source_id": "0b44ee6389202cb6",
+      "source_version": "7a60e5edf93c47fa23200c820e98dc3d1dd972155c791a11756916355a671d9d",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k8",
+        "statement": "EMFA 以额外推理开销换取归因可靠性，源于显式轨迹结构化与传播建模。",
+        "explanation": "结构化抽取、LLM 标注传播、循环抽取与反事实验证都增加推理调用；作者将其列为局限，并计划探索更高效的传播建模。",
+        "claim_ids": [
+          "c8"
+        ],
+        "result_ids": [],
+        "scope": "作者在结论与局限中的陈述；具体成本分析在补充材料中。",
+        "type": "边界",
+        "transferability": "领域",
+        "uncertainty": "原文未给出正文中的量化成本对比，成本分析位于补充材料，本次未读取。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_9741f020b5f0dada1052",
+      "local_id": "K1",
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "human_validated": false,
+      "knowledge": {
+        "id": "K1",
+        "statement": "在 LLM 多智能体失败归因中，根因步骤的困难不在于检测失败，而在于根因早期出现、当下看似合理、后果经下游步骤才显现，且同一任务存在多条有效解路径与随机决策导致的轨迹差异。",
+        "explanation": "这决定了归因任务必须从长动作序列中找出最早的决定性错误，而不是检测异常内容或定位最终可见症状。它解释了为什么需要步骤级排序而非二分类，也解释了为什么根因步骤与其前驱在表示上容易相似（高 ARS）。",
+        "claim_ids": [
+          "C10"
+        ],
+        "result_ids": [],
+        "scope": "LLM 多智能体系统执行轨迹的离线失败归因；根因定义为最早决定性错误步骤。",
+        "type": "问题",
+        "transferability": "领域",
+        "uncertainty": "问题定义来自原文（Who&When 的反事实定义）；“根因当下看似合理”为作者解释。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "attribution-oriented-step-representation",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          },
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "background",
+            "reason": "作为失败归因的一类表示学习方法提供背景，不要求总览逐项复述实现细节。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_d5850062fab9443249f1",
+      "local_id": "K2",
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "human_validated": false,
+      "knowledge": {
+        "id": "K2",
+        "statement": "文本嵌入与末层隐状态在作者定义的 ARS/GRS/SI 指标下对根因与非根步骤分离有限，这构成学习面向归因步骤表示而非直接使用现成表示的实证依据。",
+        "explanation": "高 ARS/GRS 说明根因步骤仍与其前驱及同轨迹其他步骤相似，低 SI 说明跨轨迹分离弱。如果基础表示本身难以分离根因，直接在其上做归因或排序会受限。该观察把“表示选择”从实现细节提升为需要专门研究的问题。",
+        "claim_ids": [
+          "C9"
+        ],
+        "result_ids": [
+          "R3"
+        ],
+        "scope": "Qwen3 文本嵌入与 Qwen3.5-27B 末层隐状态；在 ReCast-2K 失败轨迹与 Who&When Handcrafted/Algorithm 子集上评估。",
+        "type": "证据",
+        "transferability": "桥接",
+        "uncertainty": "指标定义与数值来自附录 A；未视觉核对图 1 的具体趋势，仅依据解析文字。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "attribution-oriented-step-representation",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          },
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "background",
+            "reason": "作为失败归因的一类表示学习方法提供背景，不要求总览逐项复述实现细节。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_ae0baee05d544f2c9dfc",
+      "local_id": "K3",
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "human_validated": false,
+      "knowledge": {
+        "id": "K3",
+        "statement": "归因感知层选择通过五折交叉验证探针按区分根因步骤的能力对 Transformer 层排序，并按连续组保留最高排名层以保证深度覆盖，从而决定保留哪些内部信号。",
+        "explanation": "不同层编码不同抽象层次的信息，对失败归因的信息量不等。探针用根因特征减非根因特征均值构造差异向量，用四折均值与方差定义强调“大且一致差异”的评分方向，在剩余折上评分候选步骤。按组选层避免了所有选中层集中在某一深度区间。消融显示该设计优于全层、均匀 8 层、末 8 层、随机 8 层与全局探针 top-8。",
+        "claim_ids": [
+          "C4"
+        ],
+        "result_ids": [
+          "R4"
+        ],
+        "scope": "Qwen3.5-27B（64 层）上选 8 层，选定层为 {7,15,19,32,33,47,49,57}；探针在失败训练轨迹上拟合。",
+        "type": "机制",
+        "transferability": "桥接",
+        "uncertainty": "作者解释为不同层信息量不等；消融是单组件变化，不能推出层选择是结果变化的唯一原因。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "attribution-oriented-step-representation",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          },
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "background",
+            "reason": "作为失败归因的一类表示学习方法提供背景，不要求总览逐项复述实现细节。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_0bbdb9888f95d27cdb90",
+      "local_id": "K4",
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "human_validated": false,
+      "knowledge": {
+        "id": "K4",
+        "statement": "双分支投影用固定的稀疏 Johnson–Lindenstrauss 投影把拼接隐状态压缩为互补的 pattern 与 deviation 表示：pattern 保留各选中层的相对激活模式，deviation 刻画每步相对成功轨迹参考均值的偏离。",
+        "explanation": "pattern 分支先对每个选中层分别做层归一化再拼接、投影、归一化，避免不同层的尺度差异淹没相对模式；deviation 分支引入成功轨迹作为参照，把“与成功执行的偏离”显式编码进表示。投影矩阵与参考均值固定，使两分支共享同一坐标且不引入额外可训练参数。消融显示 pattern-only 降 1.47 个百分点、deviation-only 降 0.55 个百分点，说明两分支互补但 deviation 单独贡献较小。",
+        "claim_ids": [
+          "C4"
+        ],
+        "result_ids": [
+          "R4"
+        ],
+        "scope": "d_p=2048，最终步骤特征维度 2d_p=4096；投影随机状态 42，独立于归因标签与隐状态协方差。",
+        "type": "设计",
+        "transferability": "桥接",
+        "uncertainty": "作者解释两分支互补；deviation-only 仅降 0.55 个百分点，其独立贡献较小，作者未深入解释。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "attribution-oriented-step-representation",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          },
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "background",
+            "reason": "作为失败归因的一类表示学习方法提供背景，不要求总览逐项复述实现细节。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_2116645cc7afc49a9036",
+      "local_id": "K5",
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "human_validated": false,
+      "knowledge": {
+        "id": "K5",
+        "statement": "三项联合损失分别针对不同子问题：根因对比促进根因表示与多样非根上下文分离；非根对比针对最易被误判的邻近/高分步骤；列表式排序直接优化根因在轨迹内的相对位置。",
+        "explanation": "根因对比以视图 f1 的根因表示为锚点、视图 f2 同一步骤为唯一正样本、批量中视图 f2 的所有非根步骤为负样本，用 InfoNCE 优化。非根对比的锚点取“最晚步骤”与“平均分最高步骤”的并集：最晚步骤提供邻近参照，最高分步骤最可能被误判为根因。排序损失归一化步骤分数并最大化根因概率，两视图取平均。消融显示联合损失优于仅排序训练 3.85 个百分点，去掉增强下降 4.22 个百分点。",
+        "claim_ids": [
+          "C4"
+        ],
+        "result_ids": [
+          "R4"
+        ],
+        "scope": "InfoNCE 温度 κ=0.12；损失权重 (λ_rank, λ_root, λ_non-root)=(1.0, 0.95, 0.25)；非根损失在合格轨迹间等权平均，B_pre 为空时为零。",
+        "type": "机制",
+        "transferability": "桥接",
+        "uncertainty": "作者解释了非根锚点选择理由；损失权重取值理由未解释，保留为未知。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "attribution-oriented-step-representation",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          },
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "background",
+            "reason": "作为失败归因的一类表示学习方法提供背景，不要求总览逐项复述实现细节。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_0969dd3ffa3e010e399f",
+      "local_id": "K6",
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "human_validated": false,
+      "knowledge": {
+        "id": "K6",
+        "statement": "视图增强（步骤掩码、特征掩码、加性高斯噪声，两视图独立采样，根因步骤受保护不被步骤掩码但允许特征级扰动）为对比学习构造同一底层步骤的两个视图，同时避免破坏根因步骤本身。",
+        "explanation": "对比学习需要同一底层步骤在不同扰动下的两个表示作为正样本对。若对根因步骤施加步骤掩码，会破坏监督信号；因此只允许特征级扰动。消融显示去掉增强下降 4.22 个百分点，是各组件中影响最大的之一。",
+        "claim_ids": [
+          "C4"
+        ],
+        "result_ids": [
+          "R4"
+        ],
+        "scope": "步骤/特征掩码概率 0.10/0.10，高斯噪声标准差 0.01；增强设置见附录 E.2。",
+        "type": "设计",
+        "transferability": "通用",
+        "uncertainty": "作者解释为保护根因步骤；增强参数取值理由未详细解释。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "attribution-oriented-step-representation",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          },
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "background",
+            "reason": "作为失败归因的一类表示学习方法提供背景，不要求总览逐项复述实现细节。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_78ce89d08911a5b94431",
+      "local_id": "K7",
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "human_validated": false,
+      "knowledge": {
+        "id": "K7",
+        "statement": "学习到的步骤表示在 ARS/GRS/SI 上优于基础表示与投影特征，说明表示学习在特征构造之外进一步改善了轨迹内与跨轨迹分离。",
+        "explanation": "ReCast 在每个数据集上取得最低平均 ARS、GRS 与最高平均 SI。相对 Projected features 的提升表明，仅靠双分支投影构造特征还不够，双向编码与对比/排序目标进一步改善了分离。Handcrafted 与 Algorithm 上平均 SI 从最佳基础表示的 0.1735 与 0.0309 提升到 0.5913 与 0.2873。",
+        "claim_ids": [
+          "C3"
+        ],
+        "result_ids": [
+          "R3"
+        ],
+        "scope": "Training、Handcrafted、Algorithm 三个数据集；ReCast 跨种子 6、20、42 报告均值±总体标准差。",
+        "type": "证据",
+        "transferability": "桥接",
+        "uncertainty": "Training 集上 ReCast 的 ARS/GRS 为负值且标准差较大，作者未解释原因，保留为未知；未视觉核对表 4 排版。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "attribution-oriented-step-representation",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          },
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "background",
+            "reason": "作为失败归因的一类表示学习方法提供背景，不要求总览逐项复述实现细节。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_a3f03dbb811b74785e6a",
+      "local_id": "K8",
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "human_validated": false,
+      "knowledge": {
+        "id": "K8",
+        "statement": "在四个失败归因基准上，ReCast 的 Hit@1 一致最优，且在 Hit@5、MRR@K、AUROC、AUPRC 上同样领先，说明优势从轨迹内排序延伸到跨轨迹池化的分数可分性。",
+        "explanation": "Hit@1 衡量根因是否被排到首位，Hit@5 衡量更宽松的排序覆盖，MRR@K 衡量固定检查预算内的排序质量，AUROC/AUPRC 衡量跨轨迹池化后的绝对分数可分性。ReCast 在四类指标上均领先，提示其表示同时编码了轨迹内相对位置与跨轨迹可比的根因信号。但 Who&When 与 TraceElephant 上 AUPRC 绝对值仍较低（0.21–0.30），说明跨轨迹判别在这些基准上仍困难。",
+        "claim_ids": [
+          "C1",
+          "C2",
+          "C5"
+        ],
+        "result_ids": [
+          "R1",
+          "R2",
+          "R5"
+        ],
+        "scope": "Who&When、TraceElephant、AFTraj-2K、Who&When Pro；三种子报告均值±总体标准差。",
+        "type": "证据",
+        "transferability": "领域",
+        "uncertainty": "“同时编码轨迹内相对位置与跨轨迹可比信号”为提炼者推论，论文未直接验证该机制解释。"
+      },
+      "anchors": [
+        {
+          "source_id": "eddf2edee3305425",
+          "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+          "locator": {
+            "page": 27,
+            "paragraph_id": "p0027-0001",
+            "quote_start": 1510,
+            "quote_end": 1640
+          },
+          "quote": "ReCast achieves the highest Hit@1 across all four subsets with mean attribution times\nranging from 0.11 to 8.28 ms per trajectory.",
+          "quote_sha256": "69a82681616f6f8559a1a1ed188366f3d51c791fa5f3e9e5d73dee06c3050828"
+        }
+      ],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "attribution-oriented-step-representation",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          },
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "background",
+            "reason": "作为失败归因的一类表示学习方法提供背景，不要求总览逐项复述实现细节。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_5e27c1eb610f50425c87",
+      "local_id": "K9",
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "human_validated": false,
+      "knowledge": {
+        "id": "K9",
+        "statement": "骨干规模收益非单调：更大骨干在部分基准上提升归因性能，但小骨干在 Captain-Agent 与 Magentic-One 上反而最佳，说明不能假设骨干越大越好。",
+        "explanation": "固定下游 ReCast 流程、仅替换 Qwen3.5-0.8B/9B/27B 并各自独立选层后，27B 在 Who&When 两个子集、AFTraj-2K 与 Who&When Pro 上 Hit@1 最高，且 Who&When Pro 上六项指标均随骨干增大而提升；但 0.8B 与 9B 分别在 Captain-Agent 与 Magentic-One 上最佳，AFTraj-2K 上其 Hit@1 与 27B 差距在 1.23 个百分点内。作者解释为配合层选择与表示学习，小骨干也能提供有效信号。",
+        "claim_ids": [
+          "C6"
+        ],
+        "result_ids": [
+          "R6"
+        ],
+        "scope": "Qwen3.5-0.8B/9B/27B，各自独立选 8 层，d_p=2048，相同编码器架构；三种子。",
+        "type": "边界",
+        "transferability": "桥接",
+        "uncertainty": "作者未解释为何小骨干在部分基准上更优；未隔离层选择质量对该结论的影响，保留为未知。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "attribution-oriented-step-representation",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          },
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "background",
+            "reason": "作为失败归因的一类表示学习方法提供背景，不要求总览逐项复述实现细节。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_d6c01b6ece6c8d719e20",
+      "local_id": "K10",
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "human_validated": false,
+      "knowledge": {
+        "id": "K10",
+        "statement": "在步骤特征预计算的前提下，ReCast 的归因阶段平均耗时 0.11–8.28 ms/轨迹，在 HC、AG、Magentic-One 上为特征类方法中最低，而 LLM 基线每轨迹需 2.88–30.50 秒且 Hit@1 更低。",
+        "explanation": "该对比说明表示学习路线在归因阶段可以做到低延迟，因为推理时只需编码未增强轨迹并用打分头排序，不需要自回归解码。但不同方法的计时口径不一致（是否含特征提取、初始化、API 延迟），跨方法绝对时间可比性受限，该对比衡量的是归因阶段而非端到端成本。",
+        "claim_ids": [
+          "C7"
+        ],
+        "result_ids": [
+          "R7"
+        ],
+        "scope": "Who&When 与 TraceElephant；ReCast、StepFinder、ASCon、OAT 使用预计算特征，归因时间不含特征提取。",
+        "type": "证据",
+        "transferability": "桥接",
+        "uncertainty": "计时口径不一致，作者虽说明协议但跨方法绝对时间可比性仍受限；未视觉核对图 7 的具体点位。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "attribution-oriented-step-representation",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          },
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "background",
+            "reason": "作为失败归因的一类表示学习方法提供背景，不要求总览逐项复述实现细节。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_beb28a8f9cac9e41cb25",
+      "local_id": "K11",
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "human_validated": false,
+      "knowledge": {
+        "id": "K11",
+        "statement": "ReCast-2K 的根因标注采用三裁判 LLM 投票加人工审查的混合策略，其中约 74% 通过 LLM 共识获得标签、约 26% 经人工审查，标注一致性未在材料中量化。",
+        "explanation": "训练语料中约四分之一的失败轨迹根因标签依赖人工判断，其标注一致性未量化。标注质量对监督式归因方法的性能上限有直接影响，但作者未讨论标注噪声或标注者间一致性。这构成训练数据的一个证据边界。",
+        "claim_ids": [
+          "C12"
+        ],
+        "result_ids": [],
+        "scope": "ReCast-2K 全部 1,496 条失败轨迹；三裁判为 GPT-5.5、Gemini 3 Pro Preview、Claude Opus 4.6。",
+        "type": "边界",
+        "transferability": "领域",
+        "uncertainty": "“标注质量影响性能上限”为提炼者推论；作者未讨论标注噪声，标注者间一致性未知。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "attribution-oriented-step-representation",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          },
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "background",
+            "reason": "作为失败归因的一类表示学习方法提供背景，不要求总览逐项复述实现细节。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_2395439f0b51a53ba821",
+      "local_id": "K12",
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "human_validated": false,
+      "knowledge": {
+        "id": "K12",
+        "statement": "LLM 基线（All-at-Once 与 Step-by-Step）仅报告 Hit@1，因为协议返回单一步骤而非完整排名，与特征方法的排名指标比较不对称。",
+        "explanation": "All-at-Once 一次接收完整对话并要求返回责任 agent、第一个错误步骤与解释；Step-by-Step 按步骤顺序处理增长前缀，在第一个解析为“Yes”的响应处停止。两者都只产生单一步骤预测，无法产生完整排名，因此只能报告 Hit@1。这不意味着 LLM 方法在排名任务上必然更差，而是评测协议本身的限制。",
+        "claim_ids": [
+          "C14"
+        ],
+        "result_ids": [],
+        "scope": "Qwen3.5-27B、DeepSeek V4 Flash、GPT-5.6 Luna，推理种子 {6,20,42}。",
+        "type": "边界",
+        "transferability": "领域",
+        "uncertainty": "“比较不对称”为提炼者推论；作者在附录 F.2 明确说明了协议限制。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "attribution-oriented-step-representation",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          },
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "background",
+            "reason": "作为失败归因的一类表示学习方法提供背景，不要求总览逐项复述实现细节。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_0d47954d381249dd3459",
+      "local_id": "K13",
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "human_validated": false,
+      "knowledge": {
+        "id": "K13",
+        "statement": "AgenTracer 的结果直接引用其原论文的 Who&When 报告值，未在作者过滤后的 Algorithm 子集上重新评估，且无三种子标准差，构成跨论文比较的证据强度限制。",
+        "explanation": "该基线数字与本文其他基线不在同一评测条件下产生（未重新评估、无多种子），因此其与 ReCast 的比较应谨慎解读。这提醒读者：排行榜上的数字可能来自不同评测条件，不能直接当作同条件对照。",
+        "claim_ids": [
+          "C15"
+        ],
+        "result_ids": [],
+        "scope": "AgenTracer-8B 未公开；Who&When 基准。",
+        "type": "边界",
+        "transferability": "领域",
+        "uncertainty": "提炼者推论；作者在附录 F.2 明确说明了该限制。"
+      },
+      "anchors": [
+        {
+          "source_id": "eddf2edee3305425",
+          "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+          "locator": {
+            "page": 22,
+            "paragraph_id": "p0022-0002",
+            "quote_start": 108,
+            "quote_end": 335
+          },
+          "quote": "Since the model is not publicly available, we directly use its reported Who&When results, without\nre-evaluation on our filtered Algorithm subset. These are single reported values and do not have a\nthree-seed standard deviation.",
+          "quote_sha256": "cfef764c014ef3b9e0d0e1f5d0a377c5c2960d239c26592a5c05ab5c800327ab"
+        }
+      ],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "attribution-oriented-step-representation",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          },
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "background",
+            "reason": "作为失败归因的一类表示学习方法提供背景，不要求总览逐项复述实现细节。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_b1442d9311cebe7d3d5d",
+      "local_id": "K14",
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "human_validated": false,
+      "knowledge": {
+        "id": "K14",
+        "statement": "候选步骤预处理保留模型生成动作、排除环境观察与工具结果消息，将 AFTraj-2K 失败测试轨迹的候选总体从 1,711 步减少到 1,548 步，同时保留全部 163 条轨迹与根因步骤；所有对比特征方法使用相同处理后候选集。",
+        "explanation": "统一候选集是公平比较的前提。该处理减少了约 9.5% 的候选步骤，可能改变随机基线的期望命中率与排序难度。作者声明特征方法使用相同候选集，但 LLM 基线是否使用相同候选集未明确说明。",
+        "claim_ids": [
+          "C13"
+        ],
+        "result_ids": [],
+        "scope": "AFTraj-2K 失败测试轨迹；Who&When 排除 2 条 AG 轨迹（其标注决定性错误对应工具输出而非模型动作步）。",
+        "type": "设计",
+        "transferability": "领域",
+        "uncertainty": "LLM 基线是否使用相同候选集未明确说明，保留为未知。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "attribution-oriented-step-representation",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          },
+          {
+            "concept_slug": "agent-failure-attribution",
+            "role": "background",
+            "reason": "作为失败归因的一类表示学习方法提供背景，不要求总览逐项复述实现细节。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_f19e064468f374278010",
+      "local_id": "K15",
+      "source_id": "eddf2edee3305425",
+      "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+      "human_validated": false,
+      "knowledge": {
+        "id": "K15",
+        "statement": "案例研究显示 ReCast 在六个挑选案例中均将标注根因步骤排在其它高分候选之上，包括早期检索遗漏、缺失来源约束、过早完成、使用模拟数据、错误距离换算与未验证声明等不同失败类型。",
+        "explanation": "这些案例覆盖了检索、验证、计算与完成判定等不同失败模式，说明学习到的表示不局限于单一错误类型。但案例为作者挑选样本，属定性支持而非统计证据，不能据此推断总体成功率或所有失败模式。",
+        "claim_ids": [
+          "C8"
+        ],
+        "result_ids": [
+          "R8"
+        ],
+        "scope": "Who&When 的 HC 与 AG 子集六个案例；曲线为 ReCast 对所有候选步骤的归因分数。",
+        "type": "证据",
+        "transferability": "领域",
+        "uncertainty": "案例为挑选样本；未视觉核对图 8 的曲线形状与具体点位数值。"
+      },
+      "anchors": [
+        {
+          "source_id": "eddf2edee3305425",
+          "source_version": "5736b7eff4001308b7889917a5128bd5e5d19cd5631c62dfa3a01d0cabd35914",
+          "locator": {
+            "page": 27,
+            "paragraph_id": "p0027-0001",
+            "quote_start": 2117,
+            "quote_end": 2336
+          },
+          "quote": "Figure 8 presents six cases from the Handcrafted and Algorithm subsets of Who&When. The curves\nshow ReCast’s attribution scores for all candidate steps, with higher scores indicating higher ranks\nwithin each trajectory.",
+          "quote_sha256": "0b1e2bc57fb4707d977ce3a36fd9eb95674866087cfdb00b023f67847aa481a8"
+        }
+      ],
+      "candidate_decision": {
+        "status": "deferred",
+        "reason": "六个挑选案例不足以建立普遍失败类型覆盖结论；暂不据此扩张解释对象。原案例仍保留于论文解读。",
+        "reassess_when": "人工确认哪些案例揭示可独立解释的机制，或出现系统覆盖/未挑选样本证据。"
+      },
+      "allowed_alternatives": [
+        "可作为已有归因概念的background关联，但必须保留六个挑选案例这一条件，不声称普遍覆盖。"
+      ]
+    },
+    {
+      "point_id": "kp_90e210e6b9521cc71062",
+      "local_id": "k1",
+      "source_id": "3fb5d6b0a837235b",
+      "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k1",
+        "statement": "在稀疏或二元反馈的语言智能体任务中，把反馈转成自然语言反思并存入跨试验的长期记忆，可以在不更新模型权重的情况下实现跨试验的策略改进。",
+        "explanation": "传统 RL 微调成本高、样本需求大，且标量奖励难以做准确信用分配。语言反思充当“语义梯度信号”，提供具体、可解释、可操作的改进方向，使 Actor 在后续试验中能利用过去经验调整决策。",
+        "claim_ids": [
+          "c1",
+          "c3",
+          "c11"
+        ],
+        "result_ids": [
+          "r1",
+          "r2"
+        ],
+        "scope": "在 AlfWorld、HotPotQA、HumanEval/MBPP 等任务上验证；依赖 LLM 能生成有效反思。",
+        "type": "机制",
+        "transferability": "桥接",
+        "uncertainty": "作者解释语言反馈充当语义梯度信号；提炼者推论其有效性依赖自我评估信号质量，原文未形式化为统一命题。"
+      },
+      "anchors": [
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19",
+          "locator": {
+            "page": 1,
+            "paragraph_id": "p0001-0001",
+            "quote_start": 728,
+            "quote_end": 1060
+          },
+          "quote": "We propose Reflexion, a\nnovel framework to reinforce language agents not by updating weights, but in-\nstead through linguistic feedback. Concretely, Reflexion agents verbally reflect\non task feedback signals, then maintain their own reflective text in an episodic\nmemory buffer to induce better decision-making in subsequent trials.",
+          "quote_sha256": "126bff83da63c05aaff54a63a2c9bbb4fca8b94bc689e742482b897169060e24"
+        }
+      ],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "verbal-reflection",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_170781e64c20e1d6b3a3",
+      "local_id": "k2",
+      "source_id": "3fb5d6b0a837235b",
+      "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k2",
+        "statement": "自我反思与情景记忆是两种不同的机制：仅保留最近轨迹（情景记忆）不足以带来与自我反思同等的改进，自我反思引导的精炼优于仅做精炼的方法。",
+        "explanation": "EPM 消融显示自我反思相比情景记忆带来 8% 绝对提升。第一人称语言书写的反思可能提供比原始轨迹更压缩、更可操作的错误定位信息。",
+        "claim_ids": [
+          "c4"
+        ],
+        "result_ids": [
+          "r2"
+        ],
+        "scope": "HotPotQA，CoT(GT) 基线，100 题。",
+        "type": "证据",
+        "transferability": "领域",
+        "uncertainty": "原文未直接检验“第一人称”与“第三人称”或“结构化摘要”的对比，机制解释属于提炼者推论。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "verbal-reflection",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_a0a0ba7223dc57974352",
+      "local_id": "k3",
+      "source_id": "3fb5d6b0a837235b",
+      "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k3",
+        "statement": "在编程任务中，自生成单元测试与自我反思缺一不可：缺少测试时智能体无法判断实现是否正确并做出有害编辑；缺少反思时测试与编译能捕获错误但实现修复不反映这些指示。",
+        "explanation": "HumanEval Rust 最难 50 题消融显示：省略测试生成降至 0.52（低于基线 0.60），省略自我反思维持 0.60，完整 Reflexion 达 0.68。测试提供 grounded 的二元信号，反思把信号转成可操作的实现修改。",
+        "claim_ids": [
+          "c7"
+        ],
+        "result_ids": [
+          "r5"
+        ],
+        "scope": "HumanEval Rust 50 最难问题，GPT-4 基座。",
+        "type": "设计",
+        "transferability": "领域",
+        "uncertainty": "作者据此推断无自我反思的盲目试错调试技术在更难任务上无效，属于作者解释，未在其他语言或任务上隔离验证。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "verbal-reflection",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_5e32ee65770e98d93a0d",
+      "local_id": "k4",
+      "source_id": "3fb5d6b0a837235b",
+      "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k4",
+        "statement": "自生成测试套件的质量是 Reflexion 在编程任务上效果的关键中介变量：假阳性率升高会导致智能体过早提交无效答案，从而抵消反思带来的收益。",
+        "explanation": "MBPP(PY) 假阳性率 16.3% 远高于 HumanEval(PY) 的 1.4%，两者基线 pass@1 相近，但 Reflexion 在 MBPP(PY) 上低于基线。假阴性优于假阳性，因为智能体可用反思识别错误测试并保留原代码。",
+        "claim_ids": [
+          "c6"
+        ],
+        "result_ids": [
+          "r3",
+          "r4"
+        ],
+        "scope": "HumanEval 与 MBPP Python，GPT-4 基座，自生成单元测试。",
+        "type": "边界",
+        "transferability": "领域",
+        "uncertainty": "作者解释假阳性率差异可解释 MBPP Python 负结果；原文未隔离是否还有其他因素。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "verbal-reflection",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_324f63af9816e65c053e",
+      "local_id": "k5",
+      "source_id": "3fb5d6b0a837235b",
+      "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k5",
+        "statement": "Reflexion 的有效性依赖底层模型能力：弱模型（如 starchat-beta）无法产生有效自我修正，Reflexion 无增益。",
+        "explanation": "starchat-beta 在 HumanEval Python 上 Baseline 与 Reflexion 的 Pass@1 均为 0.26。作者据此认为指定自我修正的能力是更强、更大模型的涌现性质。",
+        "claim_ids": [
+          "c8"
+        ],
+        "result_ids": [
+          "r6"
+        ],
+        "scope": "HumanEval Python，starchat-beta，8 次试验平均。",
+        "type": "边界",
+        "transferability": "桥接",
+        "uncertainty": "作者解释为模型能力不足；论文未提供“为何弱模型无法自我修正”的机制性验证。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "verbal-reflection",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_100115af314624f43f18",
+      "local_id": "k6",
+      "source_id": "3fb5d6b0a837235b",
+      "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k6",
+        "statement": "Reflexion 无法解决需要大量多样性与探索的任务：在 WebShop 上未能显著优于 ReAct，且失败后未生成有帮助的自我反思。",
+        "explanation": "WebShop 电商搜索需处理自然语言歧义，要求高度多样和独特行为；ALFWorld 可行动作可从观察中看到，HotPotQA 的 Wikipedia 搜索空间更多样且对查询精度要求更低。",
+        "claim_ids": [
+          "c9"
+        ],
+        "result_ids": [
+          "r7"
+        ],
+        "scope": "WebShop 100 个环境，two-shot ReAct + Reflexion。",
+        "type": "边界",
+        "transferability": "领域",
+        "uncertainty": "作者给出的任务特性解释未通过控制实验隔离验证。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "verbal-reflection",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_75bd5cbc7f714e389758",
+      "local_id": "k7",
+      "source_id": "3fb5d6b0a837235b",
+      "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k7",
+        "statement": "Reflexion 的收益可能与基线留下的改进空间相关：在 ReAct 设定下增益普遍大于 CoT(GT) 设定，且 ReAct 基线越低增益越大。",
+        "explanation": "HotPotQA 100 题跨模型评测显示 ReAct 设定增益 +0.25/+0.12/+0.12，CoT(GT) 设定 +0.17/+0.14/+0.12。提示收益与基线改进空间相关。",
+        "claim_ids": [
+          "c10"
+        ],
+        "result_ids": [
+          "r8"
+        ],
+        "scope": "HotPotQA 100 题，text-davinci-003、gpt-3.5-turbo、gpt-4。",
+        "type": "证据",
+        "transferability": "领域",
+        "uncertainty": "提炼者推论，论文未对此做因果分析，样本仅 100 题，不能作为普遍规律。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "verbal-reflection",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_55ffc5d32d5873878fa7",
+      "local_id": "k8",
+      "source_id": "3fb5d6b0a837235b",
+      "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k8",
+        "statement": "Reflexion 是一种用自然语言做策略优化的技术，可能陷入非最优局部极小值，且没有成功的形式化保证。",
+        "explanation": "作者明确承认这一局限。长期记忆被限制为固定容量滑动窗口；代码生成方面测试驱动开发在非确定性生成函数、与 API 交互的非纯函数、依硬件规格变化输出的函数、并行或并发行为难以预测的函数上存在实际限制。",
+        "claim_ids": [
+          "c12"
+        ],
+        "result_ids": [],
+        "scope": "框架整体，作者声明的局限。",
+        "type": "边界",
+        "transferability": "通用",
+        "uncertainty": "作者明确陈述的局限，非提炼者推论。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "verbal-reflection",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_bdf0ba6b72bb180b5ec6",
+      "local_id": "k9",
+      "source_id": "3fb5d6b0a837235b",
+      "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k9",
+        "statement": "Reflexion 的反思内容多为对问题理解偏差或搜索策略的纠正，而非对底层知识的补充，提示其作用机制偏向于在多次试验间调整推理与检索策略。",
+        "explanation": "附录 D 多个示例（HotPotQA 搜索策略、CoT 职业比较、CoT(GT) 战役系列、EPM 乐队成员、EPM 学位领域）共同显示反思纠正的是问题理解与检索策略。",
+        "claim_ids": [
+          "c3"
+        ],
+        "result_ids": [
+          "r2"
+        ],
+        "scope": "HotPotQA 与 CoT 示例，少量案例。",
+        "type": "机制",
+        "transferability": "领域",
+        "uncertainty": "提炼者推论，基于少量示例，原文未系统分类反思内容。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "verbal-reflection",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_93bfa1b586331b4c29ab",
+      "local_id": "k1",
+      "source_id": "accd5feccfb2c025",
+      "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k1",
+        "statement": "在记忆增强LLM智能体中，把持久记忆治理拆成“准入（哪些记忆进入工作上下文）”与“呈现（进入后如何组织表达）”两个可分别操纵的决策，是避免把呈现策略的无效误读为准入策略无效的前提。",
+        "explanation": "两个杠杆成本不同、失败模式不同、效应量差异很大：准入改变可用信息，被排除单元不能通过记忆注入直接影响回答；呈现保留准入内容只改组织与措辞，误导信息仍可能影响回答。若不分离，无法判断某一治理效果来自“选了什么”还是“怎么表达”。",
+        "claim_ids": [
+          "c1",
+          "c2",
+          "c5",
+          "c6"
+        ],
+        "result_ids": [
+          "r1",
+          "r4",
+          "r5"
+        ],
+        "scope": "持久记忆型LLM智能体、偏好记忆任务、PersistBench与MemSyco-Bench判据、特定冻结提示与许可模式。",
+        "type": "设计",
+        "transferability": "桥接",
+        "uncertainty": "作者明确陈述的框架主张；其收益幅度依赖本文任务与评测协议，属提炼者基于证据的推论。"
+      },
+      "anchors": [
+        {
+          "source_id": "accd5feccfb2c025",
+          "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+          "locator": {
+            "page": 1,
+            "paragraph_id": "p0001-0001",
+            "quote_start": 260,
+            "quote_end": 458
+          },
+          "quote": "We dis-\ntinguish two governance decisions:admission, which determines\nwhat recalled information enters the working context, andpresenta-\ntion, which determines how admitted information is expressed.",
+          "quote_sha256": "ee94bd31f7795ddb1a8ef605cecc7d2b126848cb49ead84caa6b007362dcb953"
+        }
+      ],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "persistent-memory-admission",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_08fbfcee9fc5ffc4cb31",
+      "local_id": "k2",
+      "source_id": "accd5feccfb2c025",
+      "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k2",
+        "statement": "把准入从查询相关性升级为对记忆的情境化裁决（判断记忆相对查询的认识论地位与作用域），可以在外部基准上显著削减判定伤害；而仅改变呈现方式在固定裁决下没有稳健差异。",
+        "explanation": "谄媚诱发与泄漏记忆按构造主题相关，相关性空间门控无法在认识论与作用域维度上把它们与有益记忆分离；情境化裁决按“该单元是已验证事实还是用户信念”“答案关于用户还是世界”等与主题相似度正交的维度判断，从而可分离。",
+        "claim_ids": [
+          "c1",
+          "c3",
+          "c5"
+        ],
+        "result_ids": [
+          "r1",
+          "r2",
+          "r4"
+        ],
+        "scope": "外部MemSyco-Bench与开发PersistBench；跨骨干证据在开发面，外部面单一生成器。",
+        "type": "机制",
+        "transferability": "桥接",
+        "uncertainty": "作者解释；机制解释（为何准入有效、为何呈现无效）在原文中多为观察与假设，未做隔离因果验证。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "persistent-memory-admission",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_faaefe66d79e7a8e0e8a",
+      "local_id": "k3",
+      "source_id": "accd5feccfb2c025",
+      "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k3",
+        "statement": "裁决器只赋属性、由独立确定性策略把属性编译为资格决策与许可用途，可把“判断事实”与“决定动作”分离，使同一记忆对不同查询可有不同资格，并使被排除内容物理缺席而非仅被标注。",
+        "explanation": "属性评估与策略决策分离避免裁决器直接决定答案该做什么；情境感知先判断答案目标与任务模式；物理排除使被排除单元不能通过记忆注入影响回答。",
+        "claim_ids": [
+          "c2",
+          "c6"
+        ],
+        "result_ids": [
+          "r5"
+        ],
+        "scope": "FC与PS两种准入设计共享的三个固定属性。",
+        "type": "设计",
+        "transferability": "通用",
+        "uncertainty": "作者明确陈述的设计属性；其相对其他分离方式的优势未被单独消融验证。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "persistent-memory-admission",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_266c8be0c6c0d5602147",
+      "local_id": "k4",
+      "source_id": "accd5feccfb2c025",
+      "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k4",
+        "statement": "在固定裁决、相同准入内容的对照下，两种被测试的分节渲染（PN与CH）之间没有统计稳健差异；该结论限于这两种渲染的组合差异，不证明一般呈现效应不存在。",
+        "explanation": "裁决共享机制（PN写账本、CH读账本不再裁决）保证准入决策完全相同，使差异只能归因于渲染；九个任务-指标对中唯一名义显著单元未通过BH校正，预注册跨骨干主检验0/4显著。",
+        "claim_ids": [
+          "c5"
+        ],
+        "result_ids": [
+          "r4"
+        ],
+        "scope": "PN vs CH两种渲染，外部四任务与开发四骨干；分节方案与措辞在该阶段内共变。",
+        "type": "证据",
+        "transferability": "领域",
+        "uncertainty": "作者明确限定；唯一直接显著的呈现效应是单骨干设计阶段观察，仅作提示性报告。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "persistent-memory-admission",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_8b3394a80df8280b78b4",
+      "local_id": "k5",
+      "source_id": "accd5feccfb2c025",
+      "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k5",
+        "statement": "在固定呈现、仅收紧准入的单变量对照中，跨域失败进一步下降17.5pp，直接隔离了一个准入动作的贡献。",
+        "explanation": "保持注释、生成提示、评判者、phase-1分数不变，仅把最大影响分<0.5的记忆从生成提示中剔除，失败率42.5%→25.0%，说明收紧准入本身可改变结果。",
+        "claim_ids": [
+          "c6"
+        ],
+        "result_ids": [
+          "r5"
+        ],
+        "scope": "开发集跨域维度，DeepSeek-V4-Pro，n=200，单一配置。",
+        "type": "证据",
+        "transferability": "领域",
+        "uncertainty": "作者明确陈述的单变量对照；该配置外的可迁移性未验证。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "persistent-memory-admission",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_3486dfec37db81969cea",
+      "local_id": "k6",
+      "source_id": "accd5feccfb2c025",
+      "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k6",
+        "statement": "记忆-证据冲突下，任何保留冲突记忆的被测治理措辞都未把误导率降到82%以下；只有把记忆从上下文移除才消除该效应，但该消融同时移除有益与冲突内容，不能确定是哪部分内容负责。",
+        "explanation": "该任务被冲突前提主导，生成器压倒性跟随它；FC/PS/渲染臂误导率82.3–85.0%，门控85.7%，逐字注入91.7%，无记忆臂0%。作者读作残留失败观察而非已确立机制。",
+        "claim_ids": [
+          "c7"
+        ],
+        "result_ids": [
+          "r6"
+        ],
+        "scope": "外部基准mec任务，n=300/格；无记忆臂移除全部召回内容。",
+        "type": "边界",
+        "transferability": "领域",
+        "uncertainty": "作者明确称其为残留失败观察而非已确立机制；机制未确立。"
+      },
+      "anchors": [
+        {
+          "source_id": "accd5feccfb2c025",
+          "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+          "locator": {
+            "page": 2,
+            "paragraph_id": "p0002-0002",
+            "quote_start": 254,
+            "quote_end": 544
+          },
+          "quote": "Among tested\nconfigurations, only those that remove memories from the\ncontext eliminate the effect; no arm that retains the conflict-\ning memory, under any wording we test, brings misleading\nbelow82%. We read this as a residual-failure observation,\nnot an established mechanism (Section 6).",
+          "quote_sha256": "e6484c2fbbc3216109bcc274ee3a094a513ba68efd48a8e6fd20604bb4a86062"
+        }
+      ],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "persistent-memory-admission",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_42102d290b6a9c9ce6ea",
+      "local_id": "k7",
+      "source_id": "accd5feccfb2c025",
+      "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k7",
+        "statement": "两种结构不同的准入设计都在个性化任务上过冲（漏掉个性化失败增加），说明准入收紧存在安全-个性化权衡；但该代价是准入动作固有还是共享流水线组件所致，作者明确未隔离。",
+        "explanation": "FC pm失败14.7%→22.3%，PS 14.7%→20.0%，pm准确率66.3%→57.0%(FC)/60.3%(PS)；两个结构不同的设计在同一任务上过冲是共同观察。",
+        "claim_ids": [
+          "c8"
+        ],
+        "result_ids": [
+          "r7"
+        ],
+        "scope": "外部基准pm任务，n=300/格。",
+        "type": "边界",
+        "transferability": "桥接",
+        "uncertainty": "作者明确未隔离成因；属共同观察而非已确立因果。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "persistent-memory-admission",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_574fd33ea8e1fd4705d0",
+      "local_id": "k8",
+      "source_id": "accd5feccfb2c025",
+      "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k8",
+        "statement": "PS未通过预注册效应量门（合并改善8.8pp vs 10pp阈值；pm准确率−6.0pp vs 3pp不退化线），说明统计显著不等于满足预设的实践门槛。",
+        "explanation": "合并改善统计显著(p=4.1e-12)与ofj失败降低24.7pp都不改变门槛未达的结论；预注册门槛同时约束安全改善幅度与个性化不退化。",
+        "claim_ids": [
+          "c9"
+        ],
+        "result_ids": [
+          "r8"
+        ],
+        "scope": "外部基准，预注册效应量门。",
+        "type": "证据",
+        "transferability": "领域",
+        "uncertainty": "作者明确陈述；门槛本身是作者预设的，非外部标准。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "persistent-memory-admission",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_12f789f290f8c933d5b8",
+      "local_id": "k9",
+      "source_id": "accd5feccfb2c025",
+      "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k9",
+        "statement": "预算匹配对照把部分外部客观事实改善归因于选择质量本身，但同一对照在内部开发面未显示显著选择效应，说明选择质量的作用是任务/面特定的。",
+        "explanation": "等预算下PS在外部客观事实任务上低于随机选择与相关度排序臂（Holm校正后显著），准确率同步上升；内部面同样对照无显著选择优势。",
+        "claim_ids": [
+          "c4"
+        ],
+        "result_ids": [
+          "r3"
+        ],
+        "scope": "外部扩展无单独预注册文档；内部研究预注册。",
+        "type": "证据",
+        "transferability": "领域",
+        "uncertainty": "作者明确标注预注册状态差异；外部扩展沿用同一冻结分析族与阈值。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "persistent-memory-admission",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_b63b0c29acfdb706cdbb",
+      "local_id": "k10",
+      "source_id": "accd5feccfb2c025",
+      "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k10",
+        "statement": "情境化裁决在细粒度情境切换上不迁移：专门探针未发现PS相对等预算相关度臂或裸注入的配对成功增益，且在一个骨干上记忆注入净负。",
+        "explanation": "180配对查询覆盖对象切换、上下文切换、观点使用许可；裁决日志提示可能失败来源（56%……解析截断），但该观察不隔离裁决器错误、参考标签歧义与下游生成失败。",
+        "claim_ids": [
+          "c11"
+        ],
+        "result_ids": [
+          "r10"
+        ],
+        "scope": "补充S9，四臂，两骨干，无单独预注册文档。",
+        "type": "边界",
+        "transferability": "领域",
+        "uncertainty": "作者明确称该观察不隔离裁决器错误、参考标签歧义与下游生成失败；解析截断使部分日志内容无法确认。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "persistent-memory-admission",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_06860fc9afef7f187e22",
+      "local_id": "k11",
+      "source_id": "accd5feccfb2c025",
+      "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k11",
+        "statement": "单一未改善骨干（GPT-OSS-120B）不构成模型极限的证据：同一骨干在另一生成时配置下跨域失败可实质下降，边界是配置特定的。",
+        "explanation": "GPT-OSS-120B裸泄漏率64%，在PS+PN/PS+CH下无统计显著变化；生成时配置（补充S5）能实质削减同一骨干的跨域失败。作者明确不由此单一骨干外推裸泄漏阈值。",
+        "claim_ids": [
+          "c10"
+        ],
+        "result_ids": [
+          "r9"
+        ],
+        "scope": "开发套件，GPT-OSS-120B，低推理努力设置；两项研究配置与基线不同。",
+        "type": "边界",
+        "transferability": "领域",
+        "uncertainty": "作者明确留为开放；两项研究配置不同，不能据此识别主评估结果的原因。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "persistent-memory-admission",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_b6be082626a8b78adfcf",
+      "local_id": "k12",
+      "source_id": "accd5feccfb2c025",
+      "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k12",
+        "statement": "预注册、资产冻结与独立审计脚本从原始逐样本标签重算统计，是使该治理对照实验可核查的关键工程实践；缺失判定用成对排除而非零填充。",
+        "explanation": "三份预注册文档在各自数据收集前冻结；裁决提示、通道标题、许可模式在开发阶段后固定；独立审计脚本重算所有统计量；9,600条外部判定中缺失2条成对排除。",
+        "claim_ids": [
+          "c13"
+        ],
+        "result_ids": [],
+        "scope": "本文实验流程；内部预算匹配对照有预注册文档，其外部扩展与情境许可探针无单独预注册文档。",
+        "type": "设计",
+        "transferability": "通用",
+        "uncertainty": "作者明确陈述的流程事实；其相对非预注册流程的优势未被本文单独检验。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "persistent-memory-admission",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    },
+    {
+      "point_id": "kp_9db84c779612b9830e0f",
+      "local_id": "k13",
+      "source_id": "accd5feccfb2c025",
+      "source_version": "861009dbc6107a2a1f37fd95b97524ae65e245e610770377f80320a32030a5e8",
+      "human_validated": false,
+      "knowledge": {
+        "id": "k13",
+        "statement": "单一判定器评分所有臂、外部任务评分标准未做人类验证、跨骨干证据仅在开发面、外部面单一生成器，这些构成结论可迁移性的主要威胁。",
+        "explanation": "判定器与共识标签二分类κ=0.70(n=352)仅在开发rubric上验证；风格依赖的判定器偏差未被排除；池化外部测试等权平均四个任务级失败构念，因pm构念与准入方向相反，池化估计低估安全方向改善。",
+        "claim_ids": [
+          "c14",
+          "c15"
+        ],
+        "result_ids": [],
+        "scope": "本文评测协议与运行顺序。",
+        "type": "边界",
+        "transferability": "领域",
+        "uncertainty": "作者明确列为威胁；Bare外部运行早于治理运行约30小时，作者主动标记。"
+      },
+      "anchors": [],
+      "candidate_decision": {
+        "status": "linked",
+        "memberships": [
+          {
+            "concept_slug": "persistent-memory-admission",
+            "role": "required",
+            "reason": "该点直接解释此概念的机制、证据或适用条件；候选角色待人工审阅。"
+          }
+        ]
+      }
+    }
+  ],
+  "cases": [
+    {
+      "id": "multi-membership",
+      "scenario": "real_source_candidate",
+      "old": "旧归因索引逐点展示步骤级与子任务级依赖，尚无独立轨迹依赖概念的综合解释。",
+      "new": "同一依赖表示知识既解释归因如何追踪上游影响，也直接解释轨迹表示的信息流。",
+      "decision": "linked 到 agent-failure-attribution 和 trajectory-dependency-representation；两处各有明确解释问题。",
+      "wiki_change": "归因页说明依赖结构如何支持追溯；依赖表示页解释两层结构并链接归因应用。无需两页逐字复述。",
+      "acceptance": "两条归属均可回查同一原文；正文绑定分别按各页实际论述生成。",
+      "point_ids": [
+        "kp_0d433c1543e3d43baceb"
+      ],
+      "human_validated": false
+    },
+    {
+      "id": "deferral",
+      "scenario": "real_source_candidate",
+      "old": "旧索引列出六个挑选案例中正确排序的现象。",
+      "new": "案例支持具体展示，但不能单独推出对失败类型的普遍覆盖。",
+      "decision": "deferred，保留原点与锚点，等待机制解释或更系统证据；background关联也是允许替代。",
+      "wiki_change": "不因暂缓而建新页、不删原论文解读；受影响概念无需为该点单独重写。",
+      "acceptance": "原因与重评条件持久保存；新增无关论文不会无条件重跑此点。",
+      "point_ids": [
+        "kp_f19e064468f374278010"
+      ],
+      "human_validated": false
+    },
+    {
+      "id": "conditional-comparison",
+      "scenario": "real_sources_no_direct_conflict",
+      "old": "EMFA 在自身 Who&When 协议中报告 step-level 最佳；ReCast 报告另一协议的 Hit@1 最佳。",
+      "new": "ReCast 的候选筛选和跨论文引述协议有限定，不能仅凭两个最佳断言判定矛盾或直接排名。",
+      "decision": "分别 linked，保留指标、候选集合、骨干和比较协议；属于条件差异，不自动修正/撤回旧断言。",
+      "wiki_change": "归因总览比较传播建模与表示学习的思路，并将性能分别归属各自协议。",
+      "acceptance": "不写 ReCast 推翻 EMFA；真实直接冲突场景仍未满足。",
+      "point_ids": [
+        "kp_3f47630684b322e2696c",
+        "kp_a3f03dbb811b74785e6a",
+        "kp_0d47954d381249dd3459"
+      ],
+      "human_validated": false
+    },
+    {
+      "id": "memory-and-reflection",
+      "scenario": "real_source_candidate",
+      "old": "反思索引说明自然语言反馈进入跨试验记忆；记忆治理索引说明准入与呈现及冲突记忆残留伤害。",
+      "new": "跨试验利用反思和检索时裁决记忆资格是不同环节，后者的负结果不直接否定前者。",
+      "decision": "分别 linked 到 verbal-reflection 与 persistent-memory-admission；如建立连接，标明是编辑性流程比较。",
+      "wiki_change": "两概念各解释自身机制，在有关段落说明生成经验与准入筛选的区别，不声称二者组合已被论文验证。",
+      "acceptance": "内部scope和uncertainty保留；页面自然表达必要条件，不展示字段清单。",
+      "point_ids": [
+        "kp_90e210e6b9521cc71062",
+        "kp_93bfa1b586331b4c29ab",
+        "kp_3486dfec37db81969cea"
+      ],
+      "human_validated": false
+    },
+    {
+      "id": "synthetic-conflict",
+      "scenario": "synthetic_only_not_real_paper_evidence",
+      "old": "[合成] 同一冻结测试、同一模型、同一指标下，旧断言声称方法A准确率为80%。",
+      "new": "[合成] 经核验更正通知指出同一数据应为60%。",
+      "decision": "生成待审修正，保留80%→60%、更正证据与理由；独立知识变化审核通过前不覆盖。",
+      "wiki_change": "审核前保留旧发布并标待审；审核后在同组事务内更新正文、依据、归属和变化历史。",
+      "acceptance": "离线合成测试使用独立来源，不冒充四篇真实论文的冲突验收。",
+      "point_ids": [],
+      "human_validated": false
+    }
+  ],
+  "coverage_gaps": [
+    "No verified direct inter-paper contradiction in these four accepted readings; genuine old-assertion replacement remains unvalidated. Synthetic conflict tests must be reported separately.",
+    "Parsed text and accepted L2 artifacts were inspected; PDF figures and table layout were not visually revalidated.",
+    "Candidate membership, deferral and required-expression choices await human review before any real-model semantic acceptance."
+  ],
+  "point_count": 45,
+  "evidence_policy": {
+    "catalog": "All 45 accepted points retain semantic fields and claim/result IDs; duplicate proposition alias and raw passage-ref arrays are omitted.",
+    "excerpts": "Only points used by real review cases include selected 1–3 sentence exact paragraph substrings. Empty anchors on other catalog points do not mean evidence is absent from the archived L2 reading.",
+    "offsets": "quote_start inclusive / quote_end exclusive, Python Unicode character offsets within the archived parsed paragraph, not PDF byte offsets.",
+    "snapshots": "Only legacy title/slug/full-page hash and relevant old assertions are embedded; full old pages remain at source paths."
+  },
+  "default_allowed_alternatives": [
+    "相同核心问题的稳定规范概念可使用不同slug；必须保留实际对象和条件。",
+    "若该点不改变概念解释，可作为background归属并选择no_change；需说明旧解释已覆盖什么。"
+  ]
+}
