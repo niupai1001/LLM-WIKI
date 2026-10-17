@@ -148,6 +148,18 @@ def validate_decision(value, points, existing, occupied, input_digest=None):
     result.setdefault('relation_actions', [])
     result.setdefault('unresolved', [])
     _list(result['unresolved'], 'unresolved')
+    decisions_by_point = {p['point_id']: p for p in result['point_decisions']}
+    for concept in existing:
+        for pid in set(concept.get('point_ids', [])) & set(points):
+            point_decision = decisions_by_point[pid]
+            pending_review = any(r.get('point_id') == pid and r.get('status') == 'pending_review'
+                                 for r in concept.get('assignment_reasons', []))
+            retained = any(m['concept_slug'] == concept['slug'] for m in point_decision['memberships'])
+            if point_decision['disposition'] == 'deferred' or (pending_review and not retained):
+                issue = {'point_id': pid, 'concept_slug': concept['slug'],
+                         'reason': 'Existing knowledge membership requires review; retain old published knowledge'}
+                if issue not in result['unresolved']:
+                    result['unresolved'].append(issue)
     from .relations import RELATION_LABELS
     known_claim_ids = {cid for p in points.values() for cid in p.get('data', json.loads(p.get('data_json', '{}'))).get('claim_ids', [])}
     known_source_ids = {p.get('source_id') for p in points.values()}
@@ -272,6 +284,8 @@ def plan_maintenance(ws, papers, points, existing, occupied, invoke, model_ident
         return base
     related_ids = set(pending) | {pid for c in candidates.values() for pid in c.get('point_ids', [])}
     related_points = {pid: points[pid] for pid in sorted(related_ids) if pid in points}
+    # Unrelated source/point versions cannot invalidate a local decision.
+    base['point_versions'] = {pid: versions[pid] for pid in related_points}
     source_materials = []
     for sid in sorted({p.get('source_id') for p in related_points.values()}):
         packet = papers.get(sid, {}).get('packet', {})
@@ -297,7 +311,7 @@ def plan_maintenance(ws, papers, points, existing, occupied, invoke, model_ident
             selected_claims.append(normalized)
         source_materials.append({'source_id': sid, 'source_version': papers.get(sid, {}).get('source_version'), 'claims': selected_claims, 'results': results, 'originals': list(originals.values())})
     context = {'decision_version': VERSION, 'pending_point_ids': sorted(pending), 'knowledge_points': [{**p.get('data', json.loads(p.get('data_json', '{}'))), **{k:p.get(k) for k in ('source_id', 'source_version', 'local_id')}, 'id': pid} for pid, p in related_points.items()],
-               'existing_concepts': [{**{k: c.get(k) for k in ('slug', 'title', 'question', 'point_ids', 'aliases', 'version', 'membership_version')}, 'body': c.get('body', '')[:16000], 'meta': copy.deepcopy({k: c.get('meta', {}).get(k) for k in ('claims', 'relations', 'knowledge_topic')})} for c in candidates.values()],
+               'existing_concepts': [{**{k: c.get(k) for k in ('slug', 'title', 'question', 'point_ids', 'aliases', 'version', 'membership_version', 'assignment_reasons')}, 'body': c.get('body', '')[:16000], 'meta': copy.deepcopy({k: c.get('meta', {}).get(k) for k in ('claims', 'relations', 'knowledge_topic')})} for c in candidates.values()],
                'source_materials': source_materials, 'point_versions': {pid: versions[pid] for pid in related_points}, 'candidate_digests': {pid: _candidate_digest(candidates_by_id.get(pid, [])) for pid in pending}, 'model_identity': model_identity, 'skill_hash': skill_hash}
     # Old concept assertions can repeat the same full paragraphs as L2 claims.
     # Keep a shared evidence bank rather than multiplying those archived quotes.
@@ -340,6 +354,7 @@ def plan_maintenance(ws, papers, points, existing, occupied, invoke, model_ident
             budget_attempts = db.execute('SELECT attempts FROM maintenance_budgets WHERE operation_key=?', (budget_key,)).fetchone()[0]
             if attempts >= MAX_ATTEMPTS or budget_attempts >= MAX_ATTEMPTS:
                 base.update(status='blocked', reasons=json.loads(errors) or ['Maintenance request budget exhausted'])
+                db.execute("UPDATE maintenance_decisions SET status='blocked',updated_at=? WHERE id=?", (utcnow(), identifier))
                 return base
             db.execute('UPDATE maintenance_decisions SET attempts=attempts+1,updated_at=? WHERE id=?', (utcnow(), identifier))
             db.execute('UPDATE maintenance_budgets SET attempts=attempts+1 WHERE operation_key=?', (budget_key,))
@@ -384,6 +399,8 @@ def plan_maintenance(ws, papers, points, existing, occupied, invoke, model_ident
         return base
     risks = [a['reason'] for a in decision['concept_actions'] if a.get('requires_review')]
     if risks or decision['unresolved']:
+        with sqlite3.connect(ws.db, timeout=30) as db:
+            db.execute("UPDATE maintenance_decisions SET status='pending_review',updated_at=? WHERE id=?", (utcnow(), identifier))
         base.update(status='blocked', reasons=risks + [str(v) for v in decision['unresolved']])
     else:
         base['status'] = 'ready' if base['plan']['concepts'] else 'no_change'

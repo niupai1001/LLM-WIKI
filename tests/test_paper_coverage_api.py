@@ -23,7 +23,7 @@ class PaperCoverageApiTests(unittest.TestCase):
                     db.execute('INSERT INTO knowledge_points VALUES (?,?,?,?,?)',
                                ('kp_11111111111111111111', '1111111111111111', 'k1', 'version-' + name,
                                 json.dumps({'proposition': name + ' knowledge', 'scope': 'Conditions'})))
-                    db.execute('INSERT INTO concept_memberships VALUES (?,?,?)',
+                    db.execute('INSERT INTO concept_memberships(concept_slug,point_id,reason) VALUES (?,?,?)',
                                (name + '-concept', 'kp_11111111111111111111', 'Explains this concept'))
                 libraries.append(ws)
             for ws in libraries:
@@ -35,3 +35,6 @@ class PaperCoverageApiTests(unittest.TestCase):
                 self.assertEqual(result['knowledge_points'][0]['concept_slugs'], [ws.library_id + '-concept'])
                 self.assertEqual(result['knowledge_points'][0]['proposition'], ws.library_id + ' knowledge')
                 self.assertEqual(result['papers'][0]['source_version'], 'version-' + ws.library_id)
+                self.assertEqual(result['knowledge_points'][0]['memberships'][0]['reason'], 'Explains this concept')
+                self.assertEqual(result['knowledge_points'][0]['memberships'][0]['status'], 'active')
+                self.assertEqual(result['knowledge_points'][0]['disposition'], 'unprocessed')

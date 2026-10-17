@@ -36,7 +36,24 @@ def validate_relations(values, claims, source_ids, known_slugs, slug):
             raise ValueError('知识关系来源缺少对应断言与原文摘录。')
         if kind in {'shared_mechanism', 'contrast', 'design_inference'} and len(set(sids)) < 2:
             raise ValueError('跨研究机制关系需要双方来源。')
+        basis = relation.get('basis')
+        if basis is not None and basis not in {'factual', 'editorial'}:
+            raise ValueError('知识关系须区分原文事实与编辑解释。')
         seen.add(rid)
         result.append({'id': rid, 'target_slug': target, 'kind': kind, 'summary': summary.strip(),
-                       'scope': scope.strip(), 'claim_ids': sorted(set(cids)), 'source_ids': sorted(set(sids))})
+                       'scope': scope.strip(), 'claim_ids': sorted(set(cids)), 'source_ids': sorted(set(sids)),
+                       **({'basis': basis} if basis is not None else {})})
     return result
+
+
+def require_approved_relations(values, actions, previous, slug):
+    """Writing may express approved maintenance relations and retain old ones."""
+    def key(value):
+        return (value.get('target_slug'), value.get('kind'), value.get('basis', 'factual'))
+    allowed = {key(v) for v in previous}
+    required = {key(v) for v in actions if v.get('source_slug', v.get('concept_slug')) == slug}
+    actual = {key(v) for v in values}
+    if actual - allowed - required:
+        raise ValueError('Concept contains a relation not approved by maintenance')
+    if required - actual:
+        raise ValueError('Concept omitted an approved maintenance relation')

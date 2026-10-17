@@ -11,17 +11,20 @@ from station.workspaces import Workspace
 
 
 class WikiExperimentTests(unittest.TestCase):
-    def test_context_does_not_forward_point_labels_or_old_review_commentary(self):
-        secret = 'UNWANTED-FIELD-CONTENT'
+    def test_context_preserves_internal_semantics_without_review_commentary(self):
+        secret = 'UNWANTED-REVIEW-CONTENT'
+        semantics = 'REQUIRED-INTERNAL-SEMANTICS'
         point = {'source_id': '0123456789abcdef', 'data': {'proposition': '有意义的知识命题', 'claim_ids': ['c'],
-            **{k: secret for k in ['scope', 'type', 'explanation', 'uncertainty', 'transferability']}}}
+            **{k: semantics for k in ['scope', 'type', 'explanation', 'uncertainty', 'transferability']}}}
         papers = {'0123456789abcdef': {'source_version': 'v1', 'record': {'title': '论文'}, 'reviews_json': secret,
             'packet': {'body_markdown': '完整论文论证', 'claims': [{'id': 'c', 'text': '支持事实',
-            'scope': secret, 'status': secret, 'evidence_passages': [{'source_id': '0123456789abcdef',
+            'scope': semantics, 'status': secret, 'evidence_passages': [{'source_id': '0123456789abcdef',
             'quote': '原文实际语句', 'locator': {'page': 1}, 'confidence': secret}]}]}}}
         with patch.object(trial, '_inputs', return_value=(papers, {'p': point}, [])), patch('station.knowledge_navigation._reviewed'):
             ctx, _, _ = trial.context_for(None, {'sources': ['0123456789abcdef'], 'title': '主题', 'question': '问题', 'pages': []})
         self.assertNotIn(secret, str(ctx))
+        for key in ['scope', 'type', 'explanation', 'uncertainty', 'transferability']:
+            self.assertEqual(ctx['sources'][0]['points'][0][key], semantics)
         self.assertIn('完整论文论证', str(ctx))
         self.assertIn('有意义的知识命题', str(ctx))
         self.assertIn('原文实际语句', str(ctx))
@@ -53,46 +56,81 @@ class WikiExperimentTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             trial.validate_review(draft, {'pages': [{'slug': 'concept', 'claim_reviews': [], 'issues': []}]})
 
-    def test_trial_preflights_every_entry_before_any_file_is_published(self):
-        scope, draft, claims, points = self.fixture()
-        scope.update(title='主题实验', topic='topic', question='本主题解释什么')
-        scope['pages'].append({'slug': 'second', 'title': '第二概念'})
-        second = copy.deepcopy(draft['pages'][0])
-        second.update(slug='second', title='第二概念')
-        draft['pages'].append(second)
-        draft['topic_body'] += '[[second|第二概念]]'
-        ctx = {'sources': [{'source_id': '0123456789abcdef', 'source_version': 'snapshot-version'}]}
-        identity = {'library_id': 'test', 'context_digest': digest(ctx), 'skill_hash': digest(trial.SKILL.read_text()),
-                    'prompt_hash': digest([trial.AUTHOR, trial.REVIEW])}
-        checked = {'pages': [{'slug': p['slug'], 'claim_reviews': [{'claim_id': '0123456789abcdef:c',
-            'status': 'supported', 'reason': '原文支持。'}], 'issues': []} for p in draft['pages']], 'topic_issues': []}
-        with tempfile.TemporaryDirectory() as folder:
-            ws = Workspace('test', Path(folder))
-            save_json(ws.root / 'result.json', {'status': 'ready', 'identity': identity, 'draft': draft, 'check': checked})
-            with patch.dict(trial.SCOPES, {'test': scope}), patch.object(trial, 'context_for', return_value=(ctx, claims, points)), \
-                 patch('station.paper_rebuild.publish_concept', side_effect=[{'changes': {}, 'database_callback': None}, ValueError('second entry invalid')]) as prepare, \
-                 patch('station.publication.publish') as publish:
-                with self.assertRaisesRegex(ValueError, 'second entry invalid'):
-                    trial.publish_trial(ws, 'test', ws.root)
-                self.assertEqual(prepare.call_args_list[0].args[1]['input_versions'], {'0123456789abcdef': 'snapshot-version'})
-                self.assertTrue(prepare.call_args_list[0].kwargs['prepare_only'])
-                publish.assert_not_called()
+    def trial_fixture(self, folder):
+        ws = Workspace('test', Path(folder))
+        scope = {'title': '主题实验', 'topic': 'topic', 'question': '本主题解释什么',
+                 'sources': ['0123456789abcdef'], 'pages': []}
+        context = {'sources': [{'source_id': '0123456789abcdef', 'source_version': 'v1'}]}
+        return ws, scope, context
 
-    def test_restart_reuses_attempts_instead_of_refreshing_budget(self):
+    def test_run_trial_uses_shared_pipeline_without_publishing(self):
         with tempfile.TemporaryDirectory() as folder:
-            ws = Workspace('test', Path(folder))
-            scope = {'title': '试验', 'sources': ['0123456789abcdef'], 'pages': []}
-            calls = []
-            def model(messages):
-                calls.append(messages)
-                return {'pages': [], 'topic_body': ''}
-            with patch.dict(trial.SCOPES, {'test': scope}), patch.object(trial, 'context_for', return_value=({}, {}, {})):
-                _, result = trial.run_trial(ws, 'test', model=model)
-                self.assertEqual(result['status'], 'blocked')
-                self.assertEqual(len(calls), 3)
-                _, repeated = trial.run_trial(ws, 'test', model=model)
-                self.assertEqual(repeated['status'], 'blocked')
-                self.assertEqual(len(calls), 3)
+            ws, scope, context = self.trial_fixture(folder)
+            model = object()
+            synthesis = {'status': 'completed', 'maintenance': {'decision_id': 'durable-decision'}}
+            with patch.dict(trial.SCOPES, {'test': scope}), patch.object(trial, 'context_for', return_value=(context, {}, {})), \
+                 patch('station.knowledge_synthesis.synthesize_library', return_value=synthesis) as shared, \
+                 patch('station.publication.publish') as publish:
+                root, result = trial.run_trial(ws, 'test', model=model)
+                shared.assert_called_once_with(ws, model=model, source_ids=scope['sources'], publish_pages=False)
+                publish.assert_not_called()
+                self.assertEqual(result['status'], 'ready')
+                self.assertEqual(result['identity']['protocol'], trial.PROTOCOL)
+                self.assertEqual(result['synthesis'], synthesis)
+                self.assertEqual(result['human_acceptance'], 'not_performed')
+                self.assertTrue((root / 'result.json').is_file())
+
+    def test_ready_trial_publishes_by_reusing_shared_prepared_decision(self):
+        with tempfile.TemporaryDirectory() as folder:
+            ws, scope, context = self.trial_fixture(folder)
+            prepared = {'decision_id': 'durable-decision', 'input_digest': 'snapshot'}
+            synthesis = {'status': 'completed', 'maintenance': prepared}
+            with patch.dict(trial.SCOPES, {'test': scope}), patch.object(trial, 'context_for', return_value=(context, {}, {})), \
+                 patch('station.knowledge_synthesis.synthesize_library', side_effect=[synthesis, {'status': 'completed'}]) as shared:
+                root, _ = trial.run_trial(ws, 'test')
+                self.assertEqual(trial.publish_trial(ws, 'test', root), {'status': 'completed'})
+                self.assertEqual(shared.call_count, 2)
+                self.assertEqual(shared.call_args.kwargs, {'source_ids': scope['sources'], 'prepared_run': prepared})
+
+    def test_historical_result_cannot_publish_under_shared_protocol(self):
+        with tempfile.TemporaryDirectory() as folder:
+            ws, scope, _ = self.trial_fixture(folder)
+            _, draft, _, _ = self.fixture()
+            save_json(ws.root / 'result.json', {'status': 'ready', 'identity': {'library_id': 'test'}, 'draft': draft})
+            with patch.dict(trial.SCOPES, {'test': scope}), patch('station.knowledge_synthesis.synthesize_library') as shared:
+                with self.assertRaisesRegex(ValueError, 'Skill protocol'):
+                    trial.publish_trial(ws, 'test', ws.root)
+                shared.assert_not_called()
+
+    def test_input_change_after_trial_prevents_any_publication(self):
+        with tempfile.TemporaryDirectory() as folder:
+            ws, scope, context = self.trial_fixture(folder)
+            synthesis = {'status': 'completed', 'maintenance': {'decision_id': 'durable'}}
+            with patch.dict(trial.SCOPES, {'test': scope}), patch.object(trial, 'context_for', return_value=(context, {}, {})) as inputs, \
+                 patch('station.knowledge_synthesis.synthesize_library', return_value=synthesis) as shared:
+                root, _ = trial.run_trial(ws, 'test')
+                inputs.return_value = ({'sources': [{'source_version': 'changed'}]}, {}, {})
+                with self.assertRaisesRegex(ValueError, 'inputs changed'):
+                    trial.publish_trial(ws, 'test', root)
+                self.assertEqual(shared.call_count, 1)
+
+    def test_blocked_trial_reuses_shared_budget_state(self):
+        with tempfile.TemporaryDirectory() as folder:
+            ws, scope, context = self.trial_fixture(folder)
+            blocked = {'status': 'blocked', 'maintenance': {'decision_id': 'same-operation', 'status': 'blocked',
+                       'reasons': ['Maintenance request budget exhausted']}}
+            with patch.dict(trial.SCOPES, {'test': scope}), patch.object(trial, 'context_for', return_value=(context, {}, {})), \
+                 patch('station.knowledge_synthesis.synthesize_library', return_value=blocked) as shared:
+                root, first = trial.run_trial(ws, 'test')
+                second_root, second = trial.run_trial(ws, 'test')
+                self.assertEqual(first['status'], 'blocked')
+                self.assertEqual(second['synthesis'], first['synthesis'])
+                self.assertEqual(root, second_root)
+                self.assertEqual(shared.call_count, 2)
+                self.assertTrue(all(call.kwargs['publish_pages'] is False for call in shared.call_args_list))
+                with self.assertRaises(ValueError):
+                    trial.publish_trial(ws, 'test', root)
+                self.assertEqual(shared.call_count, 2)
 
 
 if __name__ == '__main__':

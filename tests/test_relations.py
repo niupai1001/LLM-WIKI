@@ -26,6 +26,11 @@ class RelationValidationTests(unittest.TestCase):
         self.assertEqual(result['claim_ids'],['ca','cb'])
         self.assertEqual(result['source_ids'],[self.a,self.b])
 
+    def test_editorial_basis_is_retained_and_unknown_basis_is_rejected(self):
+        self.assertEqual(self.validate({**self.relation, 'basis': 'editorial'})[0]['basis'], 'editorial')
+        with self.assertRaises(ValueError):
+            self.validate({**self.relation, 'basis': 'unverified-kind'})
+
     def test_unknown_target_claim_or_unquoted_source_is_blocked(self):
         for field,value in [('target_slug','missing'),('claim_ids',['invented']),('source_ids',['c'*16])]:
             with self.subTest(field=field),self.assertRaises(ValueError):self.validate({**self.relation,field:value})
@@ -82,6 +87,13 @@ class RelationCompilationTests(unittest.TestCase):
         edge=next(e for e in edges if e['type']=='shared_mechanism')
         self.assertIn('容量',edge['description']);self.assertEqual(edge['label'],'共同机制')
         self.assertEqual(set(edge['source_ids']),{self.sid,sid})
+        path = wiki.META / 'new-method.json'
+        meta = common.load_json(path)
+        meta['relations'][0]['basis'] = 'editorial'
+        common.save_json(path, meta)
+        editorial = next(e for e in knowledge.graph_data()['edges'] if e['type'] == 'shared_mechanism')
+        self.assertEqual(editorial['basis'], 'editorial')
+        self.assertIn('编辑关联', editorial['label'])
         (wiki.WIKI/'batch.md').write_text('# 批次原件清单\n\n[[new-method]]')
         common.save_json(wiki.META/'batch.json',{'category':'agents','page_kind':'topic','page_role':'source_collection','source_ids':[sid]})
         self.assertNotIn('wiki:batch',{n['id'] for n in knowledge.graph_data()['nodes']})

@@ -224,9 +224,12 @@ def _graph_data():
             target = relation['target_slug']
             typed_targets.add(target)
             label, reverse = RELATION_LABELS[relation['kind']]
+            basis = relation.get('basis', 'factual')
+            if basis == 'editorial':
+                label += ' · 编辑关联'
             edge(key, 'wiki:' + target, relation['kind'], label, reverse_label=reverse,
                  description=relation['summary'] + ' 适用范围：' + relation['scope'],
-                 source_ids=relation['source_ids'], claim_ids=relation['claim_ids'])
+                 source_ids=relation['source_ids'], claim_ids=relation['claim_ids'], basis=basis)
         for slug in sorted((set(page["related_slugs"]) | _wikilinks(page["body"])) - typed_targets):
             if slug in slugs:
                 edge(key, "wiki:" + slug, "related", "知识链接")

@@ -142,13 +142,20 @@ def api_coverage():
             state = _paper_state(workspace)
         memberships = {}
         for row in state.get('concept_memberships', []):
-            memberships.setdefault(row['point_id'], []).append(row['concept_slug'])
+            memberships.setdefault(row['point_id'], []).append({
+                'concept_slug': row['concept_slug'], 'role': row.get('role', ''), 'reason': row.get('reason', ''),
+                'status': row.get('status', 'active'), 'decision_id': row.get('decision_id')})
+        dispositions = {row['point_id']: row for row in state.get('point_dispositions', [])}
         points = []
         for row in state.get('knowledge_points', []):
             data = json.loads(row['data_json'])
             points.append({key: row[key] for key in ('id', 'source_id', 'source_version')}
                           | {'proposition': data.get('proposition'), 'scope': data.get('scope'),
-                             'concept_slugs': memberships.get(row['id'], [])})
+                             'concept_slugs': [m['concept_slug'] for m in memberships.get(row['id'], []) if m['status'] == 'active'],
+                             'memberships': memberships.get(row['id'], []),
+                             'disposition': dispositions.get(row['id'], {}).get('disposition', 'unprocessed'),
+                             'disposition_reason': dispositions.get(row['id'], {}).get('reason', ''),
+                             'decision_id': dispositions.get(row['id'], {}).get('decision_id')})
         return {'library_id': workspace.library_id, 'coverage_mode': 'paper_knowledge_points', 'questions': [],
                 'papers': [{key: row[key] for key in ('source_id', 'source_version', 'page_slug')}
                            for row in state.get('paper_distillations', [])], 'knowledge_points': points}

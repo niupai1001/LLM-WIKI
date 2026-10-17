@@ -282,7 +282,7 @@ def page(slug: str):
     details = topic_details(current, pages) if is_topic else None
     summary = topic_counts(details) if is_topic else f'{len(current.get("source_ids", []))} 份引用来源 · 已发布知识 · <a href="#fact-check">逐项事实核查 ↓</a>'
     if reader_only and not is_topic:
-        summary = f'{len(current.get("source_ids", []))} 份研究来源 · Wiki 归纳实验'
+        summary = f'{len(current.get("source_ids", []))} 份研究来源 · 概念知识'
     is_knowledge_index = current.get('page_role') == 'knowledge_index'
     if is_knowledge_index:
         summary = f'{current.get("knowledge_point_count", 0)} 条原知识点 · {len(current.get("source_ids", []))} 份原始资料 · 各研究的条件与证据分别保留'

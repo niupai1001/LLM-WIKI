@@ -70,7 +70,7 @@ class PaperEvaluationTests(unittest.TestCase):
                        (SID, self.version, 'paper-reading', json.dumps(self.packet), '[]', '2026-10-15'))
             db.execute('INSERT INTO knowledge_points VALUES (?,?,?,?,?)',
                        (self.point_id, SID, 'ownership', self.version, json.dumps(self.point)))
-            db.execute('INSERT INTO concept_memberships VALUES (?,?,?)',
+            db.execute('INSERT INTO concept_memberships(concept_slug,point_id,reason) VALUES (?,?,?)',
                        ('lease-authority', self.point_id, 'The point explains commit authority.'))
         self.fixture = {
             'suite_id': 'synthetic-paper-adaptation-test-only', 'coverage_mode': 'paper_knowledge_points',
@@ -113,7 +113,7 @@ class PaperEvaluationTests(unittest.TestCase):
         result = evaluation._integrity(self.ws)
         self.assertEqual(result['coverage_mode'], 'paper_knowledge_points')
         self.assertEqual(result['papers'], {'required': 1, 'current_published': 1})
-        self.assertEqual(result['knowledge_points'], {'total': 1, 'current': 1, 'routed': 1, 'unrouted': 0})
+        self.assertEqual(result['knowledge_points'], {'total': 1, 'current': 1, 'routed': 1, 'unrouted': 0, 'processed': 1, 'deferred': 0, 'unprocessed': 0, 'active_memberships': 1, 'valid_memberships': 1, 'pending_review_memberships': 0})
         self.assertEqual(result['issues'], [])
         self.assertEqual(result['unresolved'], [])
         self.assertEqual(result['questions'], 0)
@@ -168,7 +168,7 @@ class PaperEvaluationTests(unittest.TestCase):
         result = evaluation._integrity(self.ws)
         self.assertIn('knowledge_point_not_routed', self.reasons(result))
         with sqlite3.connect(self.ws.db) as db:
-            db.execute('INSERT INTO concept_memberships VALUES (?,?,?)', ('lease-authority', self.point_id, 'Known assignment'))
+            db.execute('INSERT INTO concept_memberships(concept_slug,point_id,reason) VALUES (?,?,?)', ('lease-authority', self.point_id, 'Known assignment'))
         path = self.ws.meta / 'lease-authority.json'
         original = json.loads(path.read_text())
         for bad_binding in (

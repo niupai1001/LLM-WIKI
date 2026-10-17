@@ -81,15 +81,19 @@ def _input_digest(ws, coverage):
     from .paper_policy import enabled
     if enabled(ws):
         from . import distillation, knowledge_synthesis
+        from .knowledge_maintenance import VERSION as MAINTENANCE_VERSION, CONTRACT as MAINTENANCE_CONTRACT
         values['paper_workflow'] = _read(ws.root / 'paper-workflow.json')
         values['paper_state'] = _paper_state(ws)
         values['processing_versions'].update(
             distillation_schema=distillation.SCHEMA_VERSION, distillation_prompt=distillation.PROMPT_VERSION,
             synthesis=knowledge_synthesis.VERSION, synthesis_prompt=knowledge_synthesis.PROMPT_VERSION,
-            synthesis_request_context=knowledge_synthesis.REQUEST_CONTEXT_VERSION)
+            synthesis_request_context=knowledge_synthesis.REQUEST_CONTEXT_VERSION,
+            maintenance=MAINTENANCE_VERSION)
         values['paper_prompt_digest'] = _digest([
             distillation.AUTHOR_SYSTEM, distillation.PACKET_CONTRACT, distillation.REVIEW_SYSTEM,
-            knowledge_synthesis.ALIGN_SYSTEM, knowledge_synthesis.WRITE_SYSTEM, knowledge_synthesis.POINT_REVIEW_SYSTEM])
+            (Path(__file__).resolve().parent.parent / 'skills/knowledge-maintenance/SKILL.md').read_text(encoding='utf-8'),
+            MAINTENANCE_CONTRACT,
+            knowledge_synthesis.writing_system(), knowledge_synthesis.POINT_REVIEW_SYSTEM])
         values['skill_digest'] = _digest({name: (distillation.SKILL_ROOT / name).read_text(encoding='utf-8')
                                         for name in distillation.SKILL_FILES})
     return _digest(values)
@@ -101,7 +105,8 @@ def _paper_state(ws):
     if not ws.db.is_file():
         return result
     orders = {'paper_distillations': 'source_id', 'knowledge_points': 'id',
-              'concept_memberships': 'concept_slug,point_id'}
+              'concept_memberships': 'concept_slug,point_id', 'point_dispositions': 'point_id',
+              'maintenance_decisions': 'id', 'maintenance_executions': 'decision_id,concept_slug'}
     try:
         with sqlite3.connect(ws.db.as_uri() + '?mode=ro', uri=True) as db:
             db.row_factory = sqlite3.Row
@@ -156,61 +161,147 @@ def _paper_coverage(ws, pages):
             unresolved.append({'source_id': sid, 'reason': 'paper_metadata_does_not_match_distillation', 'target_slug': slug})
             continue
         valid_papers.add(sid)
+    from .knowledge_maintenance import point_version
+    decisions = {row['id']: row for row in state.get('maintenance_decisions', [])}
+    dispositions = {row['point_id']: row for row in state.get('point_dispositions', [])}
+    executions = {(row['decision_id'], row['concept_slug']) for row in state.get('maintenance_executions', [])
+                  if row.get('status') == 'applied'}
+
+    def authorized(identifier, disposition, membership=None):
+        """A status label alone is insufficient: bind current input and execution."""
+        row = dispositions.get(identifier, {})
+        decision_id = membership.get('decision_id') if membership is not None else row.get('decision_id')
+        saved = decisions.get(decision_id, {})
+        try:
+            if row.get('disposition') != disposition or json.loads(row.get('point_version_json', 'null')) != point_version(points[identifier]):
+                return False
+            decision = json.loads(saved.get('decision_json') or 'null')
+            context = json.loads(saved.get('input_json') or 'null')
+            if (not isinstance(decision, dict) or decision.get('decision_version') != 'knowledge-maintenance/v1'
+                    or decision.get('unresolved')
+                    or not isinstance(context, dict)
+                    or decision.get('input_digest') != saved.get('input_digest')
+                    or context.get('input_digest') != saved.get('input_digest')
+                    or context.get('point_versions', {}).get(identifier) != point_version(points[identifier])):
+                return False
+            point_decisions = [item for item in decision.get('point_decisions', []) if item.get('point_id') == identifier]
+            if len(point_decisions) != 1 or point_decisions[0].get('disposition') != disposition:
+                return False
+            point_decision = point_decisions[0]
+            if disposition == 'deferred':
+                return (saved.get('status') == 'applied' and not point_decision.get('memberships')
+                        and bool(str(row.get('reason') or '').strip())
+                        and row.get('reason') == point_decision.get('reason'))
+            if membership is None:
+                return False
+            slug = membership.get('concept_slug')
+            matches = [item for item in point_decision.get('memberships', []) if item.get('concept_slug') == slug]
+            actions = [item for item in decision.get('concept_actions', []) if item.get('concept_slug') == slug]
+            return (saved.get('status') in {'ready', 'applied'} and (decision_id, slug) in executions
+                    and len(matches) == len(actions) == 1 and not actions[0].get('requires_review')
+                    and actions[0].get('action') in {'create', 'update', 'no_change'}
+                    and matches[0].get('role') == membership.get('role')
+                    and matches[0].get('reason') == membership.get('reason')
+                    and bool(str(membership.get('role') or '').strip()))
+        except (KeyError, ValueError, TypeError, AttributeError):
+            return False
+
+    def background_or_no_change(row):
+        identifier = row.get('point_id')
+        if not authorized(identifier, 'linked', row):
+            return False
+        decision = json.loads(decisions[row['decision_id']]['decision_json'])
+        return any(action.get('concept_slug') == row['concept_slug'] and
+                   (action.get('action') == 'no_change' or
+                    (isinstance(action.get('required_point_ids'), list) and identifier not in action['required_point_ids']))
+                   for action in decision.get('concept_actions', []))
+
     memberships = {}
+    pending_review_pairs = 0
     for row in state.get('concept_memberships', []):
-        memberships.setdefault(row.get('point_id'), []).append(row)
-        if row.get('point_id') not in points:
-            unresolved.append({'point_id': row.get('point_id'), 'target_slug': row.get('concept_slug'),
-                               'reason': 'membership_references_noncurrent_point'})
+        identifier, slug = row.get('point_id'), row.get('concept_slug')
+        if row.get('status', 'active') != 'active':
+            pending_review_pairs += 1
+            unresolved.append({'point_id': identifier, 'target_slug': slug, 'reason': 'membership_pending_review_or_inactive'})
+            continue
+        memberships.setdefault(identifier, []).append(row)
+        if identifier not in points:
+            unresolved.append({'point_id': identifier, 'target_slug': slug, 'reason': 'membership_references_noncurrent_point'})
     for slug, meta in pages.items():
         if meta.get('page_role') in {'paper', 'paper_reading', 'source_collection'} or meta.get('page_kind', 'concept') != 'concept':
             continue
         declared = meta.get('knowledge_point_ids', [])
-        actual = {row.get('point_id') for row in state.get('concept_memberships', []) if row.get('concept_slug') == slug}
-        if not isinstance(declared, list) or any(not isinstance(identifier, str) for identifier in declared) or set(declared) != actual:
+        actual_rows = [row for rows in memberships.values() for row in rows if row.get('concept_slug') == slug]
+        actual = {row.get('point_id') for row in actual_rows}
+        if (not isinstance(declared, list) or any(not isinstance(identifier, str) for identifier in declared)
+                or len(declared) != len(set(declared)) or set(declared) - actual
+                or any(row['point_id'] not in declared and not background_or_no_change(row) for row in actual_rows)):
             unresolved.append({'target_slug': slug, 'reason': 'concept_membership_metadata_mismatch'})
-    routed = set()
+    routed, deferred = set(), set()
+    valid_pairs = 0
     for identifier, point in points.items():
         sid = point['source_id']
         if sid not in valid_papers:
             unresolved.append({'source_id': sid, 'point_id': identifier, 'reason': 'point_has_no_current_published_paper'})
             continue
         rows = memberships.get(identifier, [])
-        if len(rows) != 1:
-            unresolved.append({'source_id': sid, 'point_id': identifier,
-                               'reason': 'knowledge_point_not_routed' if not rows else 'knowledge_point_multiply_routed'})
+        valid_deferred = authorized(identifier, 'deferred')
+        if valid_deferred:
+            deferred.add(identifier)
+        elif dispositions.get(identifier, {}).get('disposition') == 'deferred':
+            unresolved.append({'source_id': sid, 'point_id': identifier, 'reason': 'deferred_decision_not_current_or_applied'})
+        if not rows:
+            if not valid_deferred:
+                unresolved.append({'source_id': sid, 'point_id': identifier, 'reason': 'knowledge_point_not_routed'})
             continue
-        row = rows[0]
-        slug = row.get('concept_slug')
-        if not isinstance(slug, str) or not _SLUG.fullmatch(slug):
-            unresolved.append({'source_id': sid, 'point_id': identifier, 'reason': 'knowledge_point_target_invalid'})
-            continue
-        meta = pages.get(slug, {})
-        path = ws.wiki / (str(slug) + '.md')
-        if (not path.is_file() or meta.get('page_kind', 'concept') != 'concept'
-                or meta.get('page_role') in {'paper', 'paper_reading', 'source_collection'}
-                or identifier not in meta.get('knowledge_point_ids', []) or not str(row.get('reason') or '').strip()):
-            unresolved.append({'source_id': sid, 'point_id': identifier, 'target_slug': slug,
-                               'reason': 'knowledge_point_target_not_current'})
-            continue
-        bindings = [binding for binding in meta.get('point_bindings', [])
-                    if isinstance(binding, dict) and binding.get('point_id') == identifier]
-        claims = {claim.get('id'): claim for claim in meta.get('claims', []) if isinstance(claim, dict)}
-        binding = bindings[0] if len(bindings) == 1 else {}
-        claim_ids, quote = binding.get('claim_ids'), binding.get('body_quote')
-        body = path.read_text(encoding='utf-8')
-        if (not isinstance(quote, str) or not quote.strip() or quote not in body
-                or not isinstance(claim_ids, list) or not claim_ids
-                or any(not isinstance(cid, str) or cid not in claims for cid in claim_ids)
-                or sid not in {source for cid in claim_ids for source in claims[cid].get('source_ids', [])}):
-            unresolved.append({'source_id': sid, 'point_id': identifier, 'target_slug': slug,
-                               'reason': 'knowledge_point_body_or_claim_binding_invalid'})
-            continue
-        routed.add(identifier)
+        complete = True
+        for row in rows:
+            slug = row.get('concept_slug')
+            if not isinstance(slug, str) or not _SLUG.fullmatch(slug):
+                unresolved.append({'source_id': sid, 'point_id': identifier, 'reason': 'knowledge_point_target_invalid'})
+                complete = False
+                continue
+            meta = pages.get(slug, {})
+            path = ws.wiki / (slug + '.md')
+            background = background_or_no_change(row)
+            if (not path.is_file() or meta.get('page_kind', 'concept') != 'concept'
+                    or meta.get('page_role') in {'paper', 'paper_reading', 'source_collection'}
+                    or (identifier not in meta.get('knowledge_point_ids', []) and not background)
+                    or not str(row.get('reason') or '').strip()
+                    or (row.get('decision_id') and not authorized(identifier, 'linked', row))):
+                unresolved.append({'source_id': sid, 'point_id': identifier, 'target_slug': slug, 'reason': 'knowledge_point_target_not_current'})
+                complete = False
+                continue
+            if background:
+                valid_pairs += 1
+                continue
+            bindings = [binding for binding in meta.get('point_bindings', [])
+                        if isinstance(binding, dict) and binding.get('point_id') == identifier]
+            claims = {claim.get('id'): claim for claim in meta.get('claims', []) if isinstance(claim, dict)}
+            binding = bindings[0] if len(bindings) == 1 else {}
+            claim_ids, quote = binding.get('claim_ids'), binding.get('body_quote')
+            body = path.read_text(encoding='utf-8')
+            if (not isinstance(quote, str) or not quote.strip() or quote not in body
+                    or not isinstance(claim_ids, list) or not claim_ids
+                    or any(not isinstance(cid, str) or cid not in claims for cid in claim_ids)
+                    or sid not in {source for cid in claim_ids for source in claims[cid].get('source_ids', [])}):
+                unresolved.append({'source_id': sid, 'point_id': identifier, 'target_slug': slug, 'reason': 'knowledge_point_body_or_claim_binding_invalid'})
+                complete = False
+                continue
+            valid_pairs += 1
+        if complete:
+            routed.add(identifier)
+    # Legacy unrouted means "no complete concept routing" and includes deferred.
+    # Processed separately measures whether maintenance accounted for the point.
+    processed = routed | deferred
     return {'coverage_mode': 'paper_knowledge_points',
             'papers': {'required': len(raw_ids), 'current_published': len(valid_papers)},
             'knowledge_points': {'total': len(state.get('knowledge_points', [])), 'current': len(points),
-                                 'routed': len(routed), 'unrouted': len(state.get('knowledge_points', [])) - len(routed)},
+                                 'routed': len(routed), 'unrouted': len(state.get('knowledge_points', [])) - len(routed),
+                                 'processed': len(processed), 'deferred': len(deferred),
+                                 'unprocessed': len(state.get('knowledge_points', [])) - len(processed),
+                                 'active_memberships': sum(map(len, memberships.values())),
+                                 'valid_memberships': valid_pairs, 'pending_review_memberships': pending_review_pairs},
             # A reusable point is not an independently enumerated research question.
             'questions': 0, 'published_questions': 0, 'accounted_questions': 0,
             'documented_missing_questions': [], 'unresolved': unresolved}

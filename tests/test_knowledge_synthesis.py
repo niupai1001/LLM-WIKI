@@ -40,6 +40,18 @@ class AlignmentTransportTests(unittest.TestCase):
         self.assertEqual(plan['excluded'][0]['point_id'], self.b)
         self.assertEqual(self.reply['concepts'][0]['point_ids'], ['P0001'])
 
+    def test_maintenance_transport_retains_multiple_memberships_and_deferral(self):
+        value = {'point_decisions': [
+            {'point_id': 'P0001', 'disposition': 'linked', 'memberships': [{'concept_slug': 'first'}, {'concept_slug': 'second'}]},
+            {'point_id': 'P0002', 'disposition': 'deferred', 'memberships': [], 'reason': '等待相关机制材料。'}],
+            'concept_actions': [{'concept_slug': 'first', 'action': 'create', 'affected_point_ids': ['P0001']} ]}
+        decoded = synthesis._decode_alignment(value, self.aliases)
+        self.assertEqual(decoded['point_decisions'][0]['point_id'], self.a)
+        self.assertEqual(len(decoded['point_decisions'][0]['memberships']), 2)
+        self.assertEqual(decoded['point_decisions'][1]['point_id'], self.b)
+        self.assertEqual(decoded['concept_actions'][0]['affected_point_ids'], [self.a])
+        self.assertEqual(value['point_decisions'][0]['point_id'], 'P0001')
+
     def test_unknown_transport_identity_is_rejected_without_guessing(self):
         self.reply['concepts'][0]['point_ids'] = ['P9999']
         with self.assertRaisesRegex(ValueError, 'Unknown request-local knowledge point'):
@@ -165,35 +177,32 @@ class KnowledgeSynthesisTests(unittest.TestCase):
                               "assignment_reasons": [{"point_id": i, "reason": "本知识解释该稳定问题的机制或条件。"} for i in ids]}
                              for slug, title, ids in assignments], "excluded": []}
 
-    def test_only_unresolved_points_are_requested_and_full_plan_is_checked_before_publication(self):
-        papers, points, stale = synthesis._inputs(self.ws)
-        self.assertFalse(stale)
-        pending = self.points[-1]
-        base = self.plan()
-        base['concepts'][-1]['point_ids'].remove(pending)
-        base['concepts'][-1]['assignment_reasons'] = [item for item in base['concepts'][-1]['assignment_reasons']
-                                                     if item['point_id'] != pending]
+    def test_legacy_completion_does_not_authorize_new_maintenance(self):
         documents._save(self.ws.root / 'knowledge_synthesis' / 'alignment-completion.json', {
-            'library_id': self.ws.library_id, 'point_digest': synthesis._completion_digest(points),
-            'source_versions': {sid: p['source_version'] for sid, p in papers.items()},
-            'base_plan': base, 'pending_point_ids': [pending],
-            'candidate_concepts': [{key: c[key] for key in ('slug', 'title', 'question')} for c in self.plan()['concepts']]})
-        def complete(messages):
-            context = json.loads(messages[-1]['content'])
-            if context.get('stage') == 'align':
-                self.calls.append(context)
-                self.assertEqual([p['id'] for p in context['knowledge_points']], [pending])
-                target = self.plan()['concepts'][-1]
-                target['point_ids'] = [pending]
-                target['assignment_reasons'] = [{'point_id': pending, 'reason': '补齐同一机制在另一研究中的条件。'}]
-                no_ops = [{**c, 'point_ids': [], 'assignment_reasons': []} for c in self.plan()['concepts'][:-1]]
-                return {'concepts': [*no_ops, target], 'excluded': []}
-            return self.respond(messages)
-        self.model.side_effect = complete
-        result = synthesis.synthesize_library(self.ws, model=self.model)
+            'library_id': self.ws.library_id, 'base_plan': self.plan(), 'pending_point_ids': []})
+        result = self.run_synthesis()
         self.assertEqual(result['status'], 'completed')
-        self.assertEqual({p for concept in result['plan']['concepts'] for p in concept['point_ids']}, set(self.points))
+        request = next(c for c in self.calls if c.get('stage') == 'maintain')
+        self.assertEqual(set(request['pending_point_ids']), set(self.points))
         self.assertEqual(self.publisher.call_count, 3)
+
+    def decision(self, context):
+        pending = set(context['pending_point_ids'])
+        decisions, actions = [], []
+        for concept in self.plan()['concepts']:
+            ids = pending & set(concept['point_ids'])
+            if not ids:
+                continue
+            slug = concept['slug']
+            for pid in sorted(ids):
+                decisions.append({'point_id': pid, 'disposition': 'linked', 'memberships': [
+                    {'concept_slug': slug, 'role': '解释概念的机制', 'reason': '本知识解释该稳定问题的机制或条件。'}],
+                    'change_summary': '补充反馈的作用位置及其条件。'})
+            actions.append({'concept_slug': slug, 'action': 'update' if (self.ws.wiki / (slug + '.md')).exists() else 'create',
+                'title': concept['title'], 'question': concept['question'], 'affected_point_ids': sorted(ids),
+                'reason': '补充与此概念问题相关的知识。', 'requires_review': False})
+        return {'decision_version': 'knowledge-maintenance/v1', 'point_decisions': decisions,
+                'concept_actions': actions, 'relation_actions': [], 'unresolved': []}
 
     def respond(self, messages):
         context = json.loads(messages[-1]["content"])
@@ -203,8 +212,16 @@ class KnowledgeSynthesisTests(unittest.TestCase):
                                 for c in context["proposal"]["claims"]], "body_issues": [], "old_knowledge_issues": [], "style_suggestions": []}
         self.calls.append(context)
         stage = context["stage"]
-        if stage == "align":
-            return self.plan()
+        if stage == "maintain":
+            return self.decision(context)
+        if stage == "bind":
+            claims = context['claims']
+            bindings = []
+            for point in context['knowledge_points']:
+                claim = next(c for c in claims if point['source_id'] in c['source_ids'] and point['proposition'] == c['text'])
+                bindings.append({'point_id': point['id'], 'claim_ids': [claim['id']], 'body_paragraph_ids': [next(p['id'] for p in context['body_paragraphs'] if claim['text'] in p['text'])]})
+            return {'claim_bindings': [{'claim_id': c['id'], 'body_paragraph_ids': [next(p['id'] for p in context['body_paragraphs'] if c['text'] in p['text'])]} for c in claims],
+                    'point_bindings': bindings, 'unmapped_claims': [], 'unmapped_points': []}
         if stage == "point-review":
             return {"reviews": [{"point_id": p["id"], "verdict": "covered", "reason": "正文保留机制与适用条件。"}
                                 for p in context["knowledge_points"]], "merge_issues": [], "unsupported_relations": [],
@@ -229,6 +246,10 @@ class KnowledgeSynthesisTests(unittest.TestCase):
 
     def publish(self, ws, proposal, ids, job_id=None):
         self.publications.append(proposal)
+        from station.knowledge_maintenance import apply_decision
+        with sqlite3.connect(ws.db) as db:
+            apply_decision(db, proposal['maintenance_decision_id'], proposal['maintenance_decision'],
+                           proposal['point_versions'], concept_slugs=[proposal['slug']])
         self.assertEqual(set(ids), {b["point_id"] for b in proposal["point_bindings"]})
         self.assertTrue(proposal["semantic_reviews"][-1]["passed"])
         self.assertTrue(proposal["semantic_reviews"][-1]["knowledge_point_review"]["passed"])
@@ -278,7 +299,7 @@ class KnowledgeSynthesisTests(unittest.TestCase):
         self.assertIn("reflection-across-attempts", published)
         self.assertEqual({t["slug"] for p in published.values() for t in p["topic_routes"]}, {"agents-and-feedback"})
         stages = [c.get("stage") for c in self.calls]
-        self.assertEqual(stages, ["align", "write", "verify", "point-review", "write", "verify", "point-review", "write", "verify", "point-review"])
+        self.assertEqual(stages, ["maintain", "write", "verify", "point-review", "write", "verify", "point-review", "write", "verify", "point-review"])
         for claim in shared["claims"]:
             passage = claim["evidence_passages"][0]
             self.assertEqual(passage["quote"], self.originals[passage["source_id"]]["paragraphs"][0]["text"])
@@ -288,7 +309,7 @@ class KnowledgeSynthesisTests(unittest.TestCase):
         first = self.run_synthesis()
         calls, publications = self.model.call_count, self.publisher.call_count
         second = self.run_synthesis()
-        self.assertEqual(first["input_digest"], second["input_digest"])
+        self.assertEqual(second['results'], [])
         self.assertEqual(second["status"], "completed")
         self.assertEqual(self.model.call_count, calls)
         self.assertEqual(self.publisher.call_count, publications)
@@ -303,7 +324,7 @@ class KnowledgeSynthesisTests(unittest.TestCase):
         self.assertEqual(self.publisher.call_count, 1)
         self.assertEqual(self.publications[0]["slug"], selected)
         for call in self.calls:
-            if call.get("stage") != "align":
+            if call.get("stage") != "maintain":
                 self.assertEqual(call.get("target", call.get("proposal", {})).get("slug"), selected)
         self.assertFalse((self.ws.wiki / "task-feedback-control.md").exists())
         self.assertFalse((self.ws.wiki / "feedback-reliability.md").exists())
@@ -315,35 +336,37 @@ class KnowledgeSynthesisTests(unittest.TestCase):
     def test_selected_target_still_checks_all_points_and_unknown_target_is_blocked(self):
         def missing(messages):
             result = self.respond(messages)
-            if json.loads(messages[-1]["content"]).get("stage") == "align":
-                result["concepts"].pop()
+            if json.loads(messages[-1]["content"]).get("stage") == "maintain":
+                result["point_decisions"].pop()
             return result
         self.model.side_effect = missing
         result = synthesis.synthesize_library(self.ws, model=self.model, target_slug="task-feedback-control")
         self.assertEqual(result["status"], "blocked")
-        self.assertIn("omitted", result["reasons"][0])
+        self.assertIn("exactly one", result["reasons"][0])
         self.assertEqual(self.publisher.call_count, 0)
         self.model.side_effect = self.respond
-        # The invalid plan replies are correctly retained under their input
-        # identity. A fresh model identity supplies a different valid plan.
-        self.model.model_id = "test-synthesis-unknown-target"
-        unknown = synthesis.synthesize_library(self.ws, model=self.model, target_slug="unknown-concept")
-        self.assertEqual(unknown["status"], "blocked")
-        self.assertIn("not in the current complete alignment plan", unknown["reasons"][0])
-        self.assertEqual(unknown["results"], [])
+        self.model.model_id = "test-synthesis-changed-model"
+        exhausted = synthesis.synthesize_library(self.ws, model=self.model)
+        self.assertEqual(exhausted['status'], 'blocked')
+        self.assertIn('budget exhausted', exhausted['reasons'][0])
+
+    def test_unknown_target_is_rejected_without_author_requests(self):
+        unknown = synthesis.synthesize_library(self.ws, model=self.model, target_slug='unknown-concept')
+        self.assertEqual(unknown['status'], 'blocked')
+        self.assertIn('not in the current complete alignment plan', unknown['reasons'][0])
+        self.assertEqual(unknown['results'], [])
         self.assertEqual(self.publisher.call_count, 0)
 
-    def test_selective_receipt_reuse_does_not_overwrite_full_result(self):
+    def test_completed_replay_does_not_overwrite_original_receipt(self):
         first = self.run_synthesis()
         directory = self.ws.root / "knowledge_synthesis" / first["input_digest"]
         full = (directory / "result.json").read_bytes()
         calls = self.model.call_count
-        result = synthesis.synthesize_library(self.ws, model=self.model, target_slug="task-feedback-control")
-        self.assertEqual(result["status"], "completed")
-        self.assertEqual([r["slug"] for r in result["results"]], ["task-feedback-control"])
+        result = self.run_synthesis()
+        self.assertEqual(result['status'], 'completed')
+        self.assertEqual(result['results'], [])
         self.assertEqual(self.model.call_count, calls)
-        self.assertEqual((directory / "result.json").read_bytes(), full)
-        self.assertTrue((directory / "target-task-feedback-control.json").is_file())
+        self.assertEqual((directory / 'result.json').read_bytes(), full)
 
     def test_real_rebuild_publisher_persists_points_concepts_topic_and_reviewed_body(self):
         self.module_patch.stop()
@@ -373,14 +396,15 @@ class KnowledgeSynthesisTests(unittest.TestCase):
 
     def test_long_shared_evidence_is_sent_once_and_persisted_quotes_remain_complete(self):
         self.large_repeated_evidence()
-        before = self.ws.db.read_bytes()
+        with sqlite3.connect(self.ws.db) as db:
+            before = list(db.execute('SELECT * FROM knowledge_points ORDER BY id'))
         papers, points, _ = synthesis._inputs(self.ws)
         full_claims, _ = synthesis._paper_materials(papers, points)
         self.assertGreater(len(synthesis._json(full_claims)), synthesis.MAX_CONTEXT_CHARACTERS)
         result = self.run_synthesis()
         self.assertEqual(result["status"], "completed")
         for context in self.calls:
-            if context.get("stage") == "align":
+            if context.get("stage") == "maintain":
                 continue
             originals = context["originals"]
             seen = set()
@@ -406,7 +430,8 @@ class KnowledgeSynthesisTests(unittest.TestCase):
         for claim in shared["claims"]:
             evidence = claim["evidence_passages"][0]
             self.assertEqual(evidence["quote"], self.originals[evidence["source_id"]]["paragraphs"][0]["text"])
-        self.assertEqual(self.ws.db.read_bytes(), before)
+        with sqlite3.connect(self.ws.db) as db:
+            self.assertEqual(list(db.execute('SELECT * FROM knowledge_points ORDER BY id')), before)
         calls = self.model.call_count
         again = self.run_synthesis()
         self.assertEqual(again["status"], "completed")
@@ -458,7 +483,8 @@ class KnowledgeSynthesisTests(unittest.TestCase):
         calls = self.model.call_count
         again = self.run_synthesis()
         self.assertEqual(again["status"], "blocked")
-        self.assertEqual(self.model.call_count, calls)
+        self.assertEqual(sum(c.get('stage') in {'write', 'repair'} for c in self.calls), 2)
+        self.assertLessEqual(self.model.call_count, calls + 1)
 
     def test_over_budget_repair_keeps_failure_reason_and_continues_other_targets(self):
         def oversized_draft(messages):
@@ -466,7 +492,8 @@ class KnowledgeSynthesisTests(unittest.TestCase):
             context = json.loads(messages[-1]["content"])
             if context.get("stage") == "write" and context["target"]["slug"] == "task-feedback-control":
                 result["body_markdown"] += "\n\n" + "Do not truncate an earlier factual draft. " * 4300
-                result["point_bindings"] = []
+            if context.get('stage') == 'point-review' and context['target']['slug'] == 'task-feedback-control':
+                result['merge_issues'] = ['正文包含需修正的解释。']
             return result
         self.model.side_effect = oversized_draft
         result = self.run_synthesis()
@@ -517,7 +544,7 @@ class KnowledgeSynthesisTests(unittest.TestCase):
         with patch.object(synthesis, "REQUEST_CONTEXT_VERSION", "changed-request-protocol"):
             second = self.run_synthesis()
         self.assertNotEqual(first["input_digest"], second["input_digest"])
-        self.assertGreater(self.model.call_count, calls)
+        self.assertEqual(self.model.call_count, calls)
         self.assertEqual(second["status"], "completed")
         self.assertEqual(marker.read_text(), "source cache unchanged")
         self.assertTrue(all(p.read_bytes() == value for p, value in before.items()))
@@ -572,34 +599,40 @@ class KnowledgeSynthesisTests(unittest.TestCase):
         result = self.run_synthesis()
         self.assertEqual(result["status"], "completed")
         self.assertEqual(self.calls[0]["stage"], "point-review")
-        self.assertEqual(sum(c.get("stage") == "align" for c in self.calls), 0)
+        self.assertEqual(sum(c.get("stage") == "maintain" for c in self.calls), 0)
         self.assertEqual(sum(c.get("stage") == "write" for c in self.calls), 2)
         self.assertEqual(sum(c.get("stage") == "verify" for c in self.calls), 2)
 
     def test_alignment_cannot_silently_omit_points_and_has_only_two_repairs(self):
         def missing(messages):
             result = self.respond(messages)
-            if json.loads(messages[-1]["content"]).get("stage") == "align":
-                result["concepts"].pop()
+            if json.loads(messages[-1]["content"]).get("stage") == "maintain":
+                result["point_decisions"].pop()
             return result
         self.model.side_effect = missing
         result = self.run_synthesis()
         self.assertEqual(result["status"], "blocked")
-        self.assertIn("omitted", result["reasons"][0])
+        self.assertIn("exactly one", result["reasons"][0])
         self.assertEqual(self.model.call_count, 3)
         self.assertEqual(self.publisher.call_count, 0)
 
-    def test_explicit_exclusion_reason_accounts_for_unassigned_points(self):
-        def exclusion(messages):
+    def test_deferred_reason_persists_without_forcing_a_page(self):
+        def deferred(messages):
             result = self.respond(messages)
-            if json.loads(messages[-1]["content"]).get("stage") == "align":
-                dropped = result["concepts"].pop()
-                result["excluded"] = [{"point_id": i, "reason": "原文仅有初步结果，暂不提升为概念。"} for i in dropped["point_ids"]]
+            if json.loads(messages[-1]['content']).get('stage') == 'maintain':
+                slug = 'feedback-reliability'
+                result['concept_actions'] = [a for a in result['concept_actions'] if a['concept_slug'] != slug]
+                for point in result['point_decisions']:
+                    if point['memberships'][0]['concept_slug'] == slug:
+                        point.update(disposition='deferred', memberships=[], reason='原文尚不足以形成稳定概念。')
             return result
-        self.model.side_effect = exclusion
+        self.model.side_effect = deferred
         result = self.run_synthesis()
-        self.assertEqual(len(result["excluded_points"]), 2)
+        self.assertEqual(len(result['deferred_points']), 2)
         self.assertEqual(self.publisher.call_count, 2)
+        with sqlite3.connect(self.ws.db) as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM point_dispositions WHERE disposition='deferred'").fetchone()[0], 2)
+        self.assertFalse((self.ws.wiki / 'feedback-reliability.md').exists())
 
     def test_supported_quotes_do_not_bypass_body_fact_review(self):
         def reject(messages):
@@ -631,24 +664,27 @@ class KnowledgeSynthesisTests(unittest.TestCase):
         self.assertEqual(self.publisher.call_count, 2)
         self.assertEqual(sum(c.get("stage") == "repair" for c in self.calls), 2)
 
-    def test_invalid_point_binding_blocks_even_if_metadata_contains_point(self):
+    def test_invalid_binding_is_repaired_without_rewriting_the_body(self):
         def missing_body(messages):
             result = self.respond(messages)
-            context = json.loads(messages[-1]["content"])
-            if context.get("stage") in {"write", "repair"} and context["target"]["slug"] == "feedback-reliability":
-                result["point_bindings"].pop()
+            context = json.loads(messages[-1]['content'])
+            if context.get('stage') == 'write' and context['target']['slug'] == 'feedback-reliability':
+                result['point_bindings'].pop()
             return result
         self.model.side_effect = missing_body
         result = self.run_synthesis()
-        self.assertEqual(result["status"], "blocked")
-        self.assertEqual(self.publisher.call_count, 2)
-        self.assertEqual(sum(c.get("stage") == "verify" for c in self.calls), 2)
+        self.assertEqual(result['status'], 'completed')
+        self.assertEqual(self.publisher.call_count, 3)
+        self.assertEqual(sum(c.get('stage') == 'repair' for c in self.calls), 0)
+        self.assertEqual(sum(c.get('stage') == 'bind' for c in self.calls), 1)
+        self.assertEqual(sum(c.get('stage') == 'verify' for c in self.calls), 3)
 
     def test_plan_cannot_overwrite_paper_reading_page(self):
         def overwrite(messages):
             result = self.respond(messages)
-            if json.loads(messages[-1]["content"]).get("stage") == "align":
-                result["concepts"][0]["slug"] = "paper-0"
+            if json.loads(messages[-1]["content"]).get("stage") == "maintain":
+                result['concept_actions'][0]['concept_slug'] = 'paper-0'
+                result['point_decisions'][0]['memberships'][0]['concept_slug'] = 'paper-0'
             return result
         self.model.side_effect = overwrite
         result = self.run_synthesis()

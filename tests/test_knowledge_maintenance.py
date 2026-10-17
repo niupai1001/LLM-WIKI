@@ -60,6 +60,17 @@ class MaintenanceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Pending review'):
                 km.apply_decision(db, result['decision_id'], result['decision'], result['point_versions'])
 
+    def test_deferring_existing_published_membership_requires_review(self):
+        points = {'p1': {'source_id': 's1', 'source_version': 'v1', 'data': {'claim_ids': ['c1']}}}
+        existing = [{'slug': 'existing', 'point_ids': ['p1'], 'version': 'v1'}]
+        value = {'decision_version': km.VERSION,
+                 'point_decisions': [{'point_id': 'p1', 'disposition': 'deferred', 'memberships': [],
+                                      'reason': 'New conditions no longer fit the old explanation.'}],
+                 'concept_actions': [], 'relation_actions': [], 'unresolved': []}
+        validated = km.validate_decision(value, points, existing, {'existing'})
+        self.assertTrue(validated['unresolved'])
+        self.assertEqual(validated['unresolved'][0]['concept_slug'], 'existing')
+
     def test_compatible_migration_preserves_old_membership(self):
         with sqlite3.connect(self.ws.db) as db:
             db.execute('CREATE TABLE concept_memberships (concept_slug TEXT,point_id TEXT,reason TEXT,PRIMARY KEY(concept_slug,point_id))')
