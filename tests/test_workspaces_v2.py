@@ -53,6 +53,16 @@ class WorkspaceTests(unittest.TestCase):
         self.assertNotEqual(legacy[1],new[1]);self.assertNotEqual(legacy[2],new[2])
         self.assertEqual(dict(os.environ),before)
 
+    def test_candidate_inherits_pdf_workflow_as_an_independent_configuration(self):
+        original = self.legacy.root / 'paper-workflow.json'
+        original.write_text(json.dumps({'enabled': True, 'required_original': 'pdf'}))
+        candidate = initialize_candidate(root=self.root)
+        copied = candidate.root / 'paper-workflow.json'
+        self.assertEqual(json.loads(copied.read_text()), json.loads(original.read_text()))
+        self.assertNotEqual(original.stat().st_ino, copied.stat().st_ino)
+        copied.write_text(json.dumps({'enabled': False}))
+        self.assertTrue(json.loads(original.read_text())['enabled'])
+
     def test_sync_source_and_gate_do_not_activate_unverified_library(self):
         ws=initialize_candidate(root=self.root)
         record=common.load_json(self.legacy.raw/(SID+'.json'));record['text']+=' New evidence.'

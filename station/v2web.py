@@ -133,6 +133,25 @@ async def api_query(request: Request):
 
 @router.get('/api/coverage')
 def api_coverage():
+    from .paper_policy import enabled
+    workspace = ws()
+    if enabled(workspace):
+        from .evaluation import _paper_state
+        from .publication import publication_lock
+        with publication_lock(workspace):
+            state = _paper_state(workspace)
+        memberships = {}
+        for row in state.get('concept_memberships', []):
+            memberships.setdefault(row['point_id'], []).append(row['concept_slug'])
+        points = []
+        for row in state.get('knowledge_points', []):
+            data = json.loads(row['data_json'])
+            points.append({key: row[key] for key in ('id', 'source_id', 'source_version')}
+                          | {'proposition': data.get('proposition'), 'scope': data.get('scope'),
+                             'concept_slugs': memberships.get(row['id'], [])})
+        return {'library_id': workspace.library_id, 'coverage_mode': 'paper_knowledge_points', 'questions': [],
+                'papers': [{key: row[key] for key in ('source_id', 'source_version', 'page_slug')}
+                           for row in state.get('paper_distillations', [])], 'knowledge_points': points}
     from .compiler import coverage
     return {'library_id':ws().library_id,'questions':coverage(ws())}
 
@@ -148,7 +167,7 @@ def tasks_page():
         if job['status'] in {'queued','running'}: buttons=f'<button class="button" data-job-action="cancel" data-job-id="{job["id"]}">取消</button>'
         if job['status'] in {'failed','cancelled','blocked'}: buttons=f'<button class="button" data-job-action="retry" data-job-id="{job["id"]}">重试</button>'
         if job['status']=='failed':
-            for target in (job.get('result') or {}).get('results',[]):
+            for target in jobs.compilation_targets(job.get('result')):
                 if target.get('status')=='blocked':
                     slug=html.escape(target['slug'],quote=True)
                     buttons+=f'<button class="button" data-job-action="retry" data-job-id="{job["id"]}" data-target-slug="{slug}">重试 {slug}</button>'

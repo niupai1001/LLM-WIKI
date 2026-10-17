@@ -365,6 +365,13 @@ def ensure_source_pdf(sid):
 
 
 def _store(item, db):
+    from .workspaces import current_workspace
+    from .paper_policy import enabled, exclusion_reason
+    workspace = current_workspace()
+    if enabled(workspace):
+        reason = exclusion_reason(workspace, item)
+        if reason:
+            raise ValueError(reason)
     item["bibliography"] = bibliography_for_record(item)
     path = RAW / f"{item['id']}.json"
     save_json(path, item)
@@ -394,6 +401,11 @@ def known_source_id(url, db):
 
 def archive(record, db):
     """Idempotent source archive. Explicit text is a caller-provided original."""
+    from .workspaces import current_workspace
+    from .paper_policy import enabled, exclusion_reason
+    workspace = current_workspace()
+    if enabled(workspace) and record.get('kind', 'article') != 'paper':
+        return None
     if not public_http(record["url"]):
         raise ValueError("Invalid public source link")
     category = validate_category(record.get("category", default_category()), active_only=True)
@@ -413,7 +425,14 @@ def archive(record, db):
     item = {"id": sid, "title": _source_title(record.get("title"), original, record["url"]), "url": record["url"], "category": category,
             "feed": record.get("feed", "manual"), "kind": kind,
             "title_is_custom": bool(record.get("title") and record["title"].strip() != record["url"]),
-            "published": record.get("published", ""), "captured_at": utcnow(), "summary": summary, **original}
+                "published": record.get("published", ""), "captured_at": utcnow(), "summary": summary, **original}
+    if enabled(workspace) and exclusion_reason(workspace, item):
+        for name in (item.get('asset_path'), item.get('pdf_path'), item.get('html_path')):
+            if isinstance(name, str):
+                path = (workspace.originals / name).resolve()
+                if path.is_relative_to(workspace.originals.resolve()):
+                    path.unlink(missing_ok=True)
+        return None
     _store(item, db)
     return sid
 
@@ -516,6 +535,10 @@ def import_file(title, file_path, category=None, kind=None):
     suffix = path.suffix.lower()
     title = (title or path.stem).strip()
     kind = validate_kind(kind if kind is not None else ("paper" if suffix == ".pdf" else "document"))
+    from .workspaces import current_workspace
+    from .paper_policy import enabled
+    if enabled(current_workspace()) and (suffix != '.pdf' or kind != 'paper'):
+        raise ValueError('当前论文库只接收PDF论文，TXT及资讯提取暂不开放')
     if suffix not in {".md", ".txt", ".pdf"}:
         raise ValueError("Supported originals: .md, .txt, .pdf")
     if path.stat().st_size > MAX_DOWNLOAD:
@@ -596,20 +619,28 @@ def refresh_source(sid):
 
 
 def import_url(url, category=None, title=None, kind="article", verify_metadata=False):
+    from .workspaces import current_workspace
+    from .paper_policy import enabled, exclusion_reason
+    workspace = current_workspace()
+    paper_only = enabled(workspace)
     category=validate_category(category if category is not None else default_category(), active_only=True)
     validate_kind(kind)
     if not public_http(url):
         raise ValueError("Invalid public source link")
-    if kind == "article" and _is_arxiv(url):
+    if paper_only or (kind == "article" and _is_arxiv(url)):
         kind = "paper"
     db = connect()
     try:
         sid = archive({"url": url, "title": title, "category": category, "kind": kind}, db)
         result = sid or known_source_id(url, db)
-        existing = db.execute("SELECT content_status FROM sources WHERE id=?", (result,)).fetchone()
+        existing = db.execute("SELECT content_status,raw_path FROM sources WHERE id=?", (result,)).fetchone()
+        if existing is None or (paper_only and exclusion_reason(workspace, load_json(Path(existing['raw_path'])))):
+            if paper_only:
+                raise ValueError('未取得合格的论文 PDF 原件；请使用论文 PDF 地址或 arXiv 链接，网页正文与 TXT 不能入库。')
+            raise ValueError('未能归档原始资料，请检查链接后重试。')
     finally:
         db.close()
-    if sid is None and existing["content_status"] != "full-text":
+    if not paper_only and sid is None and existing["content_status"] != "full-text":
         result = refresh_source(result)
     if verify_metadata:
         refresh_bibliographies([result], verify_doi=True)

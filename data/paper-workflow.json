@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "workflow": "knowledge-distillation-2.2",
+  "epoch": "2026-10-15T15:18:40.058680+00:00",
+  "source_kind": "paper",
+  "required_original": "pdf",
+  "news_extraction": false
+}

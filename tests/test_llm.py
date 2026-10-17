@@ -8,7 +8,7 @@ from station.wiki import call_llm, _read_llm_response
 
 
 class LLMResponseTests(unittest.TestCase):
-    def invoke(self, content, finish_reason="stop"):
+    def invoke(self, content, finish_reason="stop", **options):
         response = io.BytesIO(json.dumps({"choices": [{
             "finish_reason": finish_reason,
             "message": {"content": content},
@@ -16,7 +16,7 @@ class LLMResponseTests(unittest.TestCase):
         config = {"LLM_BASE_URL": "https://example.invalid", "LLM_MODEL": "test",
                   "LLM_API_KEY": "test-key", "LLM_JSON_MODE": "true"}
         with patch.dict(os.environ, config), patch("station.wiki.urllib.request.urlopen", return_value=response) as send:
-            result = call_llm([{"role": "user", "content": "Return a JSON object."}])
+            result = call_llm([{"role": "user", "content": "Return a JSON object."}], **options)
             payload = json.loads(send.call_args.args[0].data)
         return result, payload
 
@@ -25,6 +25,20 @@ class LLMResponseTests(unittest.TestCase):
         self.assertEqual(result, {"action": "create"})
         self.assertEqual(payload["response_format"], {"type": "json_object"})
         self.assertIs(payload["stream"], False)
+        self.assertNotIn('max_tokens', payload)
+
+    def test_output_budget_override_is_sent_without_changing_model(self):
+        result, payload = self.invoke('{"ready":true}', max_tokens=65536)
+        self.assertTrue(result['ready'])
+        self.assertEqual(payload['max_tokens'], 65536)
+        self.assertEqual(payload['model'], 'test')
+
+    def test_invalid_output_budget_is_rejected_before_network(self):
+        with patch('station.wiki.urllib.request.urlopen') as send:
+            for limit in (True, 0, -1, 65537, 1.5, '65536'):
+                with self.subTest(limit=limit), self.assertRaisesRegex(ValueError, 'output token budget'):
+                    call_llm([], max_tokens=limit)
+        send.assert_not_called()
 
     def test_truncated_response_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "Incomplete LLM response: length"):

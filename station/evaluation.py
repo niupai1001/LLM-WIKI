@@ -78,12 +78,168 @@ def _input_digest(ws, coverage):
             values[str(path.relative_to(ws.root))] = hashlib.sha256(path.read_bytes()).hexdigest()
     values['coverage'] = coverage
     values['redirects'] = _read(ws.root / 'redirects.json')
+    from .paper_policy import enabled
+    if enabled(ws):
+        from . import distillation, knowledge_synthesis
+        values['paper_workflow'] = _read(ws.root / 'paper-workflow.json')
+        values['paper_state'] = _paper_state(ws)
+        values['processing_versions'].update(
+            distillation_schema=distillation.SCHEMA_VERSION, distillation_prompt=distillation.PROMPT_VERSION,
+            synthesis=knowledge_synthesis.VERSION, synthesis_prompt=knowledge_synthesis.PROMPT_VERSION,
+            synthesis_request_context=knowledge_synthesis.REQUEST_CONTEXT_VERSION)
+        values['paper_prompt_digest'] = _digest([
+            distillation.AUTHOR_SYSTEM, distillation.PACKET_CONTRACT, distillation.REVIEW_SYSTEM,
+            knowledge_synthesis.ALIGN_SYSTEM, knowledge_synthesis.WRITE_SYSTEM, knowledge_synthesis.POINT_REVIEW_SYSTEM])
+        values['skill_digest'] = _digest({name: (distillation.SKILL_ROOT / name).read_text(encoding='utf-8')
+                                        for name in distillation.SKILL_FILES})
     return _digest(values)
+
+
+def _paper_state(ws):
+    """Read durable paper/point routing without creating tables or caches."""
+    result = {}
+    if not ws.db.is_file():
+        return result
+    orders = {'paper_distillations': 'source_id', 'knowledge_points': 'id',
+              'concept_memberships': 'concept_slug,point_id'}
+    try:
+        with sqlite3.connect(ws.db.as_uri() + '?mode=ro', uri=True) as db:
+            db.row_factory = sqlite3.Row
+            tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            for table, order in orders.items():
+                if table in tables:
+                    result[table] = [dict(row) for row in db.execute('SELECT * FROM ' + table + ' ORDER BY ' + order)]
+    except sqlite3.Error:
+        result['unreadable'] = True
+    return result
+
+
+def _paper_coverage(ws, pages):
+    from .knowledge_synthesis import _inputs
+    from .paper_policy import exclusion_reason
+    from .wiki import page_body
+    state = _paper_state(ws)
+    if {'paper_distillations', 'knowledge_points'} <= set(state):
+        papers, points, stale = _inputs(ws)
+    else:
+        papers, points, stale = {}, {}, [{'reason': 'paper_knowledge_tables_missing_or_unreadable'}]
+    unresolved = list(stale)
+    valid_papers = set()
+    raw_ids = {path.stem for path in ws.raw.glob('*.json') if _SOURCE.fullmatch(path.stem)}
+    for sid in sorted(raw_ids):
+        record = _read(ws.raw / (sid + '.json'))
+        reason = exclusion_reason(ws, record)
+        if reason:
+            unresolved.append({'source_id': sid, 'reason': 'ineligible_paper_original', 'detail': reason})
+            continue
+        paper = papers.get(sid)
+        if paper is None:
+            unresolved.append({'source_id': sid, 'reason': 'no_current_paper_distillation'})
+            continue
+        slug, packet = paper['page_slug'], paper['packet']
+        meta = pages.get(slug, {})
+        if (meta.get('page_role') not in {'paper', 'paper_reading'} or sid not in meta.get('source_ids', [])
+                or not (ws.wiki / (slug + '.md')).is_file()):
+            unresolved.append({'source_id': sid, 'reason': 'paper_reading_not_published', 'target_slug': slug})
+            continue
+        body = (ws.wiki / (slug + '.md')).read_text(encoding='utf-8')
+        if not packet.get('body_markdown') or page_body(body) != page_body(packet['body_markdown']):
+            unresolved.append({'source_id': sid, 'reason': 'paper_body_changed_after_distillation', 'target_slug': slug})
+            continue
+        expected = {point['id'] for point in points.values() if point['source_id'] == sid}
+        claims = {claim.get('id'): claim for claim in meta.get('claims', []) if isinstance(claim, dict)}
+        packet_claims = packet.get('claims', [])
+        if (not expected or set(meta.get('knowledge_point_ids', [])) != expected
+                or set(claims) != {claim.get('id') for claim in packet_claims}
+                or any(any(claim.get(key) != claims[claim['id']].get(key) for key in ('text', 'scope', 'source_ids'))
+                       for claim in packet_claims)):
+            unresolved.append({'source_id': sid, 'reason': 'paper_metadata_does_not_match_distillation', 'target_slug': slug})
+            continue
+        valid_papers.add(sid)
+    memberships = {}
+    for row in state.get('concept_memberships', []):
+        memberships.setdefault(row.get('point_id'), []).append(row)
+        if row.get('point_id') not in points:
+            unresolved.append({'point_id': row.get('point_id'), 'target_slug': row.get('concept_slug'),
+                               'reason': 'membership_references_noncurrent_point'})
+    for slug, meta in pages.items():
+        if meta.get('page_role') in {'paper', 'paper_reading', 'source_collection'} or meta.get('page_kind', 'concept') != 'concept':
+            continue
+        declared = meta.get('knowledge_point_ids', [])
+        actual = {row.get('point_id') for row in state.get('concept_memberships', []) if row.get('concept_slug') == slug}
+        if not isinstance(declared, list) or any(not isinstance(identifier, str) for identifier in declared) or set(declared) != actual:
+            unresolved.append({'target_slug': slug, 'reason': 'concept_membership_metadata_mismatch'})
+    routed = set()
+    for identifier, point in points.items():
+        sid = point['source_id']
+        if sid not in valid_papers:
+            unresolved.append({'source_id': sid, 'point_id': identifier, 'reason': 'point_has_no_current_published_paper'})
+            continue
+        rows = memberships.get(identifier, [])
+        if len(rows) != 1:
+            unresolved.append({'source_id': sid, 'point_id': identifier,
+                               'reason': 'knowledge_point_not_routed' if not rows else 'knowledge_point_multiply_routed'})
+            continue
+        row = rows[0]
+        slug = row.get('concept_slug')
+        if not isinstance(slug, str) or not _SLUG.fullmatch(slug):
+            unresolved.append({'source_id': sid, 'point_id': identifier, 'reason': 'knowledge_point_target_invalid'})
+            continue
+        meta = pages.get(slug, {})
+        path = ws.wiki / (str(slug) + '.md')
+        if (not path.is_file() or meta.get('page_kind', 'concept') != 'concept'
+                or meta.get('page_role') in {'paper', 'paper_reading', 'source_collection'}
+                or identifier not in meta.get('knowledge_point_ids', []) or not str(row.get('reason') or '').strip()):
+            unresolved.append({'source_id': sid, 'point_id': identifier, 'target_slug': slug,
+                               'reason': 'knowledge_point_target_not_current'})
+            continue
+        bindings = [binding for binding in meta.get('point_bindings', [])
+                    if isinstance(binding, dict) and binding.get('point_id') == identifier]
+        claims = {claim.get('id'): claim for claim in meta.get('claims', []) if isinstance(claim, dict)}
+        binding = bindings[0] if len(bindings) == 1 else {}
+        claim_ids, quote = binding.get('claim_ids'), binding.get('body_quote')
+        body = path.read_text(encoding='utf-8')
+        if (not isinstance(quote, str) or not quote.strip() or quote not in body
+                or not isinstance(claim_ids, list) or not claim_ids
+                or any(not isinstance(cid, str) or cid not in claims for cid in claim_ids)
+                or sid not in {source for cid in claim_ids for source in claims[cid].get('source_ids', [])}):
+            unresolved.append({'source_id': sid, 'point_id': identifier, 'target_slug': slug,
+                               'reason': 'knowledge_point_body_or_claim_binding_invalid'})
+            continue
+        routed.add(identifier)
+    return {'coverage_mode': 'paper_knowledge_points',
+            'papers': {'required': len(raw_ids), 'current_published': len(valid_papers)},
+            'knowledge_points': {'total': len(state.get('knowledge_points', [])), 'current': len(points),
+                                 'routed': len(routed), 'unrouted': len(state.get('knowledge_points', [])) - len(routed)},
+            # A reusable point is not an independently enumerated research question.
+            'questions': 0, 'published_questions': 0, 'accounted_questions': 0,
+            'documented_missing_questions': [], 'unresolved': unresolved}
+
+
+def _fixture_compatibility(ws, fixture):
+    from .paper_policy import enabled
+    paper_mode = enabled(ws)
+    expected_mode = 'paper_knowledge_points' if paper_mode else 'extraction_questions'
+    missing = [{'case_id': case.get('id'), 'target_slug': case.get('expected_target_slug')}
+               for case in fixture.get('knowledge_cases', [])
+               if not _resolve_target(ws, case.get('expected_target_slug'))]
+    missing_sources = sorted({sid for group in ('knowledge_cases', 'query_cases')
+                              for case in fixture.get(group, []) for sid in case.get('expected_source_ids', [])
+                              if not isinstance(sid, str) or not _SOURCE.fullmatch(sid)
+                              or not (ws.raw / (sid + '.json')).is_file()}, key=str)
+    applicable = not paper_mode or (fixture.get('coverage_mode') == expected_mode and not missing and not missing_sources)
+    return {'ready': applicable, 'status': 'applicable' if applicable else 'requires_adaptation',
+            'coverage_mode': expected_mode, 'declared_coverage_mode': fixture.get('coverage_mode'),
+            'knowledge_cases': len(fixture.get('knowledge_cases', [])), 'query_cases': len(fixture.get('query_cases', [])),
+            'missing_knowledge_targets': missing, 'missing_source_ids': missing_sources,
+            'reason': '' if applicable else 'The previous extraction/question fixture must be adapted to the rebuilt paper knowledge points and concept pages; no acceptance score is implied.'}
 
 
 def _integrity(ws):
     from .search import source_segments
     from .documents import source_version
+    from .paper_policy import enabled
+    paper_mode = enabled(ws)
     pages, issues, total, quoted = _pages(ws), [], 0, 0
     segments = {}
     for slug, meta in pages.items():
@@ -114,7 +270,9 @@ def _integrity(ws):
             required = set(claim.get('source_ids', []))
             if not required or not required <= registered or not claim.get('scope') or not claim.get('text'):
                 issues.append({'code': 'invalid_claim_scope_or_sources', 'slug': slug, 'claim_id': cid})
-            if meta.get('pipeline_version') and (not isinstance(bindings.get(cid), str) or not bindings[cid].strip() or bindings[cid] not in body):
+            needs_binding = meta.get('pipeline_version') or (paper_mode and meta.get('page_kind', 'concept') == 'concept'
+                            and meta.get('page_role') not in {'paper', 'paper_reading', 'source_collection'})
+            if needs_binding and (not isinstance(bindings.get(cid), str) or not bindings[cid].strip() or bindings[cid] not in body):
                 issues.append({'code': 'missing_claim_body_binding', 'slug': slug, 'claim_id': cid})
             supported = set()
             for passage in claim.get('evidence_passages', []):
@@ -138,6 +296,10 @@ def _integrity(ws):
     for path in ws.wiki.glob('*.md'):
         if path.stem != 'index' and path.stem not in pages:
             issues.append({'code': 'missing_metadata', 'slug': path.stem})
+    if paper_mode:
+        return {'pages': len(pages), 'claims': total, 'claims_with_all_source_quotes': quoted,
+                'evidence_coverage': quoted / total if total else None, 'issues': issues,
+                **_paper_coverage(ws, pages)}
     rows = _coverage(ws)
     latest = {}
     for path in sorted((ws.root / 'extractions').glob('*/*.json')):
@@ -173,7 +335,7 @@ def _integrity(ws):
                                            'status': 'deferred', 'reason': row['reason'].strip()})
             else:
                 unresolved.append({'source_id': sid, 'question_id': question['id'], 'status': row.get('status') if row else 'unrecorded', 'reason': row.get('reason') if row else 'no_coverage_record'})
-    return {'pages': len(pages), 'claims': total, 'claims_with_all_source_quotes': quoted,
+    return {'coverage_mode': 'extraction_questions', 'pages': len(pages), 'claims': total, 'claims_with_all_source_quotes': quoted,
             'evidence_coverage': quoted / total if total else None, 'issues': issues,
             'questions': questions, 'published_questions': completed,
             'documented_missing_questions': documented_missing,
@@ -282,6 +444,8 @@ def acceptance_current(ws, report, *, legacy_ws=None, fixture_path=None):
         if not _bindings_match(report, current) or report.get('review_records_digest') != _review_digest(ws):
             return False
         semantic = _semantic_state(ws)
+        if not _fixture_compatibility(ws, fixture)['ready']:
+            return False
         if not semantic.get('ready') or report.get('semantic_index') != semantic:
             return False
         retrieval = report.get('retrieval', {})
@@ -468,6 +632,7 @@ def evaluate_library(ws, write=True, *, legacy_ws=None, fixture_path=None):
         comparison = compare_libraries(ws, legacy_ws)
         sync = _source_sync(ws, legacy_ws)
         semantic = _semantic_state(ws)
+        fixture_compatibility = _fixture_compatibility(ws, fixture)
         legacy_digest = bindings['legacy_manifest_digest']
         review_digest = _review_digest(ws)
         targets = {c['id']: [(_resolve_target(ws, slug) or slug)
@@ -475,7 +640,13 @@ def evaluate_library(ws, write=True, *, legacy_ws=None, fixture_path=None):
                    for c in fixture['knowledge_cases']}
         page_versions = {slug: search_digest({'body': (ws.wiki / (slug + '.md')).read_text(encoding='utf-8'), 'meta': meta})
                          for slug, meta in _pages(ws).items() if (ws.wiki / (slug + '.md')).is_file()}
-    retrieval = _retrieval(ws, fixture, targets, page_versions, semantic.get('ready') is True)
+    if fixture_compatibility['ready']:
+        retrieval = _retrieval(ws, fixture, targets, page_versions, semantic.get('ready') is True)
+    else:
+        retrieval = {'mode': 'not-applicable', 'candidate_kind': 'page', 'recall_at_8': None,
+                     'diagnostic_recall_at_8': None, 'threshold': max(.9, fixture['thresholds']['recall_at_8']),
+                     'ready': False, 'cases': [], 'required_cases': len(fixture['knowledge_cases']),
+                     'reason': fixture_compatibility['reason']}
     with ExitStack() as stack:
         for library in libraries: stack.enter_context(publication_lock(library))
         human = _human(ws, fixture, bindings)
@@ -484,7 +655,12 @@ def evaluate_library(ws, write=True, *, legacy_ws=None, fixture_path=None):
         if ws.library_id == legacy_ws.library_id: blockers.append('candidate_library_required')
         if not integrity['pages'] or not integrity['claims']: blockers.append('candidate_knowledge_empty')
         if integrity['issues']: blockers.append('structural_integrity_failed')
-        if integrity['unresolved'] or not integrity['questions']: blockers.append('extraction_or_question_coverage_incomplete')
+        if integrity.get('coverage_mode') == 'paper_knowledge_points':
+            if integrity['unresolved'] or not integrity['knowledge_points']['total']:
+                blockers.append('paper_knowledge_point_coverage_incomplete')
+        elif integrity['unresolved'] or not integrity['questions']:
+            blockers.append('extraction_or_question_coverage_incomplete')
+        if not fixture_compatibility['ready']: blockers.append('evaluation_fixture_requires_adaptation')
         if comparison['unresolved']: blockers.append('legacy_claim_mappings_unresolved')
         if not sync['ready']: blockers.append('sources_not_synchronized')
         if not semantic.get('ready'): blockers.append('semantic_index_not_ready')
@@ -503,6 +679,7 @@ def evaluate_library(ws, write=True, *, legacy_ws=None, fixture_path=None):
                   'schema_version': 2, 'suite_id': fixture.get('suite_id'),
                   'evaluated_at': datetime.now(timezone.utc).isoformat(), 'passed': not blockers,
                   'blocked_reasons': blockers, 'integrity': integrity, 'comparison': comparison,
+                  'fixture_compatibility': fixture_compatibility,
                   'source_sync': sync, 'semantic_index': semantic, 'retrieval': retrieval,
                   'human_evaluation': human, 'query_evaluation': query,
                   'limits': ['Fixture expectations originate from public wiki metadata and need original-source human checking.',

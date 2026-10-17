@@ -78,7 +78,8 @@ class BibliographyTests(unittest.TestCase):
         self.assertNotIn('<script>', rendered)
         self.assertNotIn('<img', rendered)
         self.assertIn('&lt;script&gt;', rendered)
-        self.assertIn('官方API未提供出版 DOI', rendered)
+        self.assertIn('未记录出版 DOI', rendered)
+        self.assertNotIn('官方API未提供出版 DOI', rendered)
         self.assertIn('尚未核对实验', rendered)
 
     def test_citation_prefers_verified_first_date_and_displays_both_doi_types(self):

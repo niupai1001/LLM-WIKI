@@ -356,6 +356,9 @@ def _rebuild_lexical(ws):
 
 
 def _rebuild_vectors(ws, indexed, embeddings):
+    from .worker import check_cancelled
+    from .jobs import JobConflict
+    check_cancelled()
     warnings = list(indexed["warnings"])
     config = _config(ws)
     embedded = 0
@@ -371,9 +374,11 @@ def _rebuild_vectors(ws, indexed, embeddings):
             if dimension_row[0] != dimension_row[1]:
                 raise ValueError("Stored embedding index has inconsistent dimensions; rebuild required")
             for start in range(0, len(pending), 32):
+                check_cancelled()
                 batch = pending[start:start + 32]
                 try:
                     values = embed_texts(config, [row["text"] for row in batch])
+                    check_cancelled()
                     if not isinstance(values, list) or len(values) != len(batch):
                         raise ValueError("Embedding result count changed")
                     normalized = [_vector(v, dimension) for v in values]
@@ -386,6 +391,8 @@ def _rebuild_vectors(ws, indexed, embeddings):
                             db.execute("UPDATE chunks SET vector=?,vector_backend=?,dimension=? WHERE chunk_id=?",
                                 (json.dumps(vector), backend, dimension, row["chunk_id"]))
                     embedded += len(batch)
+                except JobConflict:
+                    raise
                 except Exception as exc:
                     warnings.append("Embedding index incomplete (" + type(exc).__name__ + "); lexical search remains available")
                     break

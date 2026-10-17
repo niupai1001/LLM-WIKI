@@ -36,6 +36,7 @@ def _invoke(module, function, ws, *args, **kwargs):
 def default_handlers():
     return {
         'compile': lambda ws, payload, jid: _invoke('compiler', 'compile_job', ws, payload, jid),
+        'synthesize': lambda ws, payload, jid: _invoke('knowledge_synthesis', 'synthesis_job', ws, payload, jid),
         'ocr': lambda ws, payload, jid: _invoke('documents', 'parse_source', ws, payload['source_id'],ocr=payload.get('ocr',True),force=payload.get('force',False)),
         'extract': lambda ws, payload, jid: _invoke('extraction', 'extract_source', ws, payload['source_id'],force=payload.get('force',False)),
         'index': lambda ws, payload, jid: _invoke('search', 'rebuild_index', ws, embeddings=payload.get('embeddings', False)),

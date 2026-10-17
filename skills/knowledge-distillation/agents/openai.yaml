@@ -1,0 +1,4 @@
+interface:
+  display_name: "知识提炼工作流"
+  short_description: "先理解研究目的、动机和结果，再提炼知识点并积累概念与主题"
+  default_prompt: "使用 $knowledge-distillation 阅读全文，正文解释目的、动机、核心回答、结果与知识点，另在配套记录中保存概念和主题归属。"

@@ -8,7 +8,7 @@ from contextlib import contextmanager
 
 LEASE_SECONDS = 15 * 60
 HEARTBEAT_SECONDS = 30
-KINDS = {'ocr', 'extract', 'index', 'compile', 'query'}
+KINDS = {'ocr', 'extract', 'index', 'compile', 'synthesize', 'query'}
 
 
 class JobConflict(ValueError):
@@ -98,9 +98,9 @@ def claim(ws, worker_id=None, kinds=None):
         db.execute('BEGIN IMMEDIATE')
         # Never silently rerun expired work: a crashed publisher may need recovery.
         db.execute("UPDATE jobs SET status=CASE WHEN cancel_requested=1 THEN 'cancelled' ELSE 'failed' END,error='Execution lease expired; explicit retry required',lease_token=NULL,lease_until=NULL,updated_at=? WHERE library_id=? AND status='running' AND lease_until<=?", (now, ws.library_id, now))
-        running_compile = db.execute("SELECT 1 FROM jobs WHERE library_id=? AND kind='compile' AND status='running'", (ws.library_id,)).fetchone()
+        running_compile = db.execute("SELECT 1 FROM jobs WHERE library_id=? AND kind IN ('compile','synthesize') AND status='running'", (ws.library_id,)).fetchone()
         if running_compile:
-            allowed = [k for k in allowed if k != 'compile']
+            allowed = [k for k in allowed if k not in {'compile', 'synthesize'}]
         if not allowed:
             return None
         marks = ','.join('?' for _ in allowed)
@@ -174,6 +174,17 @@ def cancel(ws, job_id):
     return get(ws, job_id)
 
 
+def compilation_targets(result):
+    """Individual paper and concept outcomes share the same retry boundary."""
+    if not isinstance(result, dict):
+        return []
+    targets = list(result.get('results') or [])
+    synthesis = result.get('synthesis')
+    if isinstance(synthesis, dict):
+        targets.extend(synthesis.get('results') or [])
+    return [row for row in targets if isinstance(row, dict) and isinstance(row.get('slug'), str)]
+
+
 def retry(ws, job_id, target_slug=None):
     with _connect(ws) as db:
         db.execute('BEGIN IMMEDIATE')
@@ -183,7 +194,7 @@ def retry(ws, job_id, target_slug=None):
         payload=json.loads(row['payload'])
         if target_slug is not None:
             result=json.loads(row['result'] or '{}')
-            if row['kind']!='compile' or not any(r.get('slug')==target_slug and r.get('status')=='blocked' for r in result.get('results',[])):
+            if row['kind']!='compile' or not any(r.get('slug')==target_slug and r.get('status')=='blocked' for r in compilation_targets(result)):
                 raise JobConflict('Select a blocked target from this compilation result')
             payload['retry_target']=target_slug
         else:

@@ -1,3 +1,5 @@
+import json
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -102,13 +104,17 @@ class CitationTests(unittest.TestCase):
 
     def test_page_and_draft_render_one_evidence_list_and_safe_writing_issues(self):
         body = f'## Finding\n\nEvidence [S:{A}].\n\n---\n\n## 原始证据\n\n- [Legacy title](/source/{A}) · 来源ID `{A}`'
-        page_data = {'slug': 'example', 'title': 'Example', 'category': 'other', 'source_ids': [A], 'related_slugs': [], 'body': body}
+        page_data = {'slug': 'example', 'title': 'Example', 'category': 'other', 'page_role': 'paper', 'source_ids': [A], 'related_slugs': [], 'body': body}
         with tempfile.TemporaryDirectory() as temp, patch.object(fact_checks, 'WIKI', Path(temp)), patch.object(fact_checks, 'META', Path(temp)), patch.object(fact_checks, 'REVIEWS', Path(temp)):
             (Path(temp) / 'example.md').write_text(body)
             with patch.object(web, 'wiki_pages', return_value=[page_data]), patch.object(citations, 'source_info', side_effect=self.sources.get):
                 page = web.page('example').body.decode()
         self.assertEqual(page.count('<h2>原始证据'), 1)
         self.assertIn('[1 · Plan-and-Patch]', page)
+        self.assertNotIn('证据与可信边界', page)
+        self.assertIn('断言与原文证据', page)
+        self.assertIn('<span class="tag subtle">论文解读</span>', page)
+        self.assertNotIn('<span class="tag subtle">概念条目</span>', page)
         with tempfile.TemporaryDirectory() as temp:
             pending = Path(temp)
             (pending / 'draft.json').write_text('{}')
@@ -117,6 +123,8 @@ class CitationTests(unittest.TestCase):
             with patch.object(web, 'PENDING', pending), patch.object(web, 'load_json', return_value=proposal), patch.object(web, 'connect'), patch.object(citations, 'source_info', side_effect=self.sources.get):
                 draft = web.drafts().body.decode()
         self.assertEqual(draft.count('<h2>原始证据'), 1)
+        self.assertNotIn('证据与可信边界', draft)
+        self.assertIn('原始资料', draft)
         self.assertNotIn('class="review-evidence"', draft)
         self.assertIn('编写检查提示', draft)
         self.assertIn('&lt;script&gt;alert(1)&lt;/script&gt;', draft)
@@ -125,6 +133,8 @@ class CitationTests(unittest.TestCase):
         pages = [
             {'slug': 'topic', 'title': 'Topic guide', 'page_kind': 'topic', 'category': 'other', 'source_ids': [], 'body': 'Topic match'},
             {'slug': 'concept', 'title': 'Concept detail', 'page_kind': 'concept', 'category': 'other', 'source_ids': [], 'body': 'Concept match'},
+            {'slug': 'paper', 'title': 'Paper reading', 'page_kind': 'concept', 'page_role': 'paper', 'category': 'other', 'source_ids': [], 'body': 'Paper match'},
+            {'slug': 'comparison', 'title': 'Comparison detail', 'page_kind': 'concept', 'page_role': 'comparison', 'category': 'other', 'source_ids': [], 'body': 'Comparison match'},
             {'slug': 'legacy', 'title': 'Legacy knowledge', 'category': 'other', 'source_ids': [], 'body': 'Legacy excluded'},
         ]
         with tempfile.TemporaryDirectory() as temp, patch.object(web, 'wiki_pages', return_value=pages), patch.object(web, 'PENDING', Path(temp)), patch.object(web, 'connect') as connection:
@@ -132,12 +142,53 @@ class CitationTests(unittest.TestCase):
             rendered = web.home().body.decode()
             self.assertIn('主题入口', rendered)
             self.assertIn('概念知识', rendered)
+            self.assertIn('论文解读', rendered)
+            self.assertIn('研究比较', rendered)
             self.assertLess(rendered.index('href="/page/topic"'), rendered.index('href="/page/concept"'))
+            self.assertLess(rendered.index('href="/page/concept"'), rendered.index('<h2>论文解读'))
+            self.assertLess(rendered.index('<h2>论文解读'), rendered.index('href="/page/paper"'))
+            self.assertLess(rendered.index('href="/page/paper"'), rendered.index('<h2>研究比较'))
+            self.assertLess(rendered.index('<h2>研究比较'), rendered.index('href="/page/comparison"'))
             self.assertIn('href="/page/legacy"', rendered)
             filtered = web.home(q='match', category='other').body.decode()
             self.assertIn('href="/page/topic"', filtered)
             self.assertIn('href="/page/concept"', filtered)
+            self.assertIn('href="/page/paper"', filtered)
+            self.assertIn('href="/page/comparison"', filtered)
             self.assertNotIn('href="/page/legacy"', filtered)
+
+    def test_published_history_uses_stable_journal_ids_and_preserves_old_anchors(self):
+        records = {
+            'paper-event-one': {'slug': 'paper-reading', 'title': 'Paper reading', 'source_ids': [A],
+                                'publication': {'at': '2026-10-15T02:00:00Z'}},
+            'concept-event-one': {'slug': 'shared-concept', 'title': 'First synthesis', 'source_ids': [A, B],
+                                  'updated_at': '2026-10-15T03:00:00Z'},
+            'concept-event-two': {'slug': 'shared-concept', 'title': 'Second synthesis', 'source_ids': [A, B, C],
+                                  'publication': {'at': '2026-10-15T04:00:00Z'}},
+            'old-proposal-file': {'slug': 'old-proposal', 'title': 'Old proposal', 'proposal_id': 'p_old',
+                                  'source_id': A, 'handled_at': '2026-10-15T01:00:00Z'},
+            'old-source-file': {'slug': 'old-source', 'title': 'Old source', 'source_id': B,
+                                'handled_at': '2026-10-15T00:00:00Z'},
+        }
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            pending = root / 'pending'
+            pending.mkdir()
+            history = root / 'proposal_history'
+            history.mkdir()
+            for name, record in records.items():
+                (history / (name + '.json')).write_text(json.dumps({**record, 'outcome': 'approved'}))
+            (history / 'rejected.json').write_text(json.dumps({'outcome': 'rejected'}))
+            with patch.object(web, 'PENDING', pending), patch.object(web, 'connect'), patch.object(web, 'wiki_pages', return_value=[]):
+                rendered = web.drafts().body.decode()
+                again = web.drafts().body.decode()
+        expected = ['draft-concept-event-two', 'draft-concept-event-one', 'draft-paper-event-one',
+                    'draft-p_old', 'draft-' + B]
+        self.assertEqual(re.findall(r'class="wiki-card" id="([^"]+)"', rendered), expected)
+        self.assertEqual(re.findall(r'class="wiki-card" id="([^"]+)"', again), expected)
+        self.assertEqual(rendered.count('href="/page/shared-concept"'), 2)
+        self.assertIn('2026-10-15 10:00', rendered)
+        self.assertNotIn('draft-rejected', rendered)
 
 
 

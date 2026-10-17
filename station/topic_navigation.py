@@ -24,7 +24,9 @@ def validate_routes(values, wiki_root, meta_root, concept_slug, *, max_routes=3)
         if not isinstance(value, dict):
             raise ValueError('主题归属格式错误。')
         slug = value.get('slug')
-        if not isinstance(slug, str) or not _SLUG.fullmatch(slug) or slug in {'index', concept_slug} or slug in seen:
+        if slug == concept_slug:
+            raise ValueError('主题入口须与概念页面使用不同slug；请归入回答更大长期学习问题的主题，优先复用已有主题。')
+        if not isinstance(slug, str) or not _SLUG.fullmatch(slug) or slug == 'index' or slug in seen:
             raise ValueError('主题入口标识无效或重复。')
         path, mp = wiki_root / (slug + '.md'), meta_root / (slug + '.json')
         exists = path.exists()

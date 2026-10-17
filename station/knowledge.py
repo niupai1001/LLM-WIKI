@@ -90,7 +90,12 @@ def _wiki_pages():
         result.append({"slug": slug, "title": title if isinstance(title, str) and title.strip() else heading,
                        "body": body, "category": category if isinstance(category, str) and category in valid_categories else "other",
                        "page_kind": 'topic' if meta.get('page_kind') == 'topic' else 'concept',
-                       "page_role": meta.get('page_role') if meta.get('page_role') in {'comparison', 'source_collection'} else 'knowledge',
+                       "page_role": meta.get('page_role') if meta.get('page_role') in {'paper', 'comparison', 'source_collection', 'knowledge_index'} else 'knowledge',
+                       "knowledge_topic": meta.get("knowledge_topic", meta.get("question", "")),
+                       "synthesis_status": meta.get("synthesis_status", ""),
+                       "knowledge_point_ids": _string_list(meta.get("knowledge_point_ids", meta.get("point_ids", []))),
+                       "knowledge_point_count": len(_string_list(meta.get("knowledge_point_ids", meta.get("point_ids", [])))),
+                       "candidate_concept_slug": meta.get("candidate_concept_slug", ""),
                        "relations": meta.get('relations', []) if isinstance(meta.get('relations'), list) else [],
                        "source_ids": _string_list(meta.get("source_ids")),
                        "related_slugs": _string_list(meta.get("related_slugs")),
@@ -109,10 +114,11 @@ def topic_details(topic, pages=None):
     """Count direct reading routes and deduplicate their originals, not citations."""
     from .wiki import page_body
     pages = pages if pages is not None else wiki_pages()
-    targets = _wikilinks(page_body(topic['body']))
+    targets = _wikilinks(page_body(topic['body'])) | set(topic.get('related_slugs', []))
     members = [p for p in pages if p['slug'] in targets and p.get('page_kind', 'concept') == 'concept'
                and p.get('page_role', 'knowledge') != 'source_collection']
-    return {'concepts': [p for p in members if p.get('page_role') != 'comparison'],
+    return {'concepts': [p for p in members if p.get('page_role') not in {'comparison', 'knowledge_index'}],
+            'knowledge_indexes': [p for p in members if p.get('page_role') == 'knowledge_index'],
             'comparisons': [p for p in members if p.get('page_role') == 'comparison'],
             'source_ids': sorted({sid for p in members for sid in p.get('source_ids', [])})}
 

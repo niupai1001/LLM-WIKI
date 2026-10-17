@@ -167,6 +167,18 @@ class SearchV2Tests(unittest.TestCase):
             self.assertTrue(result["warnings"])
         self.assertEqual(len(search.search(self.ws, "alpha", semantic=False)["results"]), 1)
 
+    def test_cancelled_embedding_task_does_not_commit_the_inflight_batch(self):
+        from station import jobs, worker
+        put_source(self.ws, A, "alpha original evidence under a fixed scope")
+        self.configure()
+        with patch.object(search, 'embed_texts', return_value=[[1, 0]]) as embed, \
+                patch.object(worker, 'check_cancelled', side_effect=[None, None, jobs.JobConflict('Cancelled')]):
+            with self.assertRaises(jobs.JobConflict):
+                search.rebuild_index(self.ws, embeddings=True)
+        embed.assert_called_once()
+        with sqlite3.connect(self.ws.root / 'search.db') as db:
+            self.assertEqual(db.execute('SELECT count(*) FROM chunks WHERE vector IS NOT NULL').fetchone()[0], 0)
+
     def test_query_dimension_mismatch_has_explicit_lexical_fallback(self):
         put_source(self.ws, A, "alpha original evidence and fixed experimental scope")
         self.configure()

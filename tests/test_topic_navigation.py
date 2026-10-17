@@ -216,3 +216,35 @@ class TopicCountingTests(unittest.TestCase):
         self.assertEqual(web.topic_counts(details), '2 个概念 · 1 篇研究比较 · 2 份关联原文')
         changed = copy.deepcopy(pages); changed[1]['source_ids'].append('three')
         self.assertEqual(len(knowledge.topic_details(topic, changed)['source_ids']), 3)
+
+class KnowledgeIndexCountingTests(unittest.TestCase):
+    def test_navigation_indexes_are_separate_from_reviewed_concepts(self):
+        from station.knowledge import topic_details
+        from station.web import topic_counts
+        topic={'body':'# Topic\n\n[Knowledge index](/page/idx-example)', 'related_slugs':['idx-example','reviewed-concept']}
+        pages=[{'slug':'idx-example','page_kind':'concept','page_role':'knowledge_index','source_ids':['s1','s2']},
+               {'slug':'reviewed-concept','page_kind':'concept','page_role':'knowledge','source_ids':['s1']}]
+        result=topic_details(topic,pages)
+        self.assertEqual(len(result['knowledge_indexes']),1)
+        self.assertEqual(len(result['concepts']),1)
+        self.assertEqual(result['source_ids'],['s1','s2'])
+        self.assertEqual(topic_counts(result),'1 个概念 · 1 个知识索引 · 2 份关联原文')
+    def test_page_projection_keeps_index_question_point_count_and_concept_identity(self):
+        import tempfile
+        from pathlib import Path
+        from station.workspaces import Workspace,use_workspace
+        from station.knowledge import wiki_pages
+        with tempfile.TemporaryDirectory() as temp:
+            ws=Workspace('preview',Path(temp));ws.wiki.mkdir();ws.meta.mkdir()
+            body='# Index title\n\nUnchanged point statement.'
+            (ws.wiki/'idx-example.md').write_text(body)
+            (ws.meta/'idx-example.json').write_text(json.dumps({'title':'Index title','category':'agents','page_role':'knowledge_index',
+                'page_kind':'concept','question':'Which mechanism is being indexed?','candidate_concept_slug':'example',
+                'knowledge_point_ids':['p1','p2'],'source_ids':['s1'],'synthesis_status':'navigation_only'}))
+            with use_workspace(ws),patch('station.knowledge.categories',return_value=[{'id':'agents'}]):
+                page=wiki_pages()[0]
+            self.assertEqual(page['knowledge_point_count'],2)
+            self.assertEqual(page['candidate_concept_slug'],'example')
+            self.assertEqual(page['knowledge_topic'],'Which mechanism is being indexed?')
+            self.assertEqual(page['synthesis_status'],'navigation_only')
+            self.assertEqual((ws.wiki/'idx-example.md').read_text(),body)

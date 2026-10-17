@@ -258,3 +258,29 @@ h1,h2,h3,.source-summary {overflow-wrap:anywhere}
 .draft-approval .checkbox-label input {flex-shrink:0;margin-top:5px}
 .draft-approval textarea {width:100%;margin-top:6px;padding:10px;border:1px solid var(--line);border-radius:7px;background:var(--field);color:var(--ink);font:inherit;resize:vertical}
 @media(max-width:1100px){.draft-comparison{grid-template-columns:minmax(0,1fr)}}
+
+/* Knowledge documents retain a clear reading hierarchy on desktop and mobile. */
+.knowledge-heading {align-items:flex-start;gap:28px}
+.knowledge-heading>div:first-child {flex:1;min-width:0}
+.knowledge-heading .button-row {flex-wrap:wrap;justify-content:flex-end}
+.knowledge-title {font-size:clamp(26px,3vw,36px);font-weight:750;line-height:1.35;letter-spacing:-.6px;margin:14px 0 15px;text-wrap:balance}
+.knowledge-document {padding:clamp(24px,4vw,52px);font-size:16px;line-height:1.95}
+.knowledge-document h1 {font-size:30px;font-weight:750;line-height:1.4}
+.knowledge-document h2 {font-size:25px;font-weight:750;line-height:1.5;margin:42px 0 20px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.knowledge-document h3 {font-size:20px;font-weight:700;line-height:1.55;margin:30px 0 14px}
+.knowledge-document h4 {font-size:17px;font-weight:700;line-height:1.6;margin:25px 0 12px}
+.knowledge-document p {margin:18px 0}
+.knowledge-document strong {font-weight:750;color:var(--ink)}
+.knowledge-document ul,.knowledge-document ol {padding-left:1.6em;margin:18px 0}
+.knowledge-document li {margin:10px 0;padding-left:3px}
+.knowledge-document th {font-weight:700;background:var(--soft)}
+.source-reading-links {display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 24px;margin:20px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--soft)}
+.source-reading-links strong {font-size:16px;font-weight:700}
+.source-reading-links p {margin:5px 0 0;font-size:12px;color:var(--muted)}
+@media(max-width:850px) {
+  .knowledge-heading,.source-reading-links {flex-direction:column;align-items:stretch;gap:16px}
+  .knowledge-heading .button-row {justify-content:flex-start}
+  .knowledge-document {font-size:15px;padding:24px 20px}
+  .knowledge-document h2 {font-size:22px;margin-top:32px}
+  .knowledge-document h3 {font-size:18px}
+}

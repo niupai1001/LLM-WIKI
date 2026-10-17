@@ -173,6 +173,8 @@ def initialize_candidate(library_id='candidate-v2', root=None):
                 source = legacy.root / name
                 if source.exists(): shutil.copytree(source, temporary / name)
             shutil.copytree(legacy.config, temporary / 'config', ignore=shutil.ignore_patterns('.settings.lock', '*.tmp'))
+            if (legacy.root / 'paper-workflow.json').is_file():
+                shutil.copy2(legacy.root / 'paper-workflow.json', temporary / 'paper-workflow.json')
             baseline = temporary / 'baseline'; baseline.mkdir()
             for name in ('wiki', 'wiki_meta', 'claim_reviews'):
                 if (legacy.root / name).exists(): shutil.copytree(legacy.root / name, baseline / name)

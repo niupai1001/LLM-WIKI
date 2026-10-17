@@ -1,12 +1,13 @@
 """Readable, page-local citations for knowledge pages; original evidence is untouched."""
 import html
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 from urllib.parse import urlsplit
 
 from .common import RAW, load_json
+from .publication_metrics import normalize_publication, publication_summary_html
 
 _SID = re.compile(r"[a-f0-9]{16}")
 _CITATION = re.compile(r'(?<!!)\[[^\]\n]*\]\(\s*/source/([a-f0-9]{16})(?:\s+"[^"\n]*")?\s*\)|(?<!!)\[S:([a-f0-9]{16})\]')
@@ -30,6 +31,7 @@ class Citation:
     publication_status: str = "unverified"
     identifier: str = ""
     arxiv_doi: str = ""
+    publication: dict = field(default_factory=dict)
 
 
 def _escape(value):
@@ -140,7 +142,8 @@ def prepare_citations(source, source_ids=(), lookup=None):
             publication_date = b.get('publication_date') if b.get('original_version') == 'published' else None
             citation = Citation(sid, len(entries) + 1, title, short_title(title), _date(publication_date or b.get('first_published') or info.get('published')), original, bool(info),
                                 names, b.get('doi') if isinstance(b.get('doi'), str) else '', b.get('doi_status', 'unverified'),
-                                b.get('publisher', ''), b.get('publication_status', 'unverified'), identity, b.get('arxiv_doi', ''))
+                                b.get('publisher', ''), b.get('publication_status', 'unverified'), identity, b.get('arxiv_doi', ''),
+                                normalize_publication(info))
             numbered[sid] = citation
             entries.append(citation)
         return numbered[sid]
@@ -187,6 +190,7 @@ def evidence_html(entries, prefix='knowledge', label='原始证据'):
         if citation.arxiv_doi:
             doi += f'<span>预印本 DOI <a href="{_escape("https://doi.org/" + citation.arxiv_doi)}" target="_blank" rel="noopener noreferrer">{_escape(citation.arxiv_doi)}</a></span>'
         publication = '<span>arXiv 预印本</span>' if citation.publication_status == 'arxiv-preprint' else '<span>正式发表版本</span>' if citation.publication_status == 'published' else ''
+        publication += publication_summary_html(citation.publication)
         identifier = '<span>' + _escape(citation.identifier) + '</span>' if citation.identifier else ''
         items.append(f'<li id="evidence-{prefix}-{citation.number}"><span class="evidence-number">[{citation.number}]</span><div class="evidence-details"><a class="evidence-title" href="/source/{citation.source_id}">{_escape(citation.title)}</a>{author_line}<div class="evidence-meta"><span>发布日期 {date}</span>{identifier}{doi}{publication}{external}{missing}</div></div></li>')
     return f'<section class="evidence-panel" id="evidence-{prefix}"><h2>{_escape(label)} <span>{len(entries)} 份来源</span></h2><ol class="evidence-list">' + ''.join(items) + '</ol></section>'

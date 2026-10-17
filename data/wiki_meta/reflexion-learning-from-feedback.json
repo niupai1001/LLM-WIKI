@@ -1,0 +1,1513 @@
+{
+  "slug": "reflexion-learning-from-feedback",
+  "title": "Reflexion：把失败反馈变成下一次尝试可用的经验",
+  "category": "agents",
+  "page_kind": "concept",
+  "page_role": "paper",
+  "source_ids": [
+    "3fb5d6b0a837235b"
+  ],
+  "claims": [
+    {
+      "text": "Reflexion 用任务轨迹和评估信号生成文字反思，将其作为下一轮尝试的上下文；该方法不更新语言模型权重。",
+      "scope": "本文 Reflexion 的方法定义；反思生成的诊断不是正确性的保证。",
+      "source_ids": [
+        "3fb5d6b0a837235b"
+      ],
+      "id": "rx-mechanism",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第1页 · p0001-0002",
+          "quote": "Reflexion converts binary or scalar feedback from the\nenvironment into verbal feedback in the form of a textual summary, which is then added as additional\ncontext for the LLM agent in the next episode.",
+          "proposed_by": "LLM",
+          "page": 1,
+          "page_label": "1",
+          "paragraph_id": "p0001-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第4页 · p0004-0002",
+          "quote": "sparse reward signal, such as a binary success status (success/fail), the current trajectory,\nand its persistent memory mem, the self-reflection model generates nuanced and specific feedback.\nThis feedback, which is more informative than scalar rewards, is then stored in the agent’s memory\n(mem).",
+          "proposed_by": "LLM",
+          "page": 4,
+          "page_label": "4",
+          "paragraph_id": "p0004-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第1页 · p0001-0001",
+          "quote": "We propose Reflexion, a\nnovel framework to reinforce language agents not by updating weights, but in-\nstead through linguistic feedback.",
+          "proposed_by": "LLM",
+          "page": 1,
+          "page_label": "1",
+          "paragraph_id": "p0001-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        }
+      ]
+    },
+    {
+      "text": "134 个 ALFWorld 环境中，启发式评估的 ReAct＋Reflexion 经连续 12 次尝试累计完成 130 个任务；仅 ReAct 的改善在第 6—7 次尝试附近停止。",
+      "scope": "本文 §4.1 的累计成功口径；基线也会重置后重试，不能视为首次成功率或跨任务泛化。",
+      "source_ids": [
+        "3fb5d6b0a837235b"
+      ],
+      "id": "rx-alfworld-result",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第5页 · p0005-0002",
+          "quote": "In the baseline runs, if self-reflection is suggested,\nwe skip the self-reflection process, reset the environment, and start a new trial. In the Reflexion runs,\nthe agent uses self-reflection to find its mistake, update its memory, reset the environment, and start a\nnew trial.",
+          "proposed_by": "LLM",
+          "page": 5,
+          "page_label": "5",
+          "paragraph_id": "p0005-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第5页 · p0005-0002",
+          "quote": "Results ReAct + Reflexion significantly outperforms ReAct by completing 130 out of 134 tasks\nusing the simple heuristic to detect hallucinations and inefficient planning. Further, ReAct + Reflexion\nlearns to solve additional tasks by learning in 12 consecutive trials. In the ReAct-only approach, we\nsee that performance increase halts between trials 6 and 7.",
+          "proposed_by": "LLM",
+          "page": 5,
+          "page_label": "5",
+          "paragraph_id": "p0005-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第5页 · p0005-0002",
+          "quote": "To avoid syntactic errors, we provide two domain-specific few-shot trajectories to the agent. We use\nthe same few-shot trajectory examples as Yao et al.[30] with GPT-3 for the LLM.",
+          "proposed_by": "LLM",
+          "page": 5,
+          "page_label": "5",
+          "paragraph_id": "p0005-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        }
+      ]
+    },
+    {
+      "text": "附录 A 的 100 题 HotpotQA 实验中，text-davinci-003 的 CoT(GT) 准确率从 0.60 到 0.77，ReAct 从 0.30 到 0.55；GPT-4 对应从 0.68 到 0.80、0.39 到 0.51。",
+      "scope": "表5中各模型与策略配对比较；需结合 §4.2 的反复尝试、标准答案对错反馈协议解释。",
+      "source_ids": [
+        "3fb5d6b0a837235b"
+      ],
+      "id": "rx-hotpot-result",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第12页 · p0012-0001",
+          "quote": "Model Baseline accuracy Reflexion accuracy\nCoT (GT) + text-davinci-003 0.60 0.77\nCoT (GT) + gpt-3.5-turbo 0.57 0.71\nCoT (GT) + gpt-4 0.68 0.80\nReAct + text-davinci-003 0.30 0.55\nReAct + gpt-3.5-turbo 0.26 0.38\nReAct + gpt-4 0.39 0.51",
+          "proposed_by": "LLM",
+          "page": 12,
+          "page_label": "12",
+          "paragraph_id": "p0012-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第6页 · p0006-0001",
+          "quote": "Robustly evaluating natural language answers is a long-standing problem in NLP. Therefore, between\ntrials, we use exact",
+          "proposed_by": "LLM",
+          "page": 6,
+          "page_label": "6",
+          "paragraph_id": "p0006-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第6页 · p0006-0002",
+          "quote": "match answer grading using the environment to give a binary success signal to\nthe agent. After each trial, the self-reflection loop is employed to amplify the binary signal, similar to\nthe decision-making setup 4.1 in AlfWorld with a memory size of 3 experiences.",
+          "proposed_by": "LLM",
+          "page": 6,
+          "page_label": "6",
+          "paragraph_id": "p0006-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第7页 · p0007-0001",
+          "quote": "In the Reflexion runs,\nwe allowed the agent to gather experience and retry on failed tasks until it produced 3 consecutive\nfailed attempts on the particular task.",
+          "proposed_by": "LLM",
+          "page": 7,
+          "page_label": "7",
+          "paragraph_id": "p0007-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        }
+      ]
+    },
+    {
+      "text": "HotpotQA 每次尝试后由环境使用标准答案作精确匹配并返回对错反馈；Reflexion 在某题连续失败三次前可继续积累经验并重试。",
+      "scope": "标准答案文本不直接提供给智能体；对错反馈仍依赖标准答案，不代表实际无判定器场景。",
+      "source_ids": [
+        "3fb5d6b0a837235b"
+      ],
+      "id": "rx-feedback-protocol",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第6页 · p0006-0001",
+          "quote": "Robustly evaluating natural language answers is a long-standing problem in NLP. Therefore, between\ntrials, we use exact",
+          "proposed_by": "LLM",
+          "page": 6,
+          "page_label": "6",
+          "paragraph_id": "p0006-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第6页 · p0006-0002",
+          "quote": "match answer grading using the environment to give a binary success signal to\nthe agent. After each trial, the self-reflection loop is employed to amplify the binary signal, similar to\nthe decision-making setup 4.1 in AlfWorld with a memory size of 3 experiences.",
+          "proposed_by": "LLM",
+          "page": 6,
+          "page_label": "6",
+          "paragraph_id": "p0006-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第7页 · p0007-0001",
+          "quote": "In the Reflexion runs,\nwe allowed the agent to gather experience and retry on failed tasks until it produced 3 consecutive\nfailed attempts on the particular task.",
+          "proposed_by": "LLM",
+          "page": 7,
+          "page_label": "7",
+          "paragraph_id": "p0007-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        }
+      ]
+    },
+    {
+      "text": "HotpotQA 给定正确上下文的消融中，在最近轨迹记忆基础上再加入反思，论文报告 8 个百分点绝对改善。",
+      "scope": "§4.2 CoT(GT) 的 EPM 消融；不推广成任意摘要或任意记忆方案均更优。",
+      "source_ids": [
+        "3fb5d6b0a837235b"
+      ],
+      "id": "rx-memory-result",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第7页 · p0007-0001",
+          "quote": "Analysis We perform an ablation experiment to isolate the advantage of the self-reflective step for\nreasoning using CoT (GT) as the baseline approach 4. Recall that CoT (GT) uses Chain-of-Thought\nreasoning with provided ground truth context, which tests reasoning ability over long contexts. Next,\nwe add an element of episodic memory (EPM) by including the most recent trajectory. For the\nReflexion agent, we implement the standard self-reflection step as a final pass. Intuitively, we test if\nthe agent is iteratively learning more effectively by using verbal explanation using language written\nin the first person. 4 shows that self-reflection improves learning by an 8% absolute boost over\nthe episodic memory learning advantage. This result supports the argument that refinement-only\napproaches are not as effective as self-reflection-guided refinement approaches.",
+          "proposed_by": "LLM",
+          "page": 7,
+          "page_label": "7",
+          "paragraph_id": "p0007-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        }
+      ]
+    },
+    {
+      "text": "编程表1中，HumanEval Python 从 GPT-4 基线 80.1% 到 Reflexion 91.0%，Rust 从 60.0% 到 68.0%；MBPP Python 从 80.1% 降至 77.1%。",
+      "scope": "本文表1的模型、语言和数据集；一次最终候选提交前允许自生成测试和内部迭代，pass@1 不等于一次生成调用。",
+      "source_ids": [
+        "3fb5d6b0a837235b"
+      ],
+      "id": "rx-code-result",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第7页 · p0007-0002",
+          "quote": "The task of programming presents a unique opportunity to use more grounded self-evaluation practices\nsuch as self-generated unit test suites. Thus, our Reflexion-based programming task implementation is\neligible for pass@1 accuracy reporting. To generate a test suite, we use Chain-of-Thought prompting\n[26] to produce diverse, extensive tests with corresponding natural language descriptions. Then, we\nfilter for syntactically valid test statements by attempting to construct a valid abstract syntax tree\n(AST) for each proposed test. Finally, we samplen tests from the collection of generated unit tests\nto produce a test suiteT , denoted as{t0,t 1,...,t n}. We setn to a maximum of 6 unit tests.",
+          "proposed_by": "LLM",
+          "page": 7,
+          "page_label": "7",
+          "paragraph_id": "p0007-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第7页 · p0007-0002",
+          "quote": "Benchmark + Language Prev SOTA Pass@1 SOTA Pass@1 Reflexion Pass@1\nHumanEval (PY) 65.8 (CodeT [5] + GPT-3.5) 80.1 (GPT-4) 91.0\nHumanEval (RS) – 60.0 (GPT-4) 68.0\nMBPP (PY) 67.7 (CodeT [5] + Codex [6]) 80.1 (GPT-4) 77.1\nMBPP (RS) – 70.9 (GPT-4) 75.4\nLeetcode Hard (PY) – 7.5 (GPT-4) 15.0\nTable 1: Pass@1 accuracy for various model-strategy-language combinations. The base strategy is a\nsingle code generation sample.",
+          "proposed_by": "LLM",
+          "page": 7,
+          "page_label": "7",
+          "paragraph_id": "p0007-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第15页 · p0015-0001",
+          "quote": "Reflexion Actor generations follow the form:\n(Instruction)\n(Function implementation)\n(Unit test feedback)\n(Self-reflection)\n(Instruction for next function implmentation)",
+          "proposed_by": "LLM",
+          "page": 15,
+          "page_label": "15",
+          "paragraph_id": "p0015-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        }
+      ]
+    },
+    {
+      "text": "在最难的 50 道 HumanEval Rust 子集上，基线 60%，只有测试无文字反思 60%，只有反思无测试生成与执行 52%，完整 Reflexion 68%。",
+      "scope": "§4.3 的 GPT-4 子集消融；仅支持该设置的组件配合作用。",
+      "source_ids": [
+        "3fb5d6b0a837235b"
+      ],
+      "id": "rx-rust-ablation",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第8页 · p0008-0001",
+          "quote": "Approach Test Generation Self-reflection Pass@1 (Acc)\nBase model False False 0.60\nTest generation omission False True 0.52\nSelf-reflection omission True False 0.60\nReflexion True True 0.68\nTable 3: Pass@1 accuracy for various compromised approaches on the Reflexion approach using\nGPT-4 as the base model on HumanEval Rust - 50",
+          "proposed_by": "LLM",
+          "page": 8,
+          "page_label": "8",
+          "paragraph_id": "p0008-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第8页 · p0008-0002",
+          "quote": "Ablation study We test the composite approach of Reflexion for test generation and self-reflection\ncooperation on a subset of the 50 hardest HumanEval Rust problems. Our Rust compiler environment\nprovides verbose error logs and helpful debugging hints, therefore serving as a good playground\nfor compromised approaches. First, we omit internal test generation and execution steps, which\ntest the agent to self-reflect without guidance from current implementations. 3 shows an inferior\n52% vs 60% (baseline) accuracy, which suggests that the agent is unable to determine if the current\nimplementation is correct without unit tests. Therefore, the agent must participate in all iterations of\nthe run without the option to return early, performing harmful edits to the implementation.",
+          "proposed_by": "LLM",
+          "page": 8,
+          "page_label": "8",
+          "paragraph_id": "p0008-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第8页 · p0008-0002",
+          "quote": "Next, we test self-reflection contribution by omitting the natural language explanation step following\nfailed unit test suite evaluations. Intuitively, this challenges the agent to combine the tasks of\nerror identification and implementation improvement across all failed unit tests. Interestingly, the\ncompromised agent does not improve performance over the baseline run. We observe that the test\ngeneration and code compilation steps are able to catch syntax and logic errors, but the implementation\nfixes do not reflect these indications. These empirical results suggest that several recent works that\npropose blind trial and error debugging techniques without self-reflection are ineffective on harder\ntasks such as writing complex programs in Rust.",
+          "proposed_by": "LLM",
+          "page": 8,
+          "page_label": "8",
+          "paragraph_id": "p0008-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        }
+      ]
+    },
+    {
+      "text": "本文报告，在内部测试已通过条件下正式提交仍错误的比例，MBPP Python 为 16.3%，HumanEval Python 为 1.4%；内部测试误放行可使系统过早提交错误实现。",
+      "scope": "这是给定 tests pass 的条件错误比例，不是全体提交的错误率，也不证明 MBPP 退步唯一由此造成。",
+      "source_ids": [
+        "3fb5d6b0a837235b"
+      ],
+      "id": "rx-test-quality-result",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第8页 · p0008-0001",
+          "quote": "suite, it is possible that all tests pass on an incorrect solution and lead to a false positive label on a\ncode completion [11]. On the other hand, if the model produces an incorrectly written test suite, it\nis possible for some of the tests to fail on a correct solution, leading to a self-reflection generation\nthat is conditioned on a false negative code completion. Given the implementation of Reflexion,\nfalse negatives are preferred over false positives as the agent may be able to use self-reflection to\nidentify the incorrect test(s) and prompt itself to keep the original code completion intact. On the\nother hand, if an invalid test suite returns a false positive completion (all internal test cases pass\nbut the implementation is incorrect), the agent will prematurely report an invalid submission.",
+          "proposed_by": "LLM",
+          "page": 8,
+          "page_label": "8",
+          "paragraph_id": "p0008-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第8页 · p0008-0001",
+          "quote": "we\nobserve a notable discrepancy between the false positive labels produced by internal test execution,\nP(not pass@1 generation correct | tests pass). That is, the probability that a submission will fail given\nthat it passes all unit tests. For HumanEval and MBPP Python, the baseline pass@1 accuracies are\nrelatively similar, 82% and 80%, respectively. However, the false positive test execution rate for\nMBPP Python is 16.3% while the rate for HumanEval Python is a mere 1.4%, leading to 91% overall\naccuracy 1.",
+          "proposed_by": "LLM",
+          "page": 8,
+          "page_label": "8",
+          "paragraph_id": "p0008-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        }
+      ]
+    },
+    {
+      "text": "100 个 WebShop 环境试验在四次尝试后因未见改善而停止，作者也未观察到有帮助的反思。",
+      "scope": "附录 B.1 的两示例 ReAct＋Reflexion 设置；不证明所有 WebShop 方法都无法改进。",
+      "source_ids": [
+        "3fb5d6b0a837235b"
+      ],
+      "id": "rx-webshop-negative",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第14页 · p0014-0001",
+          "quote": "We test a two-shot ReAct +\nReflexion agent in 100 environments. However, after only four trials, we terminate the runs as the\nagent does not show signs of improvement 6. Further, the agent does not generate helpful, intuitive\nself-reflections after failed attempts.",
+          "proposed_by": "LLM",
+          "page": 14,
+          "page_label": "14",
+          "paragraph_id": "p0014-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        }
+      ]
+    },
+    {
+      "text": "starchat-beta 的 HumanEval Python 实验，基线与 Reflexion 平均 pass@1 均为 0.26。",
+      "scope": "附录A表4，平均8次试验；没有收益并不单独证明模型规模是唯一原因。",
+      "source_ids": [
+        "3fb5d6b0a837235b"
+      ],
+      "id": "rx-starchat-negative",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第12页 · p0012-0001",
+          "quote": "Approach Pass@1 accuracy (avg over 8 trials) Pass@1 accuracy (std)\nBaseline 0.26 0.00481\nReflexion 0.26 0.00305\nTable 4: Pass@1 accuracy on HumanEval Python using starchat-beta [13].",
+          "proposed_by": "LLM",
+          "page": 12,
+          "page_label": "12",
+          "paragraph_id": "p0012-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        }
+      ]
+    },
+    {
+      "text": "固定语言模型权重时，失败后的语言经验可以通过上下文改变后续决策，并在部分任务的重复尝试中改善表现。",
+      "scope": "任务内重试；依赖反馈和模型能力，不声称跨任务长期能力增长。",
+      "source_ids": [
+        "3fb5d6b0a837235b"
+      ],
+      "id": "rx-k1",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第1页 · p0001-0002",
+          "quote": "Reflexion converts binary or scalar feedback from the\nenvironment into verbal feedback in the form of a textual summary, which is then added as additional\ncontext for the LLM agent in the next episode.",
+          "proposed_by": "LLM",
+          "page": 1,
+          "page_label": "1",
+          "paragraph_id": "p0001-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第4页 · p0004-0002",
+          "quote": "sparse reward signal, such as a binary success status (success/fail), the current trajectory,\nand its persistent memory mem, the self-reflection model generates nuanced and specific feedback.\nThis feedback, which is more informative than scalar rewards, is then stored in the agent’s memory\n(mem).",
+          "proposed_by": "LLM",
+          "page": 4,
+          "page_label": "4",
+          "paragraph_id": "p0004-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第5页 · p0005-0002",
+          "quote": "In the baseline runs, if self-reflection is suggested,\nwe skip the self-reflection process, reset the environment, and start a new trial. In the Reflexion runs,\nthe agent uses self-reflection to find its mistake, update its memory, reset the environment, and start a\nnew trial.",
+          "proposed_by": "LLM",
+          "page": 5,
+          "page_label": "5",
+          "paragraph_id": "p0005-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第5页 · p0005-0002",
+          "quote": "Results ReAct + Reflexion significantly outperforms ReAct by completing 130 out of 134 tasks\nusing the simple heuristic to detect hallucinations and inefficient planning. Further, ReAct + Reflexion\nlearns to solve additional tasks by learning in 12 consecutive trials. In the ReAct-only approach, we\nsee that performance increase halts between trials 6 and 7.",
+          "proposed_by": "LLM",
+          "page": 5,
+          "page_label": "5",
+          "paragraph_id": "p0005-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第12页 · p0012-0001",
+          "quote": "Model Baseline accuracy Reflexion accuracy\nCoT (GT) + text-davinci-003 0.60 0.77\nCoT (GT) + gpt-3.5-turbo 0.57 0.71\nCoT (GT) + gpt-4 0.68 0.80\nReAct + text-davinci-003 0.30 0.55\nReAct + gpt-3.5-turbo 0.26 0.38\nReAct + gpt-4 0.39 0.51",
+          "proposed_by": "LLM",
+          "page": 12,
+          "page_label": "12",
+          "paragraph_id": "p0012-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        }
+      ]
+    },
+    {
+      "text": "经验记忆的价值包含提供可执行的修正方向；仅保存上一轮轨迹或仅给失败信号，可能不足以改善下一轮行为。",
+      "scope": "由本文 HotpotQA EPM 和 HumanEval Rust 消融支持；具体总结方式仍需按任务验证。",
+      "source_ids": [
+        "3fb5d6b0a837235b"
+      ],
+      "id": "rx-k2",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第7页 · p0007-0001",
+          "quote": "Analysis We perform an ablation experiment to isolate the advantage of the self-reflective step for\nreasoning using CoT (GT) as the baseline approach 4. Recall that CoT (GT) uses Chain-of-Thought\nreasoning with provided ground truth context, which tests reasoning ability over long contexts. Next,\nwe add an element of episodic memory (EPM) by including the most recent trajectory. For the\nReflexion agent, we implement the standard self-reflection step as a final pass. Intuitively, we test if\nthe agent is iteratively learning more effectively by using verbal explanation using language written\nin the first person. 4 shows that self-reflection improves learning by an 8% absolute boost over\nthe episodic memory learning advantage. This result supports the argument that refinement-only\napproaches are not as effective as self-reflection-guided refinement approaches.",
+          "proposed_by": "LLM",
+          "page": 7,
+          "page_label": "7",
+          "paragraph_id": "p0007-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第8页 · p0008-0001",
+          "quote": "Approach Test Generation Self-reflection Pass@1 (Acc)\nBase model False False 0.60\nTest generation omission False True 0.52\nSelf-reflection omission True False 0.60\nReflexion True True 0.68\nTable 3: Pass@1 accuracy for various compromised approaches on the Reflexion approach using\nGPT-4 as the base model on HumanEval Rust - 50",
+          "proposed_by": "LLM",
+          "page": 8,
+          "page_label": "8",
+          "paragraph_id": "p0008-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第8页 · p0008-0002",
+          "quote": "Next, we test self-reflection contribution by omitting the natural language explanation step following\nfailed unit test suite evaluations. Intuitively, this challenges the agent to combine the tasks of\nerror identification and implementation improvement across all failed unit tests. Interestingly, the\ncompromised agent does not improve performance over the baseline run. We observe that the test\ngeneration and code compilation steps are able to catch syntax and logic errors, but the implementation\nfixes do not reflect these indications. These empirical results suggest that several recent works that\npropose blind trial and error debugging techniques without self-reflection are ineffective on harder\ntasks such as writing complex programs in Rust.",
+          "proposed_by": "LLM",
+          "page": 8,
+          "page_label": "8",
+          "paragraph_id": "p0008-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        }
+      ]
+    },
+    {
+      "text": "反馈闭环依赖评估信号：错误失败信号可能诱发有害修改，错误成功信号可能使错误答案提前提交。",
+      "scope": "主要由本文编程测试误判分析与去测试消融支持；不能用增加反思轮数代替判定可靠性。",
+      "source_ids": [
+        "3fb5d6b0a837235b"
+      ],
+      "id": "rx-k3",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第8页 · p0008-0001",
+          "quote": "suite, it is possible that all tests pass on an incorrect solution and lead to a false positive label on a\ncode completion [11]. On the other hand, if the model produces an incorrectly written test suite, it\nis possible for some of the tests to fail on a correct solution, leading to a self-reflection generation\nthat is conditioned on a false negative code completion. Given the implementation of Reflexion,\nfalse negatives are preferred over false positives as the agent may be able to use self-reflection to\nidentify the incorrect test(s) and prompt itself to keep the original code completion intact. On the\nother hand, if an invalid test suite returns a false positive completion (all internal test cases pass\nbut the implementation is incorrect), the agent will prematurely report an invalid submission.",
+          "proposed_by": "LLM",
+          "page": 8,
+          "page_label": "8",
+          "paragraph_id": "p0008-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第8页 · p0008-0002",
+          "quote": "Ablation study We test the composite approach of Reflexion for test generation and self-reflection\ncooperation on a subset of the 50 hardest HumanEval Rust problems. Our Rust compiler environment\nprovides verbose error logs and helpful debugging hints, therefore serving as a good playground\nfor compromised approaches. First, we omit internal test generation and execution steps, which\ntest the agent to self-reflect without guidance from current implementations. 3 shows an inferior\n52% vs 60% (baseline) accuracy, which suggests that the agent is unable to determine if the current\nimplementation is correct without unit tests. Therefore, the agent must participate in all iterations of\nthe run without the option to return early, performing harmful edits to the implementation.",
+          "proposed_by": "LLM",
+          "page": 8,
+          "page_label": "8",
+          "paragraph_id": "p0008-0002",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        }
+      ]
+    },
+    {
+      "text": "设置反思步骤不保证有效学习；当模型不能提出或执行有用变化、或任务要求跳出已有局部选择时，反思可能没有收益。",
+      "scope": "对本文 WebShop 和 starchat-beta 负结果的有限综合；未验证各失败原因的独立因果作用。",
+      "source_ids": [
+        "3fb5d6b0a837235b"
+      ],
+      "id": "rx-k4",
+      "status": "单源支持",
+      "proposed_by": "LLM",
+      "evidence_passages": [
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第14页 · p0014-0001",
+          "quote": "We test a two-shot ReAct +\nReflexion agent in 100 environments. However, after only four trials, we terminate the runs as the\nagent does not show signs of improvement 6. Further, the agent does not generate helpful, intuitive\nself-reflections after failed attempts.",
+          "proposed_by": "LLM",
+          "page": 14,
+          "page_label": "14",
+          "paragraph_id": "p0014-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第12页 · p0012-0001",
+          "quote": "Approach Pass@1 accuracy (avg over 8 trials) Pass@1 accuracy (std)\nBaseline 0.26 0.00481\nReflexion 0.26 0.00305\nTable 4: Pass@1 accuracy on HumanEval Python using starchat-beta [13].",
+          "proposed_by": "LLM",
+          "page": 12,
+          "page_label": "12",
+          "paragraph_id": "p0012-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        },
+        {
+          "source_id": "3fb5d6b0a837235b",
+          "locator": "第9页 · p0009-0001",
+          "quote": "At its core, Reflexion is an optimization technique that uses natural language to do policy optimization.\nPolicy optimization is a powerful approach to improve action choice through experience, but it may\nstill succumb to non-optimal local minima solutions.",
+          "proposed_by": "LLM",
+          "page": 9,
+          "page_label": "9",
+          "paragraph_id": "p0009-0001",
+          "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19"
+        }
+      ]
+    }
+  ],
+  "conflicts": [],
+  "relations": [],
+  "related_slugs": [],
+  "aliases": [
+    "Reflexion: Language Agents with Verbal Reinforcement Learning"
+  ],
+  "semantic_reviews": [
+    {
+      "at": "2026-10-15T15:21:21+00:00",
+      "by": "agent",
+      "reviewer_type": "agent",
+      "reviews": [
+        {
+          "claim_id": "rx-mechanism",
+          "verdict": "supported",
+          "reason": "摘要、§1与§3明确保留模型权重，将任务轨迹及反馈转成下轮上下文；正文没有将语义梯度解释为参数梯度。",
+          "source_ids": [
+            "3fb5d6b0a837235b"
+          ]
+        },
+        {
+          "claim_id": "rx-alfworld-result",
+          "verdict": "supported",
+          "reason": "§4.1文字报告130/134、12次与基线6—7次停止改善；图3为累计已解决比例。保留原文文字与图轴差异，没有改写成首次成功或跨任务泛化。",
+          "source_ids": [
+            "3fb5d6b0a837235b"
+          ]
+        },
+        {
+          "claim_id": "rx-hotpot-result",
+          "verdict": "supported",
+          "reason": "附录A表5逐项给出所列模型与策略的配对数值；正文采用这组数字并保留重试与标准答案反馈条件。",
+          "source_ids": [
+            "3fb5d6b0a837235b"
+          ]
+        },
+        {
+          "claim_id": "rx-feedback-protocol",
+          "verdict": "supported",
+          "reason": "§4.2说明环境EM二元反馈和连续三次失败停止条件；反馈依赖标准答案的解释与协议一致，没有声称自主验证答案。",
+          "source_ids": [
+            "3fb5d6b0a837235b"
+          ]
+        },
+        {
+          "claim_id": "rx-memory-result",
+          "verdict": "supported",
+          "reason": "§4.2 Analysis与图4c为CoT(GT)的EPM消融，原文报告增加反思有8个百分点增益；正文没有推广为任意记忆均有效。",
+          "source_ids": [
+            "3fb5d6b0a837235b"
+          ]
+        },
+        {
+          "claim_id": "rx-code-result",
+          "verdict": "supported",
+          "reason": "表1数值一致；§4.3与附录C支持内部测试修正后提交最终候选，正文保留MBPP Python退步和pass@1协议条件。",
+          "source_ids": [
+            "3fb5d6b0a837235b"
+          ]
+        },
+        {
+          "claim_id": "rx-rust-ablation",
+          "verdict": "supported",
+          "reason": "表3四组数值60/52/60/68与正文一致；比较限定GPT-4的50道困难Rust题，没有声称组件普遍必要。",
+          "source_ids": [
+            "3fb5d6b0a837235b"
+          ]
+        },
+        {
+          "claim_id": "rx-test-quality-result",
+          "verdict": "supported",
+          "reason": "§4.3给出P(正式提交错误|内部测试通过)与16.3%/1.4%，并解释误放行导致过早提交；正文保留条件分母，没有断言唯一因果。",
+          "source_ids": [
+            "3fb5d6b0a837235b"
+          ]
+        },
+        {
+          "claim_id": "rx-webshop-negative",
+          "verdict": "supported",
+          "reason": "附录B.1与图6报告100环境、4次后无改善及无有用反思；正文没有将作者探索解释当作独立因果验证。",
+          "source_ids": [
+            "3fb5d6b0a837235b"
+          ]
+        },
+        {
+          "claim_id": "rx-starchat-negative",
+          "verdict": "supported",
+          "reason": "附录A表4基线与Reflexion均为0.26，标明8次平均；正文仅据此界定该设置的收益。",
+          "source_ids": [
+            "3fb5d6b0a837235b"
+          ]
+        },
+        {
+          "claim_id": "rx-k1",
+          "verdict": "supported",
+          "reason": "方法与ALFWorld、HotpotQA结果共同支持固定权重、同一任务重试中的上下文适应；没有扩写成跨任务持续学习。",
+          "source_ids": [
+            "3fb5d6b0a837235b"
+          ]
+        },
+        {
+          "claim_id": "rx-k2",
+          "verdict": "supported",
+          "reason": "CoT(GT)的EPM对照和Rust消融支持反思在保留轨迹或测试之外的作用；具体总结形式仍须验证。",
+          "source_ids": [
+            "3fb5d6b0a837235b"
+          ]
+        },
+        {
+          "claim_id": "rx-k3",
+          "verdict": "supported",
+          "reason": "错误测试分析及去测试消融支持误判、提前提交及有害修改的风险；正文注明问答标准答案判定器条件。",
+          "source_ids": [
+            "3fb5d6b0a837235b"
+          ]
+        },
+        {
+          "claim_id": "rx-k4",
+          "verdict": "supported",
+          "reason": "WebShop与starchat-beta负面结果支持反思不保证收益；局部选择与能力保持有限综合，没有写成已隔离验证的原因。",
+          "source_ids": [
+            "3fb5d6b0a837235b"
+          ]
+        }
+      ],
+      "body_issues": [],
+      "old_knowledge_issues": [],
+      "independent_research_validation": false,
+      "body_digest": "bc2e6899c04e5d7ff29b64aea076e2a356a5970de8a11683b6ce99757aafe6a8",
+      "original_versions": {
+        "3fb5d6b0a837235b": "33f988a6c67a98f3df42e0e0748a57e7c7886f258079f110de3498d2aecc9d86"
+      }
+    }
+  ],
+  "distillation": {
+    "schema_version": "knowledge-distillation/v2",
+    "workflow_version": "2.1",
+    "source": {
+      "source_id": "3fb5d6b0a837235b",
+      "title": "Reflexion: Language Agents with Verbal Reinforcement Learning",
+      "source_version": "d3b258da1a4c6958e9f585765a256c32c8e1cbeee5a3ad8037c4ad2a82c5dd19",
+      "artifact_sha256": "269eeee308d6f3945392f26951220313b464a8e7173688ae4abe85bbd6f64bd3",
+      "library_id": "candidate-v2",
+      "parser_version": "addressable-pages-v2.3",
+      "id": "3fb5d6b0a837235b"
+    },
+    "purpose": "让语言模型智能体在少量试错中利用任务反馈改善下一轮表现，同时不更新模型权重。",
+    "motivation": {
+      "bottleneck": "梯度强化学习需要较多训练样本与计算；仅示范提示不能充分利用刚经历的失败。稀疏结果反馈与长轨迹之间仍缺少可执行的错误诊断。",
+      "consequence": "重试可能反复出现相同状态错误、无效搜索或无针对性的代码修改。",
+      "claim_ids": [
+        "rx-mechanism",
+        "rx-alfworld-result",
+        "rx-rust-ablation"
+      ]
+    },
+    "central_answer": {
+      "idea": "把轨迹和评估信号转换成文字反思，并在后续任务尝试中作为上下文经验使用。",
+      "mechanism": "执行—评估—反思—持久经验—重试；当前轨迹是短期记忆，反思是受容量限制的跨尝试记忆。",
+      "reason": "给模型的不只有失败标签，还包含可能的错误定位和下一轮改进方向。",
+      "validation_boundary": "反思正确性无形式保证，不是参数梯度，也未证明长期跨任务迁移。",
+      "claim_ids": [
+        "rx-mechanism",
+        "rx-k1"
+      ]
+    },
+    "results": [
+      {
+        "id": "R1",
+        "observation": "134 个 ALFWorld 环境中，启发式评估的 ReAct＋Reflexion 经连续 12 次尝试累计完成 130 个任务；仅 ReAct 的改善在第 6—7 次尝试附近停止。",
+        "conditions": "本文 §4.1 的累计成功口径；基线也会重置后重试，不能视为首次成功率或跨任务泛化。 GPT-3 与两条领域示例轨迹提示。",
+        "claim_ids": [
+          "rx-alfworld-result"
+        ],
+        "interpretation": "与同样允许重置重试的基线比较，保存并复用反思可帮助持续纠正状态和规划错误。",
+        "evidence_type": "reported_experiment"
+      },
+      {
+        "id": "R2",
+        "observation": "附录 A 的 100 题 HotpotQA 实验中，text-davinci-003 的 CoT(GT) 准确率从 0.60 到 0.77，ReAct 从 0.30 到 0.55；GPT-4 对应从 0.68 到 0.80、0.39 到 0.51。",
+        "conditions": "表5中各模型与策略配对比较；需结合 §4.2 的反复尝试、标准答案对错反馈协议解释。",
+        "claim_ids": [
+          "rx-hotpot-result",
+          "rx-feedback-protocol"
+        ],
+        "interpretation": "有对错反馈的重试能改善给定材料推理及检索问答；两种任务条件要分开。",
+        "evidence_type": "reported_experiment"
+      },
+      {
+        "id": "R3",
+        "observation": "HotpotQA 给定正确上下文的消融中，在最近轨迹记忆基础上再加入反思，论文报告 8 个百分点绝对改善。",
+        "conditions": "§4.2 CoT(GT) 的 EPM 消融；不推广成任意摘要或任意记忆方案均更优。",
+        "claim_ids": [
+          "rx-memory-result"
+        ],
+        "interpretation": "反思的效果不完全等同于把上次轨迹存入上下文。",
+        "evidence_type": "reported_ablation"
+      },
+      {
+        "id": "R4",
+        "observation": "编程表1中，HumanEval Python 从 GPT-4 基线 80.1% 到 Reflexion 91.0%，Rust 从 60.0% 到 68.0%；MBPP Python 从 80.1% 降至 77.1%。",
+        "conditions": "本文表1的模型、语言和数据集；一次最终候选提交前允许自生成测试和内部迭代，pass@1 不等于一次生成调用。",
+        "claim_ids": [
+          "rx-code-result"
+        ],
+        "interpretation": "内部测试与修正改善部分编程基准，但有明确反例。",
+        "evidence_type": "reported_experiment"
+      },
+      {
+        "id": "R5",
+        "observation": "在最难的 50 道 HumanEval Rust 子集上，基线 60%，只有测试无文字反思 60%，只有反思无测试生成与执行 52%，完整 Reflexion 68%。",
+        "conditions": "§4.3 的 GPT-4 子集消融；仅支持该设置的组件配合作用。",
+        "claim_ids": [
+          "rx-rust-ablation"
+        ],
+        "interpretation": "该子集中，测试指导和文字反思共同使用才产生收益；缺少测试可伤害正确实现。",
+        "evidence_type": "reported_ablation"
+      },
+      {
+        "id": "R6",
+        "observation": "本文报告，在内部测试已通过条件下正式提交仍错误的比例，MBPP Python 为 16.3%，HumanEval Python 为 1.4%；内部测试误放行可使系统过早提交错误实现。",
+        "conditions": "这是给定 tests pass 的条件错误比例，不是全体提交的错误率，也不证明 MBPP 退步唯一由此造成。",
+        "claim_ids": [
+          "rx-test-quality-result"
+        ],
+        "interpretation": "自生成测试的误放行会使错误实现满足内部停止条件。",
+        "evidence_type": "reported_error_analysis"
+      },
+      {
+        "id": "R7",
+        "observation": "100 个 WebShop 环境试验在四次尝试后因未见改善而停止，作者也未观察到有帮助的反思。",
+        "conditions": "附录 B.1 的两示例 ReAct＋Reflexion 设置；不证明所有 WebShop 方法都无法改进。",
+        "claim_ids": [
+          "rx-webshop-negative"
+        ],
+        "interpretation": "现有反思在该探索环境中无明显收益；作者的多样性解释不是独立因果消融。",
+        "evidence_type": "reported_negative_experiment"
+      },
+      {
+        "id": "R8",
+        "observation": "starchat-beta 的 HumanEval Python 实验，基线与 Reflexion 平均 pass@1 均为 0.26。",
+        "conditions": "附录A表4，平均8次试验；没有收益并不单独证明模型规模是唯一原因。",
+        "claim_ids": [
+          "rx-starchat-negative"
+        ],
+        "interpretation": "反思架构的收益具有模型依赖，不是配置后自动获得。",
+        "evidence_type": "reported_negative_experiment"
+      }
+    ],
+    "knowledge_points": [
+      {
+        "id": "K1",
+        "proposition": "固定语言模型权重时，失败后的语言经验可以通过上下文改变后续决策，并在部分任务的重复尝试中改善表现。",
+        "explanation": "将失败后的诊断放入后续上下文，能够形成固定权重的任务内适应路径。",
+        "basis": "empirical_and_mechanism",
+        "result_ids": [
+          "R1",
+          "R2"
+        ],
+        "claim_ids": [
+          "rx-k1",
+          "rx-mechanism"
+        ],
+        "scope": "任务内重试；依赖反馈和模型能力，不声称跨任务长期能力增长。",
+        "value": "区分参数更新与上下文经验适应，明确此类记忆能改善哪一层行为。"
+      },
+      {
+        "id": "K2",
+        "proposition": "经验记忆的价值包含提供可执行的修正方向；仅保存上一轮轨迹或仅给失败信号，可能不足以改善下一轮行为。",
+        "explanation": "轨迹包含发生过的事，反思尝试建立错误、原因和下一步改变之间的关系。",
+        "basis": "empirical",
+        "result_ids": [
+          "R3",
+          "R5"
+        ],
+        "claim_ids": [
+          "rx-k2"
+        ],
+        "scope": "由本文 HotpotQA EPM 和 HumanEval Rust 消融支持；具体总结方式仍需按任务验证。",
+        "value": "评价经验记忆时考察是否改善后续决策，而非仅看历史保存量。"
+      },
+      {
+        "id": "K3",
+        "proposition": "反馈闭环依赖评估信号：错误失败信号可能诱发有害修改，错误成功信号可能使错误答案提前提交。",
+        "explanation": "评估既决定是否继续，也塑造被反思的问题；闭环可能受误判引导。",
+        "basis": "empirical_and_mechanism",
+        "result_ids": [
+          "R4",
+          "R5",
+          "R6"
+        ],
+        "claim_ids": [
+          "rx-k3"
+        ],
+        "scope": "主要由本文编程测试误判分析与去测试消融支持；不能用增加反思轮数代替判定可靠性。",
+        "value": "将判定依据可靠性和生成能力一并设计，核对测试覆盖与答案判定器的可用条件。"
+      },
+      {
+        "id": "K4",
+        "proposition": "设置反思步骤不保证有效学习；当模型不能提出或执行有用变化、或任务要求跳出已有局部选择时，反思可能没有收益。",
+        "explanation": "有反思这一操作与获得有效修正是两个层面；任务探索结构和模型能力限制经验利用。",
+        "basis": "bounded_synthesis",
+        "result_ids": [
+          "R7",
+          "R8"
+        ],
+        "claim_ids": [
+          "rx-k4"
+        ],
+        "scope": "对本文 WebShop 和 starchat-beta 负结果的有限综合；未验证各失败原因的独立因果作用。",
+        "value": "为反思流程保留失败边界，避免把更多重试或更长反思当作普遍补救。"
+      }
+    ],
+    "concept_proposals": [
+      {
+        "name": "反思经验与上下文适应",
+        "stable_question": "固定模型如何利用失败经验改善后续任务尝试？",
+        "knowledge_point_ids": [
+          "K1",
+          "K2"
+        ],
+        "integration": "解释任务轨迹、反思摘要、上下文条件化决策的关系；将反思与原始历史的作用分开。",
+        "status": "candidate",
+        "scope_distinctions": "此来源验证任务内重试；跨任务记忆迁移及长期维护尚未验证。"
+      },
+      {
+        "name": "反馈驱动修正的可靠性",
+        "stable_question": "评估信号如何引导修正并决定何时停止？",
+        "knowledge_point_ids": [
+          "K3",
+          "K4"
+        ],
+        "integration": "把反馈误判、反思执行能力和探索边界共同作为修正闭环的适用条件。",
+        "status": "candidate",
+        "scope_distinctions": "代码执行测试、标准答案EM及行动启发式具有不同可用性与误判结构，不能合成同一种验证。"
+      }
+    ],
+    "topic_proposals": [
+      {
+        "name": "智能体如何从任务反馈中改善行为？",
+        "concept_names": [
+          "反思经验与上下文适应",
+          "反馈驱动修正的可靠性"
+        ],
+        "relations": "先解释经验如何改变上下文决策，再讨论评估依据、执行能力和探索条件如何限制这种改善。",
+        "status": "candidate",
+        "organization_reason": "两概念回答适应途径与可靠性条件两个相互依赖的问题；尚未读取现有Wiki进行正式对齐。"
+      }
+    ],
+    "claims": [
+      {
+        "id": "rx-mechanism",
+        "text": "Reflexion 用任务轨迹和评估信号生成文字反思，将其作为下一轮尝试的上下文；该方法不更新语言模型权重。",
+        "scope": "本文 Reflexion 的方法定义；反思生成的诊断不是正确性的保证。",
+        "source_ids": [
+          "3fb5d6b0a837235b"
+        ],
+        "status": "supported",
+        "evidence_passages": [
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Reflexion converts binary or scalar feedback from the\nenvironment into verbal feedback in the form of a textual summary, which is then added as additional\ncontext for the LLM agent in the next episode.",
+            "locator": {
+              "page": 1,
+              "page_label": "1",
+              "paragraph_id": "p0001-0002",
+              "section": "§1"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "sparse reward signal, such as a binary success status (success/fail), the current trajectory,\nand its persistent memory mem, the self-reflection model generates nuanced and specific feedback.\nThis feedback, which is more informative than scalar rewards, is then stored in the agent’s memory\n(mem).",
+            "locator": {
+              "page": 4,
+              "page_label": "4",
+              "paragraph_id": "p0004-0002",
+              "section": "§3"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "We propose Reflexion, a\nnovel framework to reinforce language agents not by updating weights, but in-\nstead through linguistic feedback.",
+            "locator": {
+              "page": 1,
+              "page_label": "1",
+              "paragraph_id": "p0001-0001",
+              "section": "摘要"
+            }
+          }
+        ],
+        "paragraph_ids": [
+          "p0001-0002",
+          "p0004-0002",
+          "p0001-0001"
+        ]
+      },
+      {
+        "id": "rx-alfworld-result",
+        "text": "134 个 ALFWorld 环境中，启发式评估的 ReAct＋Reflexion 经连续 12 次尝试累计完成 130 个任务；仅 ReAct 的改善在第 6—7 次尝试附近停止。",
+        "scope": "本文 §4.1 的累计成功口径；基线也会重置后重试，不能视为首次成功率或跨任务泛化。",
+        "source_ids": [
+          "3fb5d6b0a837235b"
+        ],
+        "status": "supported",
+        "evidence_passages": [
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "In the baseline runs, if self-reflection is suggested,\nwe skip the self-reflection process, reset the environment, and start a new trial. In the Reflexion runs,\nthe agent uses self-reflection to find its mistake, update its memory, reset the environment, and start a\nnew trial.",
+            "locator": {
+              "page": 5,
+              "page_label": "5",
+              "paragraph_id": "p0005-0002",
+              "section": "§4.1"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Results ReAct + Reflexion significantly outperforms ReAct by completing 130 out of 134 tasks\nusing the simple heuristic to detect hallucinations and inefficient planning. Further, ReAct + Reflexion\nlearns to solve additional tasks by learning in 12 consecutive trials. In the ReAct-only approach, we\nsee that performance increase halts between trials 6 and 7.",
+            "locator": {
+              "page": 5,
+              "page_label": "5",
+              "paragraph_id": "p0005-0002",
+              "section": "§4.1"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "To avoid syntactic errors, we provide two domain-specific few-shot trajectories to the agent. We use\nthe same few-shot trajectory examples as Yao et al.[30] with GPT-3 for the LLM. ",
+            "locator": {
+              "page": 5,
+              "page_label": "5",
+              "paragraph_id": "p0005-0002",
+              "section": "§4.1"
+            }
+          }
+        ],
+        "paragraph_ids": [
+          "p0005-0002",
+          "p0005-0002",
+          "p0005-0002"
+        ]
+      },
+      {
+        "id": "rx-hotpot-result",
+        "text": "附录 A 的 100 题 HotpotQA 实验中，text-davinci-003 的 CoT(GT) 准确率从 0.60 到 0.77，ReAct 从 0.30 到 0.55；GPT-4 对应从 0.68 到 0.80、0.39 到 0.51。",
+        "scope": "表5中各模型与策略配对比较；需结合 §4.2 的反复尝试、标准答案对错反馈协议解释。",
+        "source_ids": [
+          "3fb5d6b0a837235b"
+        ],
+        "status": "supported",
+        "evidence_passages": [
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Model Baseline accuracy Reflexion accuracy\nCoT (GT) + text-davinci-003 0.60 0.77\nCoT (GT) + gpt-3.5-turbo 0.57 0.71\nCoT (GT) + gpt-4 0.68 0.80\nReAct + text-davinci-003 0.30 0.55\nReAct + gpt-3.5-turbo 0.26 0.38\nReAct + gpt-4 0.39 0.51",
+            "locator": {
+              "page": 12,
+              "page_label": "12",
+              "paragraph_id": "p0012-0001",
+              "section": "附录A，表5"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Robustly evaluating natural language answers is a long-standing problem in NLP. Therefore, between\ntrials, we use exact",
+            "locator": {
+              "page": 6,
+              "page_label": "6",
+              "paragraph_id": "p0006-0001",
+              "section": "§4.2"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "match answer grading using the environment to give a binary success signal to\nthe agent. After each trial, the self-reflection loop is employed to amplify the binary signal, similar to\nthe decision-making setup 4.1 in AlfWorld with a memory size of 3 experiences.",
+            "locator": {
+              "page": 6,
+              "page_label": "6",
+              "paragraph_id": "p0006-0002",
+              "section": "§4.2"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "In the Reflexion runs,\nwe allowed the agent to gather experience and retry on failed tasks until it produced 3 consecutive\nfailed attempts on the particular task.",
+            "locator": {
+              "page": 7,
+              "page_label": "7",
+              "paragraph_id": "p0007-0001",
+              "section": "§4.2"
+            }
+          }
+        ],
+        "paragraph_ids": [
+          "p0012-0001",
+          "p0006-0001",
+          "p0006-0002",
+          "p0007-0001"
+        ]
+      },
+      {
+        "id": "rx-feedback-protocol",
+        "text": "HotpotQA 每次尝试后由环境使用标准答案作精确匹配并返回对错反馈；Reflexion 在某题连续失败三次前可继续积累经验并重试。",
+        "scope": "标准答案文本不直接提供给智能体；对错反馈仍依赖标准答案，不代表实际无判定器场景。",
+        "source_ids": [
+          "3fb5d6b0a837235b"
+        ],
+        "status": "supported",
+        "evidence_passages": [
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Robustly evaluating natural language answers is a long-standing problem in NLP. Therefore, between\ntrials, we use exact",
+            "locator": {
+              "page": 6,
+              "page_label": "6",
+              "paragraph_id": "p0006-0001",
+              "section": "§4.2"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "match answer grading using the environment to give a binary success signal to\nthe agent. After each trial, the self-reflection loop is employed to amplify the binary signal, similar to\nthe decision-making setup 4.1 in AlfWorld with a memory size of 3 experiences.",
+            "locator": {
+              "page": 6,
+              "page_label": "6",
+              "paragraph_id": "p0006-0002",
+              "section": "§4.2"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "In the Reflexion runs,\nwe allowed the agent to gather experience and retry on failed tasks until it produced 3 consecutive\nfailed attempts on the particular task.",
+            "locator": {
+              "page": 7,
+              "page_label": "7",
+              "paragraph_id": "p0007-0001",
+              "section": "§4.2"
+            }
+          }
+        ],
+        "paragraph_ids": [
+          "p0006-0001",
+          "p0006-0002",
+          "p0007-0001"
+        ]
+      },
+      {
+        "id": "rx-memory-result",
+        "text": "HotpotQA 给定正确上下文的消融中，在最近轨迹记忆基础上再加入反思，论文报告 8 个百分点绝对改善。",
+        "scope": "§4.2 CoT(GT) 的 EPM 消融；不推广成任意摘要或任意记忆方案均更优。",
+        "source_ids": [
+          "3fb5d6b0a837235b"
+        ],
+        "status": "supported",
+        "evidence_passages": [
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Analysis We perform an ablation experiment to isolate the advantage of the self-reflective step for\nreasoning using CoT (GT) as the baseline approach 4. Recall that CoT (GT) uses Chain-of-Thought\nreasoning with provided ground truth context, which tests reasoning ability over long contexts. Next,\nwe add an element of episodic memory (EPM) by including the most recent trajectory. For the\nReflexion agent, we implement the standard self-reflection step as a final pass. Intuitively, we test if\nthe agent is iteratively learning more effectively by using verbal explanation using language written\nin the first person. 4 shows that self-reflection improves learning by an 8% absolute boost over\nthe episodic memory learning advantage. This result supports the argument that refinement-only\napproaches are not as effective as self-reflection-guided refinement approaches.",
+            "locator": {
+              "page": 7,
+              "page_label": "7",
+              "paragraph_id": "p0007-0001",
+              "section": "§4.2"
+            }
+          }
+        ],
+        "paragraph_ids": [
+          "p0007-0001"
+        ]
+      },
+      {
+        "id": "rx-code-result",
+        "text": "编程表1中，HumanEval Python 从 GPT-4 基线 80.1% 到 Reflexion 91.0%，Rust 从 60.0% 到 68.0%；MBPP Python 从 80.1% 降至 77.1%。",
+        "scope": "本文表1的模型、语言和数据集；一次最终候选提交前允许自生成测试和内部迭代，pass@1 不等于一次生成调用。",
+        "source_ids": [
+          "3fb5d6b0a837235b"
+        ],
+        "status": "supported",
+        "evidence_passages": [
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "The task of programming presents a unique opportunity to use more grounded self-evaluation practices\nsuch as self-generated unit test suites. Thus, our Reflexion-based programming task implementation is\neligible for pass@1 accuracy reporting. To generate a test suite, we use Chain-of-Thought prompting\n[26] to produce diverse, extensive tests with corresponding natural language descriptions. Then, we\nfilter for syntactically valid test statements by attempting to construct a valid abstract syntax tree\n(AST) for each proposed test. Finally, we samplen tests from the collection of generated unit tests\nto produce a test suiteT , denoted as{t0,t 1,...,t n}. We setn to a maximum of 6 unit tests.",
+            "locator": {
+              "page": 7,
+              "page_label": "7",
+              "paragraph_id": "p0007-0002",
+              "section": "§4.3"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Benchmark + Language Prev SOTA Pass@1 SOTA Pass@1 Reflexion Pass@1\nHumanEval (PY) 65.8 (CodeT [5] + GPT-3.5) 80.1 (GPT-4) 91.0\nHumanEval (RS) – 60.0 (GPT-4) 68.0\nMBPP (PY) 67.7 (CodeT [5] + Codex [6]) 80.1 (GPT-4) 77.1\nMBPP (RS) – 70.9 (GPT-4) 75.4\nLeetcode Hard (PY) – 7.5 (GPT-4) 15.0\nTable 1: Pass@1 accuracy for various model-strategy-language combinations. The base strategy is a\nsingle code generation sample.",
+            "locator": {
+              "page": 7,
+              "page_label": "7",
+              "paragraph_id": "p0007-0002",
+              "section": "§4.3，表1"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Reflexion Actor generations follow the form:\n(Instruction)\n(Function implementation)\n(Unit test feedback)\n(Self-reflection)\n(Instruction for next function implmentation)",
+            "locator": {
+              "page": 15,
+              "page_label": "15",
+              "paragraph_id": "p0015-0001",
+              "section": "附录C.2"
+            }
+          }
+        ],
+        "paragraph_ids": [
+          "p0007-0002",
+          "p0007-0002",
+          "p0015-0001"
+        ]
+      },
+      {
+        "id": "rx-rust-ablation",
+        "text": "在最难的 50 道 HumanEval Rust 子集上，基线 60%，只有测试无文字反思 60%，只有反思无测试生成与执行 52%，完整 Reflexion 68%。",
+        "scope": "§4.3 的 GPT-4 子集消融；仅支持该设置的组件配合作用。",
+        "source_ids": [
+          "3fb5d6b0a837235b"
+        ],
+        "status": "supported",
+        "evidence_passages": [
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Approach Test Generation Self-reflection Pass@1 (Acc)\nBase model False False 0.60\nTest generation omission False True 0.52\nSelf-reflection omission True False 0.60\nReflexion True True 0.68\nTable 3: Pass@1 accuracy for various compromised approaches on the Reflexion approach using\nGPT-4 as the base model on HumanEval Rust - 50 ",
+            "locator": {
+              "page": 8,
+              "page_label": "8",
+              "paragraph_id": "p0008-0001",
+              "section": "§4.3，表3"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Ablation study We test the composite approach of Reflexion for test generation and self-reflection\ncooperation on a subset of the 50 hardest HumanEval Rust problems. Our Rust compiler environment\nprovides verbose error logs and helpful debugging hints, therefore serving as a good playground\nfor compromised approaches. First, we omit internal test generation and execution steps, which\ntest the agent to self-reflect without guidance from current implementations. 3 shows an inferior\n52% vs 60% (baseline) accuracy, which suggests that the agent is unable to determine if the current\nimplementation is correct without unit tests. Therefore, the agent must participate in all iterations of\nthe run without the option to return early, performing harmful edits to the implementation.",
+            "locator": {
+              "page": 8,
+              "page_label": "8",
+              "paragraph_id": "p0008-0002",
+              "section": "§4.3"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Next, we test self-reflection contribution by omitting the natural language explanation step following\nfailed unit test suite evaluations. Intuitively, this challenges the agent to combine the tasks of\nerror identification and implementation improvement across all failed unit tests. Interestingly, the\ncompromised agent does not improve performance over the baseline run. We observe that the test\ngeneration and code compilation steps are able to catch syntax and logic errors, but the implementation\nfixes do not reflect these indications. These empirical results suggest that several recent works that\npropose blind trial and error debugging techniques without self-reflection are ineffective on harder\ntasks such as writing complex programs in Rust.",
+            "locator": {
+              "page": 8,
+              "page_label": "8",
+              "paragraph_id": "p0008-0002",
+              "section": "§4.3"
+            }
+          }
+        ],
+        "paragraph_ids": [
+          "p0008-0001",
+          "p0008-0002",
+          "p0008-0002"
+        ]
+      },
+      {
+        "id": "rx-test-quality-result",
+        "text": "本文报告，在内部测试已通过条件下正式提交仍错误的比例，MBPP Python 为 16.3%，HumanEval Python 为 1.4%；内部测试误放行可使系统过早提交错误实现。",
+        "scope": "这是给定 tests pass 的条件错误比例，不是全体提交的错误率，也不证明 MBPP 退步唯一由此造成。",
+        "source_ids": [
+          "3fb5d6b0a837235b"
+        ],
+        "status": "supported",
+        "evidence_passages": [
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "suite, it is possible that all tests pass on an incorrect solution and lead to a false positive label on a\ncode completion [11]. On the other hand, if the model produces an incorrectly written test suite, it\nis possible for some of the tests to fail on a correct solution, leading to a self-reflection generation\nthat is conditioned on a false negative code completion. Given the implementation of Reflexion,\nfalse negatives are preferred over false positives as the agent may be able to use self-reflection to\nidentify the incorrect test(s) and prompt itself to keep the original code completion intact. On the\nother hand, if an invalid test suite returns a false positive completion (all internal test cases pass\nbut the implementation is incorrect), the agent will prematurely report an invalid submission.",
+            "locator": {
+              "page": 8,
+              "page_label": "8",
+              "paragraph_id": "p0008-0001",
+              "section": "§4.3"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "we\nobserve a notable discrepancy between the false positive labels produced by internal test execution,\nP(not pass@1 generation correct | tests pass). That is, the probability that a submission will fail given\nthat it passes all unit tests. For HumanEval and MBPP Python, the baseline pass@1 accuracies are\nrelatively similar, 82% and 80%, respectively. However, the false positive test execution rate for\nMBPP Python is 16.3% while the rate for HumanEval Python is a mere 1.4%, leading to 91% overall\naccuracy 1.",
+            "locator": {
+              "page": 8,
+              "page_label": "8",
+              "paragraph_id": "p0008-0001",
+              "section": "§4.3"
+            }
+          }
+        ],
+        "paragraph_ids": [
+          "p0008-0001",
+          "p0008-0001"
+        ]
+      },
+      {
+        "id": "rx-webshop-negative",
+        "text": "100 个 WebShop 环境试验在四次尝试后因未见改善而停止，作者也未观察到有帮助的反思。",
+        "scope": "附录 B.1 的两示例 ReAct＋Reflexion 设置；不证明所有 WebShop 方法都无法改进。",
+        "source_ids": [
+          "3fb5d6b0a837235b"
+        ],
+        "status": "supported",
+        "evidence_passages": [
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "We test a two-shot ReAct +\nReflexion agent in 100 environments. However, after only four trials, we terminate the runs as the\nagent does not show signs of improvement 6. Further, the agent does not generate helpful, intuitive\nself-reflections after failed attempts.",
+            "locator": {
+              "page": 14,
+              "page_label": "14",
+              "paragraph_id": "p0014-0001",
+              "section": "附录B.1"
+            }
+          }
+        ],
+        "paragraph_ids": [
+          "p0014-0001"
+        ]
+      },
+      {
+        "id": "rx-starchat-negative",
+        "text": "starchat-beta 的 HumanEval Python 实验，基线与 Reflexion 平均 pass@1 均为 0.26。",
+        "scope": "附录A表4，平均8次试验；没有收益并不单独证明模型规模是唯一原因。",
+        "source_ids": [
+          "3fb5d6b0a837235b"
+        ],
+        "status": "supported",
+        "evidence_passages": [
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Approach Pass@1 accuracy (avg over 8 trials) Pass@1 accuracy (std)\nBaseline 0.26 0.00481\nReflexion 0.26 0.00305\nTable 4: Pass@1 accuracy on HumanEval Python using starchat-beta [13].",
+            "locator": {
+              "page": 12,
+              "page_label": "12",
+              "paragraph_id": "p0012-0001",
+              "section": "附录A，表4"
+            }
+          }
+        ],
+        "paragraph_ids": [
+          "p0012-0001"
+        ]
+      },
+      {
+        "id": "rx-k1",
+        "text": "固定语言模型权重时，失败后的语言经验可以通过上下文改变后续决策，并在部分任务的重复尝试中改善表现。",
+        "scope": "任务内重试；依赖反馈和模型能力，不声称跨任务长期能力增长。",
+        "source_ids": [
+          "3fb5d6b0a837235b"
+        ],
+        "status": "supported",
+        "evidence_passages": [
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Reflexion converts binary or scalar feedback from the\nenvironment into verbal feedback in the form of a textual summary, which is then added as additional\ncontext for the LLM agent in the next episode.",
+            "locator": {
+              "page": 1,
+              "page_label": "1",
+              "paragraph_id": "p0001-0002",
+              "section": "§1"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "sparse reward signal, such as a binary success status (success/fail), the current trajectory,\nand its persistent memory mem, the self-reflection model generates nuanced and specific feedback.\nThis feedback, which is more informative than scalar rewards, is then stored in the agent’s memory\n(mem).",
+            "locator": {
+              "page": 4,
+              "page_label": "4",
+              "paragraph_id": "p0004-0002",
+              "section": "§3"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "In the baseline runs, if self-reflection is suggested,\nwe skip the self-reflection process, reset the environment, and start a new trial. In the Reflexion runs,\nthe agent uses self-reflection to find its mistake, update its memory, reset the environment, and start a\nnew trial.",
+            "locator": {
+              "page": 5,
+              "page_label": "5",
+              "paragraph_id": "p0005-0002",
+              "section": "§4.1"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Results ReAct + Reflexion significantly outperforms ReAct by completing 130 out of 134 tasks\nusing the simple heuristic to detect hallucinations and inefficient planning. Further, ReAct + Reflexion\nlearns to solve additional tasks by learning in 12 consecutive trials. In the ReAct-only approach, we\nsee that performance increase halts between trials 6 and 7.",
+            "locator": {
+              "page": 5,
+              "page_label": "5",
+              "paragraph_id": "p0005-0002",
+              "section": "§4.1"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Model Baseline accuracy Reflexion accuracy\nCoT (GT) + text-davinci-003 0.60 0.77\nCoT (GT) + gpt-3.5-turbo 0.57 0.71\nCoT (GT) + gpt-4 0.68 0.80\nReAct + text-davinci-003 0.30 0.55\nReAct + gpt-3.5-turbo 0.26 0.38\nReAct + gpt-4 0.39 0.51",
+            "locator": {
+              "page": 12,
+              "page_label": "12",
+              "paragraph_id": "p0012-0001",
+              "section": "附录A，表5"
+            }
+          }
+        ],
+        "paragraph_ids": [
+          "p0001-0002",
+          "p0004-0002",
+          "p0005-0002",
+          "p0005-0002",
+          "p0012-0001"
+        ]
+      },
+      {
+        "id": "rx-k2",
+        "text": "经验记忆的价值包含提供可执行的修正方向；仅保存上一轮轨迹或仅给失败信号，可能不足以改善下一轮行为。",
+        "scope": "由本文 HotpotQA EPM 和 HumanEval Rust 消融支持；具体总结方式仍需按任务验证。",
+        "source_ids": [
+          "3fb5d6b0a837235b"
+        ],
+        "status": "supported",
+        "evidence_passages": [
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Analysis We perform an ablation experiment to isolate the advantage of the self-reflective step for\nreasoning using CoT (GT) as the baseline approach 4. Recall that CoT (GT) uses Chain-of-Thought\nreasoning with provided ground truth context, which tests reasoning ability over long contexts. Next,\nwe add an element of episodic memory (EPM) by including the most recent trajectory. For the\nReflexion agent, we implement the standard self-reflection step as a final pass. Intuitively, we test if\nthe agent is iteratively learning more effectively by using verbal explanation using language written\nin the first person. 4 shows that self-reflection improves learning by an 8% absolute boost over\nthe episodic memory learning advantage. This result supports the argument that refinement-only\napproaches are not as effective as self-reflection-guided refinement approaches.",
+            "locator": {
+              "page": 7,
+              "page_label": "7",
+              "paragraph_id": "p0007-0001",
+              "section": "§4.2"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Approach Test Generation Self-reflection Pass@1 (Acc)\nBase model False False 0.60\nTest generation omission False True 0.52\nSelf-reflection omission True False 0.60\nReflexion True True 0.68\nTable 3: Pass@1 accuracy for various compromised approaches on the Reflexion approach using\nGPT-4 as the base model on HumanEval Rust - 50 ",
+            "locator": {
+              "page": 8,
+              "page_label": "8",
+              "paragraph_id": "p0008-0001",
+              "section": "§4.3，表3"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Next, we test self-reflection contribution by omitting the natural language explanation step following\nfailed unit test suite evaluations. Intuitively, this challenges the agent to combine the tasks of\nerror identification and implementation improvement across all failed unit tests. Interestingly, the\ncompromised agent does not improve performance over the baseline run. We observe that the test\ngeneration and code compilation steps are able to catch syntax and logic errors, but the implementation\nfixes do not reflect these indications. These empirical results suggest that several recent works that\npropose blind trial and error debugging techniques without self-reflection are ineffective on harder\ntasks such as writing complex programs in Rust.",
+            "locator": {
+              "page": 8,
+              "page_label": "8",
+              "paragraph_id": "p0008-0002",
+              "section": "§4.3"
+            }
+          }
+        ],
+        "paragraph_ids": [
+          "p0007-0001",
+          "p0008-0001",
+          "p0008-0002"
+        ]
+      },
+      {
+        "id": "rx-k3",
+        "text": "反馈闭环依赖评估信号：错误失败信号可能诱发有害修改，错误成功信号可能使错误答案提前提交。",
+        "scope": "主要由本文编程测试误判分析与去测试消融支持；不能用增加反思轮数代替判定可靠性。",
+        "source_ids": [
+          "3fb5d6b0a837235b"
+        ],
+        "status": "supported",
+        "evidence_passages": [
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "suite, it is possible that all tests pass on an incorrect solution and lead to a false positive label on a\ncode completion [11]. On the other hand, if the model produces an incorrectly written test suite, it\nis possible for some of the tests to fail on a correct solution, leading to a self-reflection generation\nthat is conditioned on a false negative code completion. Given the implementation of Reflexion,\nfalse negatives are preferred over false positives as the agent may be able to use self-reflection to\nidentify the incorrect test(s) and prompt itself to keep the original code completion intact. On the\nother hand, if an invalid test suite returns a false positive completion (all internal test cases pass\nbut the implementation is incorrect), the agent will prematurely report an invalid submission.",
+            "locator": {
+              "page": 8,
+              "page_label": "8",
+              "paragraph_id": "p0008-0001",
+              "section": "§4.3"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Ablation study We test the composite approach of Reflexion for test generation and self-reflection\ncooperation on a subset of the 50 hardest HumanEval Rust problems. Our Rust compiler environment\nprovides verbose error logs and helpful debugging hints, therefore serving as a good playground\nfor compromised approaches. First, we omit internal test generation and execution steps, which\ntest the agent to self-reflect without guidance from current implementations. 3 shows an inferior\n52% vs 60% (baseline) accuracy, which suggests that the agent is unable to determine if the current\nimplementation is correct without unit tests. Therefore, the agent must participate in all iterations of\nthe run without the option to return early, performing harmful edits to the implementation.",
+            "locator": {
+              "page": 8,
+              "page_label": "8",
+              "paragraph_id": "p0008-0002",
+              "section": "§4.3"
+            }
+          }
+        ],
+        "paragraph_ids": [
+          "p0008-0001",
+          "p0008-0002"
+        ]
+      },
+      {
+        "id": "rx-k4",
+        "text": "设置反思步骤不保证有效学习；当模型不能提出或执行有用变化、或任务要求跳出已有局部选择时，反思可能没有收益。",
+        "scope": "对本文 WebShop 和 starchat-beta 负结果的有限综合；未验证各失败原因的独立因果作用。",
+        "source_ids": [
+          "3fb5d6b0a837235b"
+        ],
+        "status": "supported",
+        "evidence_passages": [
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "We test a two-shot ReAct +\nReflexion agent in 100 environments. However, after only four trials, we terminate the runs as the\nagent does not show signs of improvement 6. Further, the agent does not generate helpful, intuitive\nself-reflections after failed attempts.",
+            "locator": {
+              "page": 14,
+              "page_label": "14",
+              "paragraph_id": "p0014-0001",
+              "section": "附录B.1"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "Approach Pass@1 accuracy (avg over 8 trials) Pass@1 accuracy (std)\nBaseline 0.26 0.00481\nReflexion 0.26 0.00305\nTable 4: Pass@1 accuracy on HumanEval Python using starchat-beta [13].",
+            "locator": {
+              "page": 12,
+              "page_label": "12",
+              "paragraph_id": "p0012-0001",
+              "section": "附录A，表4"
+            }
+          },
+          {
+            "source_id": "3fb5d6b0a837235b",
+            "quote": "At its core, Reflexion is an optimization technique that uses natural language to do policy optimization.\nPolicy optimization is a powerful approach to improve action choice through experience, but it may\nstill succumb to non-optimal local minima solutions.",
+            "locator": {
+              "page": 9,
+              "page_label": "9",
+              "paragraph_id": "p0009-0001",
+              "section": "§5"
+            }
+          }
+        ],
+        "paragraph_ids": [
+          "p0014-0001",
+          "p0012-0001",
+          "p0009-0001"
+        ]
+      }
+    ],
+    "source_notes": [
+      "已完整阅读归档来源的19页34个可定位文字单元（正文、参考文献、附录）。本次未依赖网络材料或其他未读论文。",
+      "主线程已视觉核对归档原件第6、8、14页；当前叙述引用文字、表格及作者明确报告的数字，不从曲线估读端点。图3横轴为0—10，文字写12次尝试，两处不完全一致，保留原文字报告并标记，不自行统一。",
+      "主文HotpotQA的14个百分点描述与附录表5的text-davinci-003 CoT(GT) 0.60到0.77不相同；正文明确采用附录表5，不将二者混用或补造统一解释。",
+      "表2四舍五入与正文的精确条件误放行比例并存，正文采用作者明确给出的16.3%与1.4%，不视为全体提交错误率。正文分析中另有HumanEval基线82%与表1 80.1%差异，未混用。",
+      "附录C的部分消融提示模板重复包含被称为省略的组件，D.1示例的反思与展示的正确搜索路径存在不一致；未以这些例子证明诊断准确。",
+      "结论均为对单篇论文的归纳，未将本文引用的其他研究视为独立已核来源。"
+    ],
+    "title": "Reflexion：把失败反馈变成下一次尝试可用的经验"
+  },
+  "distillation_version": "2.2",
+  "updated_at": "2026-10-15T15:21:21+00:00",
+  "publication": {
+    "by": "system",
+    "policy": "independent-reviewed",
+    "at": "2026-10-15T15:21:21+00:00"
+  },
+  "knowledge_point_ids": [
+    "kp_0a32a0310efe7e1e6a85",
+    "kp_f744a00392a74964bf82",
+    "kp_7fd81acedb7542ae5069",
+    "kp_6aed51bd748016493b1d"
+  ]
+}

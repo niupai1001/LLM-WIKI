@@ -1,0 +1,218 @@
+{
+  "library_id": "legacy",
+  "backup": "/Users/Lemon/Downloads/pi-intel-wiki/artifacts/paper-rebuild/backups/20261015T151839Z/legacy",
+  "kept_source_ids": [
+    "014cdafa93ee999c",
+    "016c52ff81dd4b3c",
+    "0857249ba4689a32",
+    "0b44ee6389202cb6",
+    "19f9b059cd25c958",
+    "1a874e5d2226c159",
+    "39724df6a96b8be9",
+    "3bdb54f327d29558",
+    "3cbb47b7dce6bced",
+    "3fb5d6b0a837235b",
+    "46552e281d16f894",
+    "4a3710e0ff43d563",
+    "5d666092726c8b5f",
+    "5f050f657542e6c8",
+    "6eef0b230030a0c7",
+    "7d220dd5706f59fd",
+    "84d839e63c28ec29",
+    "863bccdceb2db4eb",
+    "8cabb777c9bc6fe9",
+    "8db3263052b0cab1",
+    "926ac126f2443b70",
+    "937cdb106cea67fc",
+    "94853529d326ac72",
+    "a58012192462df16",
+    "accd5feccfb2c025",
+    "b36ffb44e7a44c44",
+    "b4a183c3a460a8b2",
+    "b7c8bebd4466160c",
+    "c59a22e9fb289ff4",
+    "cf1e618aae1ce2d6",
+    "d7c76d8462da834a",
+    "d7eeabd9156ed311",
+    "d97a83738e867ba8",
+    "dbd4df9f38225f92",
+    "e0c0d198c4709cc7",
+    "e1fcb0d88cfca91e",
+    "e504ba1ba9c3fffc",
+    "e80b94c99e711343",
+    "eddf2edee3305425",
+    "f5d78236980dcf7a",
+    "f6631440e3c1f359",
+    "f8a9212514d96b57"
+  ],
+  "excluded_sources": [
+    {
+      "source_id": "0661418088b8e271",
+      "title": "Introducing AgentKit, new Evals, and RFT for agents",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "126e07cf0d684e03",
+      "title": "Effective context engineering for AI agents",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "159c1db9c1130325",
+      "title": "How to build great out-of-the-box user experiences with Managed Deep Agents",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "200a5d3dd39c6bfb",
+      "title": "The EU’s next chapter in AI is agentic",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "27cd99b1dbe34420",
+      "title": "Hex turns complex analysis into visual reports with GPT‑6 Astra",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "2b898d1521444b3e",
+      "title": "Building Long-Running Agents with ScaleDown and Deep Agents",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "2e12fd56c15d4708",
+      "title": "Improving Deep Agents with harness engineering",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "3784d7aba9718af9",
+      "title": "Research acceleration: The view inside OpenAI",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "3fcefd9c665fb2c2",
+      "title": "Parallel cut research time and cost in half with GPT‑6 Astra",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "40a221f953410175",
+      "title": "Open Models have crossed a threshold",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "444b00f9850c9716",
+      "title": "Plan-and-Execute Agents",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "4c363ed7df0918d2",
+      "title": "Search agent traces by behavior with AI Search in LangSmith",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "4e56c7312349a760",
+      "title": "Ringg’s AI agents resolve up to 65% of customer calls with OpenAI",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "50d4db170b3535fb",
+      "title": "One Bad Juror: Exploring Adversarial Influence and Deliberation Dynamics in Multi-Agent LLM Panels",
+      "reason": "没有真实PDF原件；TXT及其他非PDF来源不入库"
+    },
+    {
+      "source_id": "527dd93d68969f8f",
+      "title": "Deep Agents Deploy: an open alternative to Claude Managed Agents",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "57c3309db5bedcde",
+      "title": "Amp puts AI agents to work beyond code with OpenAI models",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "6a886414536a09e3",
+      "title": "Now everyone can put data to work",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "715fac53ff26781b",
+      "title": "How Snyk Turned an Internal Support Agent into a Customer Feature",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "745fb27f8be24ceb",
+      "title": "LLM-Based Rubric Refinement in Multi-Agent Automated Scoring",
+      "reason": "没有真实PDF原件；TXT及其他非PDF来源不入库"
+    },
+    {
+      "source_id": "7ef651595d40bdd7",
+      "title": "How Orange Business Built Live Intelligence with LangChain and LangSmith",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "802f506af7cdd452",
+      "title": "Context Management for Deep Agents",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "97c70ca386712424",
+      "title": "Multi-Agent LLM Annotation and Scoring for Training Fine-Grained K-12 Writing-Feedback Models",
+      "reason": "没有真实PDF原件；TXT及其他非PDF来源不入库"
+    },
+    {
+      "source_id": "9bf93d58cc35db99",
+      "title": "Asana cuts model costs 76x in browser tests with GPT-6.1 Sol",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "a72e6adb098f204f",
+      "title": "Open SWE: An Open-Source Framework for Internal Coding Agents",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "a8b8c31de898145e",
+      "title": "How Third Moment Research runs 10,000 agents for 36+ hours",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "af66ef1bf3e673d7",
+      "title": "LLM-Based Pairwise Judgment for Math Item Parameter Modeling Using Workflows and Agents",
+      "reason": "没有真实PDF原件；TXT及其他非PDF来源不入库"
+    },
+    {
+      "source_id": "b32e9b8471353987",
+      "title": "Introducing the Agents API",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "d2871d486c61275a",
+      "title": "V7 cuts costs 78% while boosting accuracy with GPT-5.6 Luna",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "e4d6d771112690f4",
+      "title": "How We Made Our Docs Test Themselves",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "eeb5997da7760442",
+      "title": "Context Engineering with Deep Agents: How To Remember Without Keeping Everything In Context",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "f57eff9c23a4454b",
+      "title": "Advancing computer use with Ironclad",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    },
+    {
+      "source_id": "ffc229d83891918f",
+      "title": "Building Effective AI Agents",
+      "reason": "资讯及网页文章暂不提炼，等待专用流程"
+    }
+  ],
+  "policy": {
+    "enabled": true,
+    "workflow": "knowledge-distillation-2.1",
+    "epoch": "2026-10-15T15:18:40.058680+00:00",
+    "source_kind": "paper",
+    "required_original": "pdf",
+    "news_extraction": false
+  }
+}

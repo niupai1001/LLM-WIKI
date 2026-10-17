@@ -257,8 +257,10 @@ def _read_llm_response(response, deadline, limit=8*1024*1024):
         timer.cancel()
 
 
-def call_llm(messages):
+def call_llm(messages, *, max_tokens=None):
     import time
+    if max_tokens is not None and (isinstance(max_tokens, bool) or not isinstance(max_tokens, int) or not 1 <= max_tokens <= 65536):
+        raise ValueError('Invalid model output token budget')
     base = os.getenv("LLM_BASE_URL", "").rstrip("/")
     key = os.getenv("LLM_API_KEY", "")
     model = os.getenv("LLM_MODEL", "")
@@ -268,6 +270,8 @@ def call_llm(messages):
     payload = {"model": model, "messages": messages, "temperature": 0.2, "stream": False}
     if urlsplit(base).hostname == 'api.deepseek.com':
         payload.update(thinking={'type': 'disabled'}, max_tokens=16000)
+    if max_tokens is not None:
+        payload['max_tokens'] = max_tokens
     if os.getenv("LLM_JSON_MODE", "false").lower() == "true":
         payload["response_format"] = {"type": "json_object"}
     headers = {"Content-Type": "application/json"}
@@ -358,7 +362,7 @@ def prepare(limit=3, category=None, source_id=None, source_ids=None, topic=None,
                 if path.stem == 'index' or not meta_path.exists():
                     continue
                 meta = load_json(meta_path)
-                if meta.get('page_role') == 'source_collection':
+                if meta.get('page_role') in {'source_collection', 'knowledge_index'}:
                     continue
                 content = path.read_text(encoding='utf-8')
                 score = relevance_score(query, content.splitlines()[0], content)
