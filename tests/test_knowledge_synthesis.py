@@ -743,6 +743,16 @@ class KnowledgeSynthesisTests(unittest.TestCase):
         self.assertIn('appendix', {p['id'] for p in result[0]['paragraphs']})
         self.assertFalse(result[0]['is_excerpt'])
 
+    def test_approved_editorial_basis_is_program_owned_when_author_omits_it(self):
+        relation = {'target_slug': 'other', 'kind': 'contrast', 'claim_ids': ['c']}
+        draft = {'body_markdown': '机制对照说明不同的反馈作用。', 'claims': [], 'relations': [relation]}
+        target = {'relation_actions': [{**relation, 'basis': 'editorial'}]}
+        adapted = synthesis._prepare_author_draft(draft, target, {})
+        self.assertEqual(adapted['relations'][0]['basis'], 'editorial')
+        self.assertNotIn('basis', relation)
+        explicit = {**draft, 'relations': [{**relation, 'basis': 'factual'}]}
+        self.assertEqual(synthesis._prepare_author_draft(explicit, target, {})['relations'][0]['basis'], 'factual')
+
     def test_program_normalizes_page_envelope_routes_and_preserves_old_claims(self):
         old_claim = {'id': 'stable', 'text': '原有条件仍然成立。', 'scope': '原条件。', 'source_ids': [SIDS[0]]}
         draft = {'body_markdown': '# 标题\n\n相关机制见[另一概念](/wiki/other#mechanism)。', 'claims': []}

@@ -225,6 +225,10 @@ def validate_decision(value, points, existing, occupied, input_digest=None, *, p
                 else:
                     register(claim.get('id'), sid, source_aliases.get((sid, claim.get('id')), claim.get('id')))
                 known_source_ids.add(sid)
+    concept_sources = {slug: set(c.get('meta', {}).get('source_ids', [])) for slug, c in by_slug.items()}
+    for point in result['point_decisions']:
+        for membership in point['memberships']:
+            concept_sources.setdefault(membership['concept_slug'], set()).add(points[point['point_id']]['source_id'])
     seen_relations = set()
     for relation in _list(result['relation_actions'], 'relation_actions'):
         if not isinstance(relation, dict):
@@ -244,6 +248,11 @@ def validate_decision(value, points, existing, occupied, input_digest=None, *, p
             raise ValueError('Relation references unknown or missing evidence IDs')
         if relation['kind'] in {'shared_mechanism', 'contrast', 'design_inference'} and len(set(sources)) < 2:
             raise ValueError('Cross-study mechanism relations require at least two supported sources')
+        if concept_sources.get(origin) and not set(sources) & concept_sources[origin]:
+            raise ValueError('Relation evidence does not support its origin concept; third-party comparisons cannot be attached to another concept')
+        target_sources = concept_sources.get(relation['target_slug'], set())
+        if relation['kind'] != 'implementation' and target_sources and not set(sources) & target_sources:
+            raise ValueError('Cross-concept comparison evidence must support both actual endpoints')
         refs = relation.get('evidence_refs')
         if refs is None:
             pairs = set()

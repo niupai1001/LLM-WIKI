@@ -180,6 +180,17 @@ class MaintenanceTests(unittest.TestCase):
         result = self.plan(Mock(return_value=self.value))
         self.assertEqual(result['plan']['concepts'][0]['relation_actions'][0]['source_slug'], 'mechanism')
 
+    def test_third_party_comparison_cannot_be_attached_to_an_unrelated_origin(self):
+        self.points['p1']['data']['claim_ids'] = ['c1']
+        self.existing.append({'slug': 'comparison', 'version': 'v2', 'point_ids': [],
+            'meta': {'source_ids': ['s3'], 'claims': [{'id': 'c3', 'source_ids': ['s3']}]}})
+        self.value['relation_actions'] = [{'source_slug': 'mechanism', 'target_slug': 'comparison',
+            'kind': 'contrast', 'basis': 'editorial', 'reason': 'Third-party evidence is not evidence for this origin.',
+            'claim_ids': ['c2', 'c3'], 'source_ids': ['s2', 's3']}]
+        papers = {'s2': {'packet': {'claims': [{'id': 'c2'}]}}, 's3': {'packet': {'claims': [{'id': 'c3'}]}}}
+        with self.assertRaisesRegex(ValueError, 'origin concept'):
+            km.validate_decision(self.value, self.points, self.existing, {'mechanism', 'comparison'}, papers=papers)
+
     def test_relation_rejects_single_source_cross_study_and_unbacked_source(self):
         self.points['p1']['data']['claim_ids'] = ['c1']
         self.existing.append({'slug': 'comparison', 'version': 'v2', 'point_ids': [],

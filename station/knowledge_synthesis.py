@@ -24,7 +24,7 @@ from .workspaces import use_workspace
 
 VERSION = "decision-driven-knowledge-v2"
 PROMPT_VERSION = "approved-maintenance-writing-v3"
-REQUEST_CONTEXT_VERSION = "role-aware-contracts-and-review-v10"
+REQUEST_CONTEXT_VERSION = "role-aware-contracts-and-review-v11"
 MAX_REPAIRS = 2
 MAX_CONTEXT_CHARACTERS = 160000
 _SLUG = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?")
@@ -504,6 +504,14 @@ def _prepare_author_draft(value, target, old_meta):
     # Only an application route prefix is changed. Targets and wording stay exact.
     body = re.sub(r"(?<=\]\()/wiki/([a-z0-9][a-z0-9-]*)(?=[?#)]|$)", r"/page/\1", body)
     value["body_markdown"] = body
+    approved = target.get("relation_actions", []) + old_meta.get("relations", [])
+    for relation in value.get("relations", []):
+        if isinstance(relation, dict) and "basis" not in relation:
+            matches = [r for r in approved if r.get("target_slug") == relation.get("target_slug")
+                       and r.get("kind") == relation.get("kind")]
+            bases = {r.get("basis", "factual") for r in matches}
+            if len(bases) == 1:
+                relation["basis"] = bases.pop()
     claims = value.get("claims")
     if isinstance(claims, list) and all(isinstance(c, dict) for c in claims):
         by_id = {c.get("id"): c for c in claims}
