@@ -681,6 +681,68 @@ class KnowledgeSynthesisTests(unittest.TestCase):
         self.assertEqual(sum(c.get('stage') == 'repair' for c in self.calls), 0)
         self.assertEqual(sum(c.get('stage') == 'write' for c in self.calls), 3)
 
+    def test_extra_unexpressed_registration_repairs_metadata_without_rewriting_body(self):
+        def metadata_model(messages):
+            context = json.loads(messages[-1]['content'])
+            if context.get('stage') == 'metadata-repair':
+                self.calls.append(context)
+                return {'remove_new_claim_ids': ['unused'], 'claim_evidence_updates': [], 'relation_claim_updates': []}
+            if context.get('stage') == 'bind' and any(c['id'] == 'unused' for c in context['claims']):
+                clean = {**context, 'claims': [c for c in context['claims'] if c['id'] != 'unused']}
+                result = self.respond([messages[0], {**messages[-1], 'content': json.dumps(clean)}])
+                result['unmapped_claims'] = [{'claim_id': 'unused', 'reason': 'This extra registration is not expressed in the body.'}]
+                return result
+            result = self.respond(messages)
+            if context.get('stage') == 'write' and context['target']['slug'] == 'task-feedback-control':
+                result['claims'].append({'id': 'unused', 'text': '原文中的另一个未在本页展开的结果。',
+                    'scope': '原实验条件。', 'source_ids': [SIDS[0]],
+                    'evidence_refs': [{'source_id': SIDS[0], 'claim_id': 'mechanism'}]})
+            return result
+        self.model.side_effect = metadata_model
+        result = self.run_synthesis()
+        self.assertEqual(result['status'], 'completed', result)
+        self.assertEqual(sum(c.get('stage') == 'metadata-repair' for c in self.calls), 1)
+        self.assertEqual(sum(c.get('stage') == 'repair' for c in self.calls), 0)
+        self.assertEqual(sum(c.get('stage') == 'write' for c in self.calls), 3)
+        body = next(c for c in self.calls if c.get('stage') == 'metadata-repair')['previous_proposal']['body_markdown']
+        actual = next(p for p in self.publications if p['slug'] == 'task-feedback-control')
+        self.assertEqual(actual['body_markdown'], body)
+        self.assertNotIn('unused', {c['id'] for c in actual['claims']})
+
+    def test_binding_contract_exception_does_not_request_another_whole_body(self):
+        from station import body_bindings
+        original = body_bindings.ground_bindings
+        def reject_mapping(draft, *args, **kwargs):
+            if '当前执行中根据新观测' in draft['body_markdown']:
+                raise ValueError('Ambiguous stable claim identity requires metadata review')
+            return original(draft, *args, **kwargs)
+        with patch.object(body_bindings, 'ground_bindings', side_effect=reject_mapping):
+            result = self.run_synthesis()
+        self.assertEqual(result['status'], 'blocked')
+        self.assertEqual(sum(c.get('stage') == 'repair' for c in self.calls), 0)
+        self.assertEqual(sum(c.get('stage') == 'write' for c in self.calls), 3)
+
+    def test_metadata_correction_cannot_remove_old_knowledge_or_author_new_fact_text(self):
+        claim = {'id': 'old', 'text': '旧的正确知识。', 'scope': '原条件。', 'source_ids': [SIDS[0]]}
+        previous = {'body_markdown': '旧的正确知识需要保留。', 'claims': [claim]}
+        with self.assertRaisesRegex(ValueError, 'remove old claims'):
+            synthesis._repair_metadata_only(previous, {'remove_new_claim_ids': ['old']}, {'claims': [claim]})
+        new = {**claim, 'id': 'new'}
+        with self.assertRaisesRegex(ValueError, 'explicitly unexpressed'):
+            synthesis._repair_metadata_only({**previous, 'claims': [claim, new]}, {'remove_new_claim_ids': ['new']}, {})
+        with self.assertRaisesRegex(ValueError, 'fact text'):
+            synthesis._repair_metadata_only(previous, {'claim_evidence_updates': [{'claim_id': 'old', 'text': '改写。'}]}, {})
+        with self.assertRaisesRegex(ValueError, 'only registration edits'):
+            synthesis._repair_metadata_only(previous, {'body_markdown': '补写正文。'}, {})
+
+    def test_review_context_preserves_appendix_evidence_outside_registered_claim_quotes(self):
+        original = dict(self.originals[SIDS[0]])
+        original['paragraphs'] = [*original['paragraphs'], {'id': 'appendix',
+            'text': 'The appendix documents a better search method and a corrected misunderstanding.', 'page': 17}]
+        result = synthesis._request_originals([original], [])
+        self.assertIn('appendix', {p['id'] for p in result[0]['paragraphs']})
+        self.assertFalse(result[0]['is_excerpt'])
+
     def test_program_normalizes_page_envelope_routes_and_preserves_old_claims(self):
         old_claim = {'id': 'stable', 'text': '原有条件仍然成立。', 'scope': '原条件。', 'source_ids': [SIDS[0]]}
         draft = {'body_markdown': '# 标题\n\n相关机制见[另一概念](/wiki/other#mechanism)。', 'claims': []}

@@ -282,6 +282,10 @@ _KNOWLEDGE_REVIEW_INSTRUCTION = """你独立核对正文与原文，不沿用编
 issues:[{kind:fact_error/knowledge_omission/mechanism_merge/relation_error/contract_error/expression,
 severity:blocking/advisory,body_quote,reason,claim_ids:[],source_ids:[],
 evidence:[{source_id,paragraph_id}或{previous_claim_id}]}],style_suggestions:[]。
+新增登记claim并未在正文表达属于contract_error；此时该issue附registration_action:"remove_unexpressed"，
+可修正登记而非要求把参考论文事实全塞入正文；
+知识遗漏仅指本页应保留的核心认识或旧知识。比较增益时须逐配置计算前后差，核对“均/普遍/更大”等比较词；
+提炼者推论不豁免错误算术，不能因为输入claim这样写就判原文支持。
 只有影响知识正确性或发布完整性的具体问题可blocking；一般措辞建议、正确内容确认只能advisory，expression只能advisory。
 body_quote逐字选取当前正文；旧知识遗漏允许逐字选取previous.body_markdown或旧断言text。
 blocking问题必须提供可核验依据：原文真实paragraph_id及source_id（精确摘录由程序提取），或旧知识遗漏的previous_claim_id。
@@ -335,6 +339,10 @@ def _knowledge_review_issues(assessment, proposal, old_meta, originals):
         evidence = issue.get('evidence', [])
         if not isinstance(evidence, list):
             raise ValueError('Knowledge review issue evidence must be a list')
+        if issue.get('registration_action') is not None:
+            if (issue['registration_action'] != 'remove_unexpressed' or issue['kind'] != 'contract_error'
+                    or not issue['claim_ids'] or set(issue['claim_ids']) & set(old_claims)):
+                raise ValueError('Only new unexpressed registrations may be removed')
         if issue['severity'] == 'blocking' and not evidence:
             raise ValueError('Blocking knowledge issue needs verifiable evidence')
         for item in evidence:

@@ -92,10 +92,10 @@ class MaintenancePipelineTests(unittest.TestCase):
         first = self.run_pipeline(respond)
         self.assertEqual(first['status'], 'blocked')
         self.assertTrue((self.ws.wiki / 'task-feedback-control.md').is_file(), first)
-        self.assertEqual(len(calls), 3)
+        self.assertEqual(len(calls), 1)
         second = self.run_pipeline(respond)
         self.assertEqual(second['status'], 'blocked')
-        self.assertEqual(len(calls), 3, 'Other successful targets must not grant this failed author a new budget')
+        self.assertEqual(len(calls), 1, 'Other successful targets must not grant this failed author a new budget')
 
     def test_prepared_run_publication_never_calls_model(self):
         result = self.run_pipeline(publish_pages=False)

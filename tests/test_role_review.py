@@ -36,6 +36,13 @@ class RoleReviewTests(unittest.TestCase):
     def test_accurate_selective_optional_expansion_is_not_a_core_omission(self):
         self.assertTrue(self.run_review()['passed'])
 
+    def test_optional_review_may_be_absent_without_inventing_a_covered_verdict(self):
+        self.reply['reviews'] = [self.reply['reviews'][0]]
+        result = self.run_review()
+        self.assertTrue(result['passed'])
+        self.assertEqual(result['unreviewed_optional_point_ids'], ['optional'])
+        self.assertEqual(len(result['reviews']), 1)
+
     def test_optional_content_actual_error_still_blocks(self):
         self.reply['issues'] = [self.issue()]
         self.assertFalse(self.run_review()['passed'])
