@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 
 from station import wiki,common,collector,knowledge,web
-from station.relations import validate_relations
+from station.relations import validate_relations, relation_id
 import test_autonomous_wiki as workflow
 import test_rewrite as fixtures
 
@@ -30,6 +30,23 @@ class RelationValidationTests(unittest.TestCase):
         self.assertEqual(self.validate({**self.relation, 'basis': 'editorial'})[0]['basis'], 'editorial')
         with self.assertRaises(ValueError):
             self.validate({**self.relation, 'basis': 'unverified-kind'})
+
+    def test_missing_id_is_program_owned_and_stable_across_wording_and_evidence_order(self):
+        value = copy.deepcopy(self.relation)
+        del value['id']
+        first = self.validate(value)[0]
+        value['summary'] += '这句话不会创建另一条知识关系。'
+        value['claim_ids'].reverse()
+        value['source_ids'].reverse()
+        self.assertEqual(self.validate(value)[0]['id'], first['id'])
+        self.assertEqual(first['id'], relation_id('current', value))
+        self.assertEqual(self.validate(self.relation)[0]['id'], 'shared')
+        self.assertNotEqual(relation_id('current', value), relation_id('another', value))
+
+    def test_repeated_semantic_relation_cannot_hide_behind_distinct_ids(self):
+        with self.assertRaisesRegex(ValueError, '重复'):
+            validate_relations([self.relation, {**self.relation, 'id': 'different'}], self.claims,
+                               {self.a, self.b}, {'current', 'other'}, 'current')
 
     def test_unknown_target_claim_or_unquoted_source_is_blocked(self):
         for field,value in [('target_slug','missing'),('claim_ids',['invented']),('source_ids',['c'*16])]:

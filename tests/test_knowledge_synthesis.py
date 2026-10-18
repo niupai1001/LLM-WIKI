@@ -196,7 +196,7 @@ class KnowledgeSynthesisTests(unittest.TestCase):
             slug = concept['slug']
             for pid in sorted(ids):
                 decisions.append({'point_id': pid, 'disposition': 'linked', 'memberships': [
-                    {'concept_slug': slug, 'role': '解释概念的机制', 'reason': '本知识解释该稳定问题的机制或条件。'}],
+                    {'concept_slug': slug, 'role': 'core', 'reason': '本知识解释该稳定问题的机制或条件。'}],
                     'change_summary': '补充反馈的作用位置及其条件。'})
             actions.append({'concept_slug': slug, 'action': 'update' if (self.ws.wiki / (slug + '.md')).exists() else 'create',
                 'title': concept['title'], 'question': concept['question'], 'affected_point_ids': sorted(ids),
@@ -486,7 +486,7 @@ class KnowledgeSynthesisTests(unittest.TestCase):
         self.assertEqual(sum(c.get('stage') in {'write', 'repair'} for c in self.calls), 2)
         self.assertLessEqual(self.model.call_count, calls + 1)
 
-    def test_over_budget_repair_keeps_failure_reason_and_continues_other_targets(self):
+    def test_over_budget_context_keeps_failure_reason_and_continues_other_targets(self):
         def oversized_draft(messages):
             result = self.respond(messages)
             context = json.loads(messages[-1]["content"])
@@ -499,7 +499,7 @@ class KnowledgeSynthesisTests(unittest.TestCase):
         result = self.run_synthesis()
         blocked = next(r for r in result["results"] if r["status"] == "blocked")
         self.assertEqual(blocked["slug"], "task-feedback-control")
-        self.assertIn("repair context exceeds", blocked["reasons"][0])
+        self.assertIn("context exceeds", blocked["reasons"][0])
         self.assertEqual(self.publisher.call_count, 2)
         self.assertEqual(sum(c.get("stage") == "repair" for c in self.calls), 0)
 
@@ -624,7 +624,7 @@ class KnowledgeSynthesisTests(unittest.TestCase):
                 result['concept_actions'] = [a for a in result['concept_actions'] if a['concept_slug'] != slug]
                 for point in result['point_decisions']:
                     if point['memberships'][0]['concept_slug'] == slug:
-                        point.update(disposition='deferred', memberships=[], reason='原文尚不足以形成稳定概念。')
+                        point.update(disposition='deferred', memberships=[], reason='原文尚不足以形成稳定概念。', reevaluate_when=['取得能界定反馈可靠性的原文机制材料后重评。'])
             return result
         self.model.side_effect = deferred
         result = self.run_synthesis()
@@ -634,12 +634,73 @@ class KnowledgeSynthesisTests(unittest.TestCase):
             self.assertEqual(db.execute("SELECT count(*) FROM point_dispositions WHERE disposition='deferred'").fetchone()[0], 2)
         self.assertFalse((self.ws.wiki / 'feedback-reliability.md').exists())
 
+    def test_related_membership_does_not_force_body_expansion_and_publishes_atomically(self):
+        self.module_patch.stop()
+        rebuild = importlib.import_module("station.paper_rebuild")
+        extra = self.points[2]
+        def role_aware(messages):
+            context = json.loads(messages[-1]['content'])
+            if context.get('stage') in {'write', 'repair'} and context['target']['slug'] == 'task-feedback-control':
+                author_context = {**context, 'knowledge_points': [p for p in context['knowledge_points']
+                    if p['id'] in context['required_point_ids']]}
+                messages = [messages[0], {**messages[-1], 'content': json.dumps(author_context)}]
+            value = self.respond(messages)
+            if context.get('stage') == 'maintain':
+                point = next(p for p in value['point_decisions'] if p['point_id'] == extra)
+                point['memberships'].append({'concept_slug': 'task-feedback-control', 'role': 'related',
+                    'reason': 'Contrasts correction during execution with reflection across attempts.'})
+                next(a for a in value['concept_actions'] if a['concept_slug'] == 'task-feedback-control')['affected_point_ids'].append(extra)
+            if context.get('stage') == 'point-review' and context['target']['slug'] == 'task-feedback-control':
+                next(v for v in value['reviews'] if v['point_id'] == extra).update(verdict='not_expanded',
+                    reason='This is a reading connection, not a second full mechanism exposition.')
+            return value
+        self.model.side_effect = role_aware
+        parsed = {sid: {'source_version': o['source_version'], 'paragraphs': o['paragraphs']}
+                  for sid, o in self.originals.items()}
+        with patch.object(rebuild, 'parse_source', side_effect=lambda ws, sid: parsed[sid]):
+            result = self.run_synthesis()
+        self.assertEqual(result['status'], 'completed', result)
+        meta = json.loads((self.ws.meta / 'task-feedback-control.json').read_text())
+        self.assertIn(extra, meta['knowledge_point_ids'])
+        self.assertNotIn(extra, meta['required_point_ids'])
+        self.assertNotIn(extra, {b['point_id'] for b in meta['point_bindings']})
+        with sqlite3.connect(self.ws.db) as db:
+            self.assertEqual(db.execute('SELECT count(*) FROM concept_memberships WHERE point_id=?', (extra,)).fetchone()[0], 2)
+
+    def test_unclassified_review_error_does_not_trigger_prose_rewrite(self):
+        def malformed_review(messages):
+            value = self.respond(messages)
+            context = json.loads(messages[-1]['content'])
+            if '阶段：verify' in messages[0]['content'] and context['proposal']['slug'] == 'feedback-reliability':
+                value['body_issues'] = [{'body_quote': '反馈', 'reason': '没有分类的审查意见。'}]
+            return value
+        self.model.side_effect = malformed_review
+        result = self.run_synthesis()
+        bad = next(r for r in result['results'] if r['slug'] == 'feedback-reliability')
+        self.assertEqual(bad['status'], 'blocked')
+        self.assertEqual(sum(c.get('stage') == 'repair' for c in self.calls), 0)
+        self.assertEqual(sum(c.get('stage') == 'write' for c in self.calls), 3)
+
+    def test_program_normalizes_page_envelope_routes_and_preserves_old_claims(self):
+        old_claim = {'id': 'stable', 'text': '原有条件仍然成立。', 'scope': '原条件。', 'source_ids': [SIDS[0]]}
+        draft = {'body_markdown': '# 标题\n\n相关机制见[另一概念](/wiki/other#mechanism)。', 'claims': []}
+        adapted = synthesis._prepare_author_draft(draft, {}, {'claims': [old_claim]})
+        self.assertEqual(adapted['body_markdown'], '相关机制见[另一概念](/page/other#mechanism)。')
+        self.assertEqual(adapted['claims'], [old_claim])
+        self.assertEqual(synthesis._body_targets(adapted['body_markdown']), {'other'})
+        self.assertEqual(draft['claims'], [])
+
     def test_supported_quotes_do_not_bypass_body_fact_review(self):
         def reject(messages):
             result = self.respond(messages)
             context = json.loads(messages[-1]["content"])
             if "阶段：verify" in messages[0]["content"] and context["proposal"]["slug"] == "feedback-reliability":
-                result["body_issues"] = [{"body_quote": "反馈", "reason": "正文增加了未经实验的普遍成功结论。"}]
+                result.pop("body_issues", None)
+                claim = context["proposal"]["claims"][0]
+                sid = claim["source_ids"][0]
+                result["issues"] = [{"kind": "fact_error", "severity": "blocking", "body_quote": "反馈",
+                    "reason": "正文增加了未经实验的普遍成功结论。", "claim_ids": [claim["id"]],
+                    "source_ids": [sid], "evidence": [{"source_id": sid, "quote": self.originals[sid]["paragraphs"][0]["text"]}]}]
             return result
         self.model.side_effect = reject
         result = self.run_synthesis()

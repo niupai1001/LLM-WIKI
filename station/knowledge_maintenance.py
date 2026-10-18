@@ -12,19 +12,34 @@ from .jobs import JobConflict
 VERSION = 'knowledge-maintenance/v1'
 MAX_ATTEMPTS = 3
 CONTRACT = '''Return only JSON {decision_version:"knowledge-maintenance/v1",input_digest,
-point_decisions:[{point_id,disposition:"linked|deferred",memberships:[{concept_slug,role,reason}],reason,change_summary}],
+point_decisions:[{point_id,disposition:"linked|deferred",memberships:[{concept_slug,role:"core|supplementary|related",reason}],reason,reevaluate_when:["specific evidence or knowledge change"],change_summary}],
 concept_actions:[{concept_slug,action:"create|update|no_change",title,question,reason,affected_point_ids,requires_review:false}],
 relation_actions:[{source_slug,target_slug,kind,basis:"factual|editorial",claim_ids,source_ids,reason,summary,scope}],unresolved:[]}.
 Relations may be empty. kind is implementation/shared_mechanism/contrast/design_inference; use only supplied claim/source IDs.
 Every origin needs a create/update concept action; no self links. Exactly one decision per pending_point_ids. linked requires one or more memberships;
-deferred requires none and a specific reason. Every membership target requires an action. New concepts need title/question.
+deferred requires none, a concrete knowledge/evidence obstacle, and nonempty reevaluate_when conditions.
+No matching existing concept alone is not a deferral reason: evaluate whether the supplied points can explain a new stable question.
+Existing candidates are retrieval suggestions, not the only permitted destinations; compare new points with each other before deciding. Every membership target requires an action. New concepts need title/question.
 Copy IDs and input_digest exactly. Existing base_versions may be omitted and will be attached by the program.
 Source claims use evidence_locations with original_id pointing to source_materials.originals; text is stored once,
 with quote_start/quote_end character offsets. These are complete quoted evidence, not missing citations.
 Never translate a deletion, withdrawal, merge, split or supersession into an ordinary update. Mark risky actions requires_review.
-required_point_ids may optionally select the knowledge essential in body; other memberships provide background support.
+Membership roles are core (essential answer/conditions), supplementary (support, optional detail), or related (navigation/comparison, not full exposition).
+Each membership reason explains its particular contribution; one point can be core in one concept and related in another.
+required_point_ids defaults to core points only; an explicit list must include all core points and may add supplementary points, never related points.
+Preserve existing knowledge and its original role; preserved or legacy background memberships do not become required automatically.
 '''
 _SLUG = re.compile(r'[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?')
+
+# Old decisions and memberships remain readable without treating every historical
+# role label as an obligation to restate the point in a new body.
+_ROLE_ALIASES = {'required': 'core', 'support': 'supplementary', 'supporting': 'supplementary',
+                 'background': 'related', 'contrast': 'related', 'context': 'related'}
+
+
+def membership_role(role):
+    value = _text(role, 'Membership role')
+    return _ROLE_ALIASES.get(value, value)
 
 
 def canonical_digest(value):
@@ -120,7 +135,10 @@ def validate_decision(value, points, existing, occupied, input_digest=None):
             raise ValueError('linked needs memberships; deferred must have none')
         if disposition == 'deferred':
             point['reason'] = _text(point.get('reason'), 'Deferred reason')
-            point.setdefault('reevaluate_when', ['point_changed', 'related_knowledge_changed', 'candidate_changed'])
+            conditions = _list(point.get('reevaluate_when'), 'Deferred reevaluate_when')
+            if not conditions:
+                raise ValueError('Deferred reevaluate_when must describe a concrete knowledge or evidence change')
+            point['reevaluate_when'] = [_text(condition, 'Deferred re-evaluation condition') for condition in conditions]
         targets, explanations = set(), set()
         for membership in memberships:
             if not isinstance(membership, dict):
@@ -129,7 +147,9 @@ def validate_decision(value, points, existing, occupied, input_digest=None):
             if not isinstance(slug, str) or slug in targets or slug not in actions:
                 raise ValueError('Duplicate membership or target missing concept action')
             targets.add(slug)
-            membership['role'] = _text(membership.get('role'), 'Membership role')
+            membership['role'] = membership_role(membership.get('role'))
+            if membership['role'] not in {'core', 'supplementary', 'related'}:
+                raise ValueError('Membership role must be core, supplementary or related')
             membership['reason'] = _text(membership.get('reason'), 'Membership reason')
             explanation = (membership['role'], membership['reason'])
             if explanation in explanations:
@@ -155,6 +175,11 @@ def validate_decision(value, points, existing, occupied, input_digest=None):
             pending_review = any(r.get('point_id') == pid and r.get('status') == 'pending_review'
                                  for r in concept.get('assignment_reasons', []))
             retained = any(m['concept_slug'] == concept['slug'] for m in point_decision['memberships'])
+            old_required = set(concept.get('meta', {}).get('required_point_ids', []))
+            downgraded = pid in old_required and any(m['concept_slug'] == concept['slug'] and m['role'] != 'core' for m in point_decision['memberships'])
+            if downgraded:
+                result['unresolved'].append({'point_id': pid, 'concept_slug': concept['slug'],
+                                             'reason': 'Downgrading previously required knowledge needs review'})
             if point_decision['disposition'] == 'deferred' or (pending_review and not retained):
                 issue = {'point_id': pid, 'concept_slug': concept['slug'],
                          'reason': 'Existing knowledge membership requires review; retain old published knowledge'}
@@ -243,9 +268,17 @@ def _plan(decision, points, existing):
                     reasons[pid] = {'point_id': pid, 'role': membership['role'], 'reason': membership['reason']}
         if set(ids) - set(points):
             raise ValueError('Existing concept contains unavailable knowledge points; review required')
-        required = action.get('required_point_ids', ids)
+        old_required = set(old.get('meta', {}).get('required_point_ids', [])) & set(ids)
+        for pid, reason in reasons.items():
+            reason['role'] = 'core' if pid in old_required else membership_role(reason.get('role') or 'preserved')
+        core = {pid for pid, reason in reasons.items() if reason['role'] == 'core'}
+        required = action.get('required_point_ids', [pid for pid in ids if pid in core])
         if not isinstance(required, list) or set(required) - set(ids) or len(required) != len(set(required)):
             raise ValueError('Unknown or duplicate required point ID')
+        if not core <= set(required):
+            raise ValueError('Core knowledge cannot be excluded from required point IDs')
+        if any(reasons[pid]['role'] == 'related' for pid in required):
+            raise ValueError('Related knowledge is navigation, not required body coverage')
         concepts.append({'slug': slug, 'title': action.get('title', old.get('title')), 'question': action.get('question', old.get('question')), 'point_ids': ids, 'assignment_reasons': list(reasons.values()), 'required_point_ids': required, 'action': action['action'], 'base_version': old.get('version'), 'base_membership_version': old.get('membership_version', canonical_digest([])), 'relation_actions': [copy.deepcopy(r) for r in decision['relation_actions'] if r.get('source_slug') == slug]})
     return {'concepts': concepts, 'excluded': []}
 

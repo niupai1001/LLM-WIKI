@@ -31,10 +31,11 @@ class MaintenanceEvaluationTests(unittest.TestCase):
         self.assertEqual(stale, [])
         existing, _ = knowledge_synthesis._existing(self.ws)
         point_decision = {'point_id': self.pid, 'disposition': disposition,
-                          'memberships': [], 'reason': 'Retain valid knowledge until a stable question emerges.'}
+                          'memberships': [], 'reason': 'The mechanism is underspecified in the archived evidence.',
+                          'reevaluate_when': ['Obtain original evidence explaining the conditional mechanism.']}
         actions = []
         if disposition == 'linked':
-            point_decision['memberships'] = [{'concept_slug': 'lease-authority', 'role': 'Explains how retained evidence supports commit authority.', 'reason': 'The existing explanation already conveys the conditional mechanism.'}]
+            point_decision['memberships'] = [{'concept_slug': 'lease-authority', 'role': 'supplementary' if action == 'update' else 'related', 'reason': 'The existing explanation already conveys the conditional mechanism.'}]
             actions = [{'concept_slug': 'lease-authority', 'action': action, 'reason': 'Maintain the accepted explanation.', 'affected_point_ids': [self.pid]}]
             if required is not None:
                 actions[0]['required_point_ids'] = required

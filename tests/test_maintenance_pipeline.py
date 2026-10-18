@@ -155,7 +155,7 @@ class MaintenancePipelineTests(unittest.TestCase):
         self.assertEqual(before, after)
         with sqlite3.connect(self.ws.db) as db:
             self.assertEqual(db.execute('SELECT role FROM concept_memberships WHERE concept_slug=? AND point_id=?',
-                                        (slug, background_id)).fetchone()[0], 'background')
+                                        (slug, background_id)).fetchone()[0], 'related')
             self.assertEqual(db.execute('SELECT count(*) FROM publication_journal').fetchone()[0], publications_before)
             self.assertEqual(db.execute('SELECT index_dirty FROM publication_state').fetchone()[0], index_before)
         existing, _ = synthesis._existing(self.ws)

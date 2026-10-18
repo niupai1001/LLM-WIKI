@@ -276,16 +276,115 @@ def _validate(ws, target, proposal, old_meta, originals):
     return proposal
 
 
+_KNOWLEDGE_REVIEW_INSTRUCTION = """你独立核对正文与原文，不沿用编写器自评。
+逐项核对登记断言；只审查正文实际表达的断言，不要求复述全部输入论文事实。保留重要适用条件，区分机制与编辑性关系。
+返回 reviews:[{claim_id,verdict:supported/partial/contradicted/unverifiable,reason,source_ids}],
+issues:[{kind:fact_error/knowledge_omission/mechanism_merge/relation_error/contract_error/expression,
+severity:blocking/advisory,body_quote,reason,claim_ids:[],source_ids:[],
+evidence:[{source_id,paragraph_id}或{previous_claim_id}]}],style_suggestions:[]。
+只有影响知识正确性或发布完整性的具体问题可blocking；一般措辞建议、正确内容确认只能advisory，expression只能advisory。
+body_quote逐字选取当前正文；旧知识遗漏允许逐字选取previous.body_markdown或旧断言text。
+blocking问题必须提供可核验依据：原文真实paragraph_id及source_id（精确摘录由程序提取），或旧知识遗漏的previous_claim_id。
+用reason说明具体错误及证据如何否定正文，不能只提出另一种写法。原文证据不得来自模型自身知识。
+只有原文充分支持才supported；partial/contradicted/unverifiable必须同时给出对应claim_id的blocking issue及定位证据。
+正确的数字与陈述不要作为问题。重要条件缺失、错误归因或机制合并仍应阻断。
+"""
+
+
+def _knowledge_review_issues(assessment, proposal, old_meta, originals):
+    """Validate issue locations and evidence; never infer severity from prose."""
+    issues = assessment.get('issues')
+    if issues is None:
+        # Existing deterministic callers may emit the former empty schema. A
+        # nonempty unclassified issue must not disappear during migration.
+        if all(isinstance(assessment.get(k), list) and not assessment[k]
+               for k in ('body_issues', 'old_knowledge_issues')):
+            issues = []
+        else:
+            raise ValueError('Knowledge review requires classified issues')
+    if not isinstance(issues, list):
+        raise ValueError('Knowledge review issues must be a list')
+    for key in ('body_issues', 'old_knowledge_issues'):
+        if assessment.get(key):
+            raise ValueError('Knowledge review contains unclassified legacy issues')
+    from .wiki import page_body
+    body = page_body(proposal['body_markdown'])
+    old_claims = {c['id']: c for c in old_meta.get('claims', [])}
+    known_claims = {c['id'] for c in proposal['claims']} | set(old_claims)
+    source_map = {s['source_id']: s for s in originals}
+    previous_text = str(old_meta.get('body_markdown', '')) + '\n' + '\n'.join(c['text'] for c in old_claims.values())
+    for issue in issues:
+        if not isinstance(issue, dict) or issue.get('kind') not in {
+                'fact_error', 'knowledge_omission', 'mechanism_merge',
+                'relation_error', 'contract_error', 'expression'}:
+            raise ValueError('Knowledge review issue has invalid kind')
+        if issue.get('severity') not in {'blocking', 'advisory'}:
+            raise ValueError('Knowledge review issue needs explicit severity')
+        if issue['kind'] == 'expression' and issue['severity'] != 'advisory':
+            raise ValueError('Expression suggestions cannot block publication')
+        quote, reason = issue.get('body_quote'), issue.get('reason')
+        location = body + ('\n' + previous_text if issue['kind'] == 'knowledge_omission' else '')
+        if not isinstance(quote, str) or not quote.strip() or quote not in location:
+            raise ValueError('Knowledge review issue must locate exact affected text')
+        if not isinstance(reason, str) or not reason.strip():
+            raise ValueError('Knowledge review issue needs a concrete reason')
+        for key, allowed in (('claim_ids', known_claims), ('source_ids', set(source_map))):
+            ids = issue.get(key)
+            if not isinstance(ids, list) or any(not isinstance(i, str) or i not in allowed for i in ids):
+                raise ValueError('Knowledge review issue contains unknown ' + key)
+        evidence = issue.get('evidence', [])
+        if not isinstance(evidence, list):
+            raise ValueError('Knowledge review issue evidence must be a list')
+        if issue['severity'] == 'blocking' and not evidence:
+            raise ValueError('Blocking knowledge issue needs verifiable evidence')
+        for item in evidence:
+            if not isinstance(item, dict):
+                raise ValueError('Invalid knowledge review evidence')
+            if 'previous_claim_id' in item:
+                cid = item['previous_claim_id']
+                if issue['kind'] != 'knowledge_omission' or cid not in old_claims or cid not in issue['claim_ids']:
+                    raise ValueError('Knowledge omission cites an unknown previous claim')
+            else:
+                sid, evidence_quote = item.get('source_id'), item.get('quote')
+                if item.get('paragraph_id') is not None:
+                    paragraph = next((p for p in source_map.get(sid, {}).get('paragraphs', [])
+                                      if p.get('id') == item['paragraph_id']), None)
+                    if paragraph is None:
+                        raise ValueError('Knowledge review evidence has unknown paragraph ID')
+                    if evidence_quote is not None and evidence_quote not in paragraph['text']:
+                        raise ValueError('Knowledge review quote disagrees with its paragraph')
+                    evidence_quote = paragraph['text'] if evidence_quote is None else evidence_quote
+                    item['quote'] = evidence_quote
+                if sid not in source_map or sid not in issue['source_ids'] or not isinstance(evidence_quote, str) or not evidence_quote.strip():
+                    raise ValueError('Knowledge review evidence needs an assigned original source')
+                original = source_map[sid]
+                texts = [p.get('text', '') for p in original.get('paragraphs', [])] + [original.get('text', '')]
+                if not any(evidence_quote in text for text in texts):
+                    raise ValueError('Knowledge review evidence quote does not occur in original')
+    for review in assessment['reviews']:
+        if review['verdict'] != 'supported' and not any(
+                i['severity'] == 'blocking' and review['claim_id'] in i['claim_ids'] for i in issues):
+            raise ValueError('Unsupported claim verdict needs a located blocking issue')
+    assessment['issues'] = issues
+    # Keep the established audit shape for consumers, with only classified
+    # blockers in its blocking arrays; all advisory judgments remain in issues.
+    assessment['body_issues'] = [i for i in issues if i['severity'] == 'blocking' and i['kind'] != 'knowledge_omission']
+    assessment['old_knowledge_issues'] = [i for i in issues if i['severity'] == 'blocking' and i['kind'] == 'knowledge_omission']
+    return issues
+
+
 def _review(proposal, old_meta, originals, model, *, request_context=None):
     if request_context is None:
         request_context = {'proposal': proposal, 'previous': old_meta,
                            'originals': _focused_originals(originals,proposal['claims']+old_meta.get('claims',[]))}
-    assessment = _request('verify', '你独立核对正文与原文，不沿用编写器的自评分。逐项检查断言范围、数字、条件、引用、正文覆盖和旧知识遗漏。'
-                          '返回 reviews:[{claim_id,verdict:supported/partial/contradicted/unverifiable,reason,source_ids}],'
-                          'body_issues:[{body_quote,reason}],old_knowledge_issues:[],style_suggestions:[]。只有原文充分支持才supported。',
-                          request_context, model)
+    knowledge_protocol = request_context.get('review_protocol') == 'knowledge-review/v2'
+    instruction = (_KNOWLEDGE_REVIEW_INSTRUCTION if knowledge_protocol else
+                   '你独立核对正文与原文，不沿用编写器的自评分。逐项检查断言范围、数字、条件、引用、正文覆盖和旧知识遗漏。'
+                   '返回 reviews:[{claim_id,verdict:supported/partial/contradicted/unverifiable,reason,source_ids}],'
+                   'body_issues:[{body_quote,reason}],old_knowledge_issues:[],style_suggestions:[]。只有原文充分支持才supported。')
+    assessment = _request('verify', instruction, request_context, model)
     reviews = assessment.get('reviews')
-    if not isinstance(reviews, list) or {r.get('claim_id') for r in reviews} != {c['id'] for c in proposal['claims']} or len(reviews) != len(proposal['claims']):
+    if not isinstance(reviews, list) or any(not isinstance(r, dict) for r in reviews) or {r.get('claim_id') for r in reviews} != {c['id'] for c in proposal['claims']} or len(reviews) != len(proposal['claims']):
         raise ValueError('Independent verifier omitted or duplicated claims')
     claim_by_id = {c['id']: c for c in proposal['claims']}
     for review in reviews:
@@ -293,6 +392,9 @@ def _review(proposal, old_meta, originals, model, *, request_context=None):
             raise ValueError('Invalid evidence verdict')
         ids = review.get('source_ids', [])
         if not ids or set(ids) != set(claim_by_id[review['claim_id']]['source_ids']): raise ValueError('Verifier must check every assigned claim source')
+    if knowledge_protocol:
+        _knowledge_review_issues(assessment, proposal, old_meta, originals)
+        assessment['review_protocol'] = 'knowledge-review/v2'
     for field in ('body_issues','old_knowledge_issues','style_suggestions'):
         if not isinstance(assessment.get(field), list): raise ValueError('Verifier must enumerate issues')
     assessment['passed'] = all(r['verdict'] == 'supported' for r in reviews) and not assessment['body_issues'] and not assessment['old_knowledge_issues']

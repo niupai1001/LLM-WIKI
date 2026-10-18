@@ -298,9 +298,9 @@ class BodyBindingsTests(unittest.TestCase):
         raw = next(v["response"] for k, v in self.cache.items() if k.endswith("attempt-0"))
         self.assertNotIn("body_quote", raw["claim_bindings"][0])
 
-    def test_unknown_unordered_repeated_and_nonconsecutive_paragraph_ids_block(self):
+    def test_unknown_unordered_and_repeated_paragraph_ids_block(self):
         cases = [(["b9999"], "unknown"), (["b0003", "b0002"], "ordered"),
-                 (["b0001", "b0003"], "consecutive"), (["b0002", "b0002"], "unique"), ([], "nonempty")]
+                 (["b0002", "b0002"], "unique"), ([], "nonempty")]
         for ids, reason in cases:
             with self.subTest(ids=ids):
                 self.cache.clear()
@@ -317,6 +317,64 @@ class BodyBindingsTests(unittest.TestCase):
                 self.assertEqual(result["draft"], draft())
                 self.ground()
                 self.assertEqual(self.invoke.call_count, 3)
+
+    def test_distributed_knowledge_uses_exact_spans_without_intervening_prose(self):
+        value = draft()
+        value["body_markdown"] = BODY.replace("\n\n过程内反馈", "\n\n这是完全不相干的中间内容，不应成为该知识的证据。\n\n过程内反馈")
+        def distributed(system, context):
+            reply = mapping(context)
+            reply["claim_bindings"][1]["body_paragraph_ids"] = ["b0004"]
+            reply["point_bindings"][1]["body_paragraph_ids"] = ["b0004"]
+            reply["point_bindings"][0]["body_paragraph_ids"] = ["b0002", "b0004"]
+            return reply
+        self.invoke.side_effect = distributed
+        result = self.ground(value)
+        self.assertEqual(result["audit"]["status"], "ready")
+        located = result["draft"]["point_bindings"][0]
+        self.assertEqual(len(located["body_quotes"]), 2)
+        self.assertEqual(located["body_quote"], located["body_quotes"][0])
+        self.assertNotIn("不相干", "".join(located["body_quotes"]))
+        self.assertEqual(result["draft"]["body_markdown"], value["body_markdown"])
+        self.assertEqual(self.invoke.call_count, 1)
+        for span, quote in zip(located["body_spans"], located["body_quotes"]):
+            self.assertEqual(value["body_markdown"][span["start"]:span["end"]], quote)
+        tampered = copy.deepcopy(result["draft"])
+        tampered["point_bindings"][0]["body_quotes"][1] = "虚构位置与原文不一致"
+        with self.assertRaisesRegex(ValueError, "locations disagree"):
+            bindings._validate_bindings({k: tampered[k] for k in ("claim_bindings", "point_bindings")}, tampered,
+                                        bindings._point_context(points()))
+
+    def test_distributed_locations_cannot_be_injected_without_paragraph_identity(self):
+        value = draft()
+        old = mapping({"claims": value["claims"]})
+        for field in ("claim_bindings", "point_bindings"):
+            for item in old[field]:
+                paragraph_id = item.pop("body_paragraph_ids")[0]
+                item["body_quote"] = FIRST if paragraph_id == "b0002" else SECOND
+        old["point_bindings"][0]["body_quotes"] = ["伪造不在正文中的另一条知识"]
+        with self.assertRaisesRegex(ValueError, "require body_paragraph_ids"):
+            bindings._validate_bindings(old, value, bindings._point_context(points()))
+
+    def test_public_location_validator_rejects_tampered_secondary_span(self):
+        body = BODY + "\n\n仅用于保留适用条件的额外实质段落。"
+        catalogue = bindings.body_paragraphs(body)
+        reply = {"point_bindings": [{"point_id": "kp-a", "body_paragraph_ids": ["b0002", "b0004"]}]}
+        located = bindings._resolve_paragraph_bindings(reply, {"body_markdown": body})["point_bindings"][0]
+        self.assertEqual(bindings.validate_body_locations(located, body), located)
+        located["body_spans"][1]["end"] -= 1
+        with self.assertRaisesRegex(ValueError, "locations disagree"):
+            bindings.validate_body_locations(located, body)
+        self.assertEqual(bindings.validate_body_locations({"body_quote": FIRST}, BODY), {"body_quote": FIRST})
+
+    def test_relation_references_follow_only_unambiguous_claim_provenance(self):
+        value = draft(True)
+        value["relations"] = [{"claim_ids": ["C1"], "source_ids": ["paper-b"]}]
+        result = bindings.prepare_draft(value)
+        self.assertEqual(result["draft"]["relations"][0]["claim_ids"], [result["draft"]["claims"][1]["id"]])
+        self.assertEqual(value["relations"][0]["claim_ids"], ["C1"])
+        value["relations"][0]["source_ids"] = ["paper-a", "paper-b"]
+        with self.assertRaisesRegex(ValueError, "Ambiguous relation"):
+            bindings.prepare_draft(value)
 
     def test_exact_quote_from_model_is_still_forbidden_in_new_location_protocol(self):
         def quote_mapper(system, context):

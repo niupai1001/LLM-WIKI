@@ -231,7 +231,9 @@ def publish_concept(ws, proposal, point_ids, job_id=None, *, prepare_only=False,
         claims, parsed = _records(ws, proposal['claims'], ids)
         semantic = _review_records(proposal['semantic_reviews'], claims, parsed, body)
         claim_ids = {c['id'] for c in claims}
-        bindings = proposal.get('point_bindings', [])
+        from .body_bindings import validate_body_locations
+        bindings = [validate_body_locations(b, body) for b in proposal.get('point_bindings', [])]
+        claim_bindings = [validate_body_locations(b, body) for b in proposal.get('claim_bindings', [])]
         required = proposal.get('required_point_ids', point_ids)
         if not set(required) <= set(point_ids):
             raise ValueError('Required knowledge points must be assigned')
@@ -240,15 +242,16 @@ def publish_concept(ws, proposal, point_ids, job_id=None, *, prepare_only=False,
         for binding in bindings:
             if not binding.get('body_quote') or binding['body_quote'] not in body or not set(binding.get('claim_ids', [])) <= claim_ids:
                 raise ValueError('Concept point is not present in body with valid claims')
-        for binding in proposal.get('claim_bindings', []):
+        for binding in claim_bindings:
             if binding.get('claim_id') not in claim_ids or not binding.get('body_quote') or binding['body_quote'] not in body:
                 raise ValueError('Concept claim is not present in body')
-        if {b.get('claim_id') for b in proposal.get('claim_bindings', [])} != claim_ids:
+        if len(claim_bindings) != len(claim_ids) or {b.get('claim_id') for b in claim_bindings} != claim_ids:
             raise ValueError('Concept omitted claim bindings')
         from .relations import validate_relations
         targets = set(known_slugs or ()) | {p.stem for p in ws.wiki.glob('*.md')}
         relations = validate_relations(proposal.get('relations', []), claims, ids, targets, slug)
-        if proposal.get('maintenance_decision_id') and not wiki.wiki_targets(body) <= targets:
+        from .knowledge_synthesis import _body_targets
+        if proposal.get('maintenance_decision_id') and not _body_targets(body) <= targets:
             raise ValueError('Concept links to an unknown Wiki target')
         old_path = ws.meta / (slug + '.json')
         old = load_json(old_path) if old_path.exists() else {}

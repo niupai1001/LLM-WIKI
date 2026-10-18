@@ -65,7 +65,7 @@ class MaintenanceTests(unittest.TestCase):
         existing = [{'slug': 'existing', 'point_ids': ['p1'], 'version': 'v1'}]
         value = {'decision_version': km.VERSION,
                  'point_decisions': [{'point_id': 'p1', 'disposition': 'deferred', 'memberships': [],
-                                      'reason': 'New conditions no longer fit the old explanation.'}],
+                                      'reason': 'New conditions no longer fit the old explanation.', 'reevaluate_when': ['Identify whether the source now describes the same object']}],
                  'concept_actions': [], 'relation_actions': [], 'unresolved': []}
         validated = km.validate_decision(value, points, existing, {'existing'})
         self.assertTrue(validated['unresolved'])
@@ -117,14 +117,14 @@ class MaintenanceTests(unittest.TestCase):
         self.assertEqual(invoke.call_count, 1)
 
     def test_deferred_persists_then_reenters_after_related_new_knowledge(self):
-        self.value.update(point_decisions=[{'point_id': 'p1', 'disposition': 'deferred', 'memberships': [], 'reason': 'not enough evidence'}], concept_actions=[])
+        self.value.update(point_decisions=[{'point_id': 'p1', 'disposition': 'deferred', 'memberships': [], 'reason': 'not enough evidence', 'reevaluate_when': ['Obtain original evidence for the conditional mechanism']}], concept_actions=[])
         result = self.plan(Mock(return_value=self.value))
         with sqlite3.connect(self.ws.db) as db:
             km.apply_decision(db, result['decision_id'], result['decision'], result['point_versions'], [])
         self.assertEqual(self.plan(Mock())['pending_point_ids'], [])
         self.points['p2'] = {**self.points['p1'], 'id': 'p2'}
         def answer(stage, system, context):
-            return {**self.value, 'point_decisions': [{'point_id': pid, 'disposition': 'deferred', 'memberships': [], 'reason': 'needs stable question'} for pid in context['pending_point_ids']]}
+            return {**self.value, 'point_decisions': [{'point_id': pid, 'disposition': 'deferred', 'memberships': [], 'reason': 'needs stable question', 'reevaluate_when': ['Clarify whether the two mechanism objects are equivalent']} for pid in context['pending_point_ids']]}
         self.assertEqual(self.plan(answer)['pending_point_ids'], ['p1', 'p2'])
 
     def test_no_change_updates_membership_without_page_plan(self):
@@ -138,7 +138,7 @@ class MaintenanceTests(unittest.TestCase):
     def test_existing_points_preserved_and_internal_semantics_reach_model(self):
         self.points['p0'] = {**self.points['p1'], 'id': 'p0'}
         self.existing[0]['point_ids'] = ['p0']
-        self.value['point_decisions'].append({'point_id': 'p0', 'disposition': 'linked', 'memberships': [{'concept_slug': 'mechanism', 'role': 'existing', 'reason': 'preserves explanation'}]})
+        self.value['point_decisions'].append({'point_id': 'p0', 'disposition': 'linked', 'memberships': [{'concept_slug': 'mechanism', 'role': 'supplementary', 'reason': 'preserves explanation'}]})
         invoke = Mock(return_value=self.value)
         result = self.plan(invoke)
         self.assertEqual(set(result['plan']['concepts'][0]['point_ids']), {'p0', 'p1'})
@@ -151,7 +151,7 @@ class MaintenanceTests(unittest.TestCase):
         with sqlite3.connect(self.ws.db) as db:
             km.apply_decision(db, result['decision_id'], result['decision'], result['point_versions'])
         self.points['p2'] = {'id': 'p2', 'source_id': 's2', 'source_version': 'v1', 'data': {'proposition': 'totally independent astronomy'}}
-        invoke = Mock(return_value={**self.value, 'point_decisions': [{'point_id': 'p2', 'disposition': 'deferred', 'memberships': [], 'reason': 'unrelated concept'}], 'concept_actions': []})
+        invoke = Mock(return_value={**self.value, 'point_decisions': [{'point_id': 'p2', 'disposition': 'deferred', 'memberships': [], 'reason': 'The object being measured is not specified', 'reevaluate_when': ['Identify the measured object in the source evidence']}], 'concept_actions': []})
         result = self.plan(invoke)
         self.assertEqual(result['pending_point_ids'], ['p2'])
         self.assertEqual(result['candidate_slugs'], [])
@@ -230,6 +230,69 @@ class MaintenanceTests(unittest.TestCase):
             self.assertEqual(len(list(db.execute('PRAGMA table_info(concept_memberships)'))), 3)
             km.schema(db)
             self.assertEqual(km.membership_version(db, 'mechanism'), before)
+
+
+    def test_legacy_roles_have_canonical_meaning_and_unknown_new_roles_fail(self):
+        self.assertEqual(self.validate()['point_decisions'][0]['memberships'][0]['role'], 'supplementary')
+        for old, expected in [('required', 'core'), ('background', 'related')]:
+            self.value['point_decisions'][0]['memberships'][0]['role'] = old
+            self.assertEqual(self.validate()['point_decisions'][0]['memberships'][0]['role'], expected)
+        self.value['point_decisions'][0]['memberships'][0]['role'] = 'explain everything'
+        with self.assertRaisesRegex(ValueError, 'Membership role must'):
+            self.validate()
+
+    def test_core_only_default_and_preserved_legacy_obligations(self):
+        for pid, role in [('p0', 'background'), ('p2', 'required'), ('p3', 'preserved')]:
+            self.points[pid] = {**self.points['p1'], 'id': pid}
+            self.existing[0]['point_ids'].append(pid)
+            self.existing[0].setdefault('assignment_reasons', []).append({'point_id': pid, 'role': role, 'reason': 'historical role'})
+        self.points['p4'] = {**self.points['p1'], 'id': 'p4'}
+        self.existing[0]['point_ids'].append('p4')
+        self.existing[0]['meta']['required_point_ids'] = ['p4']
+        self.value['point_decisions'][0]['memberships'][0]['role'] = 'core'
+        validated = km.validate_decision(self.value, {'p1': self.points['p1']}, self.existing, {'mechanism'}, 'digest')
+        plan = km._plan(validated, self.points, self.existing)['concepts'][0]
+        self.assertEqual(set(plan['required_point_ids']), {'p1', 'p2', 'p4'})
+        roles = {r['point_id']: r['role'] for r in plan['assignment_reasons']}
+        self.assertEqual(roles['p0'], 'related')
+        self.assertEqual(roles['p3'], 'preserved')
+        self.assertEqual(roles['p4'], 'core')
+        self.value['concept_actions'][0]['required_point_ids'] = ['p1']
+        with self.assertRaisesRegex(ValueError, 'Core knowledge cannot'):
+            km._plan(km.validate_decision(self.value, {'p1': self.points['p1']}, self.existing, {'mechanism'}, 'digest'), self.points, self.existing)
+
+    def test_related_cannot_be_forced_into_required_body_coverage(self):
+        self.value['point_decisions'][0]['memberships'][0]['role'] = 'related'
+        self.value['concept_actions'][0]['required_point_ids'] = ['p1']
+        with self.assertRaisesRegex(ValueError, 'Related knowledge'):
+            km._plan(self.validate(), self.points, self.existing)
+
+    def test_lowering_old_required_role_needs_review(self):
+        self.existing[0]['point_ids'] = ['p1']
+        self.existing[0]['meta']['required_point_ids'] = ['p1']
+        self.assertIn('Downgrading', self.validate()['unresolved'][0]['reason'])
+
+    def test_deferred_requires_explicit_nonempty_reassessment_condition(self):
+        self.value.update(point_decisions=[{'point_id': 'p1', 'disposition': 'deferred', 'memberships': [],
+                                           'reason': 'The source does not specify which measured object this mechanism acts on'}], concept_actions=[])
+        for condition in [None, [], ['']]:
+            self.value['point_decisions'][0]['reevaluate_when'] = condition
+            with self.assertRaises(ValueError):
+                self.validate()
+        self.value['point_decisions'][0]['reevaluate_when'] = ['Recover the measured object from the original source']
+        self.assertEqual(self.validate()['point_decisions'][0]['disposition'], 'deferred')
+
+    def test_empty_candidates_allow_new_stable_concept_without_forcing_creation(self):
+        self.value['concept_actions'][0].update(concept_slug='conditional-mechanism', action='create',
+                                               title='Conditional mechanism', question='How does this mechanism act?')
+        self.value['point_decisions'][0]['memberships'][0].update(concept_slug='conditional-mechanism', role='core')
+        invoke = Mock(return_value=self.value)
+        result = km.plan_maintenance(self.ws, {}, self.points, [], set(), invoke, 'offline')
+        self.assertEqual(result['status'], 'ready')
+        self.assertEqual(result['plan']['concepts'][0]['required_point_ids'], ['p1'])
+        prompt = invoke.call_args.args[1]
+        self.assertIn('not a deferral reason', prompt)
+        self.assertIn('不要为覆盖率硬建页面', prompt)
 
     def test_raw_invalid_responses_are_saved_for_audit(self):
         self.plan(Mock(return_value={'invalid': 'raw response'}))
