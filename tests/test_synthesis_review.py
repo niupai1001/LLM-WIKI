@@ -38,6 +38,27 @@ class KnowledgeReviewContractTests(unittest.TestCase):
         self.assertEqual(result['body_issues'], [])
         self.assertEqual(calls, 1)
 
+    def test_review_selects_body_paragraphs_without_copying_or_rewriting_text(self):
+        issue = self.issue()
+        issue.pop('body_quote')
+        issue.update(body_paragraph_ids=['b0001'], body_location='current')
+        self.assessment['issues'] = [issue]
+        result, calls = self.review()
+        self.assertFalse(result['passed'])
+        self.assertEqual(result['issues'][0]['body_quote'], 'The measured result was 60% in task A.')
+        self.assertEqual(calls, 1)
+        issue['body_paragraph_ids'] = ['invented']
+        with self.assertRaisesRegex(ValueError, 'unknown body paragraph'):
+            self.review()
+
+    def test_previous_paragraph_catalogue_uses_same_normalized_body_as_resolver(self):
+        old = {'body_markdown': '# Prior heading\n\nOld boundary is restricted to task A.',
+               'claims': [{'id': 'old1', 'text': 'Old boundary is restricted to task A.'}]}
+        self.assessment['issues'] = [self.issue(kind='knowledge_omission', claim_ids=['old1'],
+            source_ids=[], evidence=[{'previous_claim_id': 'old1'}], body_paragraph_ids=['b0001'],
+            body_location='previous', body_quote='Old boundary is restricted to task A.')]
+        self.assertFalse(self.review(old=old)[0]['passed'])
+
     def test_archived_paragraph_identity_extracts_evidence_without_model_copying(self):
         self.assessment['issues'] = [self.issue(evidence=[{'source_id': 's1', 'paragraph_id': 'p1'}])]
         result, calls = self.review()

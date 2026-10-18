@@ -24,7 +24,7 @@ from .workspaces import use_workspace
 
 VERSION = "decision-driven-knowledge-v2"
 PROMPT_VERSION = "approved-maintenance-writing-v3"
-REQUEST_CONTEXT_VERSION = "role-aware-contracts-and-review-v11"
+REQUEST_CONTEXT_VERSION = "role-aware-contracts-and-review-v12"
 MAX_REPAIRS = 2
 MAX_CONTEXT_CHARACTERS = 160000
 _SLUG = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?")
@@ -59,10 +59,11 @@ related只说明阅读/概念联系，不要求展开原论文全部事实。可
 查看完整命题、解释、scope、type、transferability、uncertainty、原文及旧正文，不因引用存在就判支持。
 返回JSON {reviews:[{point_id,verdict:'covered|partial|omitted|mismerged|not_expanded',reason}],
 issues:[{kind:'fact_error|knowledge_omission|mechanism_merge|relation_error|expression',severity:'blocking|advisory',
-body_quote,reason,point_ids:[],source_ids:[],evidence:[{source_id,paragraph_id}]}],style_suggestions:[]}。
+body_paragraph_ids:[b0002],body_location:current/previous,reason,point_ids:[],source_ids:[],evidence:[{source_id,paragraph_id}]}],style_suggestions:[]}。
 reviews必须覆盖required_point_ids且不重复；可选点可按实际使用补充评审，不要求全部返回。
 没有返回可选点评审不等于该点已被语义验证，实际写出的事实仍逐项核对。只有真正改变知识含义的错误、核心遗漏、错误合并或无依据关系可blocking；
-每个blocking需具体逐字正文片段（遗漏可引用旧正文/核心命题）、相关point_ids和实际原文paragraph_id依据。
+每个blocking需在body_paragraphs选择真实段落ID，程序提取逐字定位；
+遗漏可选previous_body_paragraphs并指定body_location:previous。给相关point_ids和实际原文paragraph_id依据。
 expression只能advisory；确认无误不列问题。可再精确、可补充、同义表达偏好不应阻断。
 """
 
@@ -548,7 +549,8 @@ def _metadata_repair_kind(prior):
     semantic = prior.get("semantic_review") or {}
     facts, points = semantic.get("evidence") or {}, semantic.get("knowledge") or {}
     issues = [i for i in facts.get("issues", []) if i.get("severity") == "blocking"]
-    return bool(issues) and all(i["kind"] == "contract_error" for i in issues) and points.get("passed", False)
+    return bool(issues) and all(i["kind"] == "contract_error" and
+        i.get("registration_action") == "remove_unexpressed" for i in issues) and points.get("passed", False)
 
 
 def _repair_metadata_only(previous, response, old_meta, *, allowed_remove=()):
@@ -741,9 +743,12 @@ def _validate_proposal(ws, value, target, points, papers, originals, old_meta, i
 
 def _point_review(ws, proposal, points, papers, originals, model, *, required=None, roles=None, previous_body=""):
     required = set(points) if required is None else set(required)
+    from .body_bindings import body_paragraphs
     context = {"target": {"slug": proposal["slug"]}, "proposal": _request_view(proposal, originals),
                "knowledge_points": _point_context(points, papers), "required_point_ids": sorted(required),
                "membership_roles": roles or [], "previous_body": previous_body,
+               "body_paragraphs": body_paragraphs(proposal["body_markdown"]),
+               "previous_body_paragraphs": body_paragraphs(previous_body) if previous_body.strip() else [],
                "supporting_results": _paper_materials(papers, points)[1],
                "originals": _request_originals(originals, proposal["claims"] + _paper_materials(papers, points)[0])}
     value = _invoke("point-review", POINT_REVIEW_SYSTEM, context, model)
@@ -768,6 +773,8 @@ def _point_review(ws, proposal, points, papers, originals, model, *, required=No
                     or item.get("severity") not in {"blocking", "advisory"}):
                 raise ValueError("Invalid typed knowledge issue")
             _text(item.get("reason"), "knowledge issue reason")
+            from .compiler import _review_issue_location
+            _review_issue_location(item, proposal["body_markdown"], previous_body)
             if item["kind"] == "expression" and item["severity"] == "blocking":
                 raise ValueError("Expression suggestions cannot be blocking knowledge issues")
             if item["severity"] == "blocking":

@@ -722,6 +722,15 @@ class KnowledgeSynthesisTests(unittest.TestCase):
         self.assertEqual(sum(c.get('stage') == 'repair' for c in self.calls), 0)
         self.assertEqual(sum(c.get('stage') == 'write' for c in self.calls), 3)
 
+    def test_contract_label_alone_cannot_route_a_factual_error_to_metadata_repair(self):
+        prior = {'semantic_review': {'evidence': {'issues': [
+            {'kind': 'contract_error', 'severity': 'blocking', 'reason': 'The numerical comparison is false.'},
+            {'kind': 'contract_error', 'severity': 'blocking', 'registration_action': 'remove_unexpressed'}]},
+            'knowledge': {'passed': True}}}
+        self.assertFalse(synthesis._metadata_repair_kind(prior))
+        prior['semantic_review']['evidence']['issues'].pop(0)
+        self.assertTrue(synthesis._metadata_repair_kind(prior))
+
     def test_metadata_correction_cannot_remove_old_knowledge_or_author_new_fact_text(self):
         claim = {'id': 'old', 'text': '旧的正确知识。', 'scope': '原条件。', 'source_ids': [SIDS[0]]}
         previous = {'body_markdown': '旧的正确知识需要保留。', 'claims': [claim]}

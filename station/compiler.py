@@ -280,19 +280,39 @@ _KNOWLEDGE_REVIEW_INSTRUCTION = """你独立核对正文与原文，不沿用编
 逐项核对登记断言；只审查正文实际表达的断言，不要求复述全部输入论文事实。保留重要适用条件，区分机制与编辑性关系。
 返回 reviews:[{claim_id,verdict:supported/partial/contradicted/unverifiable,reason,source_ids}],
 issues:[{kind:fact_error/knowledge_omission/mechanism_merge/relation_error/contract_error/expression,
-severity:blocking/advisory,body_quote,reason,claim_ids:[],source_ids:[],
+severity:blocking/advisory,body_paragraph_ids:[b0002],body_location:current/previous,reason,claim_ids:[],source_ids:[],
 evidence:[{source_id,paragraph_id}或{previous_claim_id}]}],style_suggestions:[]。
 新增登记claim并未在正文表达属于contract_error；此时该issue附registration_action:"remove_unexpressed"，
 可修正登记而非要求把参考论文事实全塞入正文；
 知识遗漏仅指本页应保留的核心认识或旧知识。比较增益时须逐配置计算前后差，核对“均/普遍/更大”等比较词；
 提炼者推论不豁免错误算术，不能因为输入claim这样写就判原文支持。
 只有影响知识正确性或发布完整性的具体问题可blocking；一般措辞建议、正确内容确认只能advisory，expression只能advisory。
-body_quote逐字选取当前正文；旧知识遗漏允许逐字选取previous.body_markdown或旧断言text。
+body_paragraph_ids只选body_paragraphs中的真实ID，程序提取逐字body_quote，不要复制或改写正文。
+旧知识遗漏可选择previous_body_paragraphs并指定body_location:previous，或引用旧断言。
 blocking问题必须提供可核验依据：原文真实paragraph_id及source_id（精确摘录由程序提取），或旧知识遗漏的previous_claim_id。
 用reason说明具体错误及证据如何否定正文，不能只提出另一种写法。原文证据不得来自模型自身知识。
 只有原文充分支持才supported；partial/contradicted/unverifiable必须同时给出对应claim_id的blocking issue及定位证据。
 正确的数字与陈述不要作为问题。重要条件缺失、错误归因或机制合并仍应阻断。
 """
+
+
+def _review_issue_location(issue, body, previous_body=""):
+    """Select existing paragraph locations; reviewers never need to recopy prose."""
+    if "body_paragraph_ids" not in issue:
+        return issue.get("body_quote")  # Strict legacy exact-quote protocol.
+    from .body_bindings import body_paragraphs, _paragraph_quote, validate_body_locations
+    location = issue.get("body_location", "current")
+    if location not in {"current", "previous"} or (location == "previous" and issue.get("kind") != "knowledge_omission"):
+        raise ValueError("Review issue has invalid body location")
+    original = previous_body if location == "previous" else body
+    ids = issue["body_paragraph_ids"]
+    quote = _paragraph_quote(ids, original, body_paragraphs(original), "Review issue")
+    resolved = validate_body_locations({"body_quote": quote, "body_paragraph_ids": ids}, original)
+    provided = issue.get("body_quote")
+    if provided is not None and not any(provided in q for q in resolved['body_quotes']):
+        raise ValueError("Review quote disagrees with its selected paragraphs")
+    issue.update({k: v for k, v in resolved.items() if k != "body_paragraph_ids"})
+    return quote
 
 
 def _knowledge_review_issues(assessment, proposal, old_meta, originals):
@@ -326,7 +346,7 @@ def _knowledge_review_issues(assessment, proposal, old_meta, originals):
             raise ValueError('Knowledge review issue needs explicit severity')
         if issue['kind'] == 'expression' and issue['severity'] != 'advisory':
             raise ValueError('Expression suggestions cannot block publication')
-        quote, reason = issue.get('body_quote'), issue.get('reason')
+        quote, reason = _review_issue_location(issue, body, page_body(old_meta.get('body_markdown', ''))), issue.get('reason')
         location = body + ('\n' + previous_text if issue['kind'] == 'knowledge_omission' else '')
         if not isinstance(quote, str) or not quote.strip() or quote not in location:
             raise ValueError('Knowledge review issue must locate exact affected text')
@@ -386,6 +406,11 @@ def _review(proposal, old_meta, originals, model, *, request_context=None):
         request_context = {'proposal': proposal, 'previous': old_meta,
                            'originals': _focused_originals(originals,proposal['claims']+old_meta.get('claims',[]))}
     knowledge_protocol = request_context.get('review_protocol') == 'knowledge-review/v2'
+    if knowledge_protocol:
+        from .body_bindings import body_paragraphs
+        from .wiki import page_body
+        request_context = {**request_context, 'body_paragraphs': body_paragraphs(page_body(proposal['body_markdown'])),
+                           'previous_body_paragraphs': body_paragraphs(page_body(old_meta['body_markdown'])) if old_meta.get('body_markdown', '').strip() else []}
     instruction = (_KNOWLEDGE_REVIEW_INSTRUCTION if knowledge_protocol else
                    '你独立核对正文与原文，不沿用编写器的自评分。逐项检查断言范围、数字、条件、引用、正文覆盖和旧知识遗漏。'
                    '返回 reviews:[{claim_id,verdict:supported/partial/contradicted/unverifiable,reason,source_ids}],'
