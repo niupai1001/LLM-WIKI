@@ -180,6 +180,54 @@ class MaintenanceTests(unittest.TestCase):
         result = self.plan(Mock(return_value=self.value))
         self.assertEqual(result['plan']['concepts'][0]['relation_actions'][0]['source_slug'], 'mechanism')
 
+    def test_relation_rejects_single_source_cross_study_and_unbacked_source(self):
+        self.points['p1']['data']['claim_ids'] = ['c1']
+        self.existing.append({'slug': 'comparison', 'version': 'v2', 'point_ids': [],
+                              'meta': {'source_ids': ['s2'], 'claims': [{'id': 'c2', 'source_ids': ['s2']}]}})
+        relation = {'source_slug': 'mechanism', 'target_slug': 'comparison', 'kind': 'shared_mechanism',
+                    'basis': 'editorial', 'reason': 'Same operative mechanism', 'claim_ids': ['c1'], 'source_ids': ['s1']}
+        self.value['relation_actions'] = [relation]
+        with self.assertRaisesRegex(ValueError, 'at least two'):
+            self.validate()
+        relation['source_ids'] = ['s1', 's2']
+        with self.assertRaisesRegex(ValueError, 'Every relation source'):
+            self.validate()
+        relation['claim_ids'].append('c2')
+        refs = self.validate()['relation_actions'][0]['evidence_refs']
+        self.assertEqual(refs, [{'source_id': 's1', 'claim_id': 'c1'}, {'source_id': 's2', 'claim_id': 'c2'}])
+        relation['evidence_refs'] = [{'source_id': 's2', 'claim_id': 'c1'}]
+        with self.assertRaisesRegex(ValueError, 'actual source claim'):
+            self.validate()
+
+    def test_relation_local_claim_collisions_require_explicit_qualified_references(self):
+        self.points['p1']['data']['claim_ids'] = ['c1']
+        self.existing.append({'slug': 'comparison', 'version': 'v2', 'point_ids': [], 'meta': {}})
+        relation = {'source_slug': 'mechanism', 'target_slug': 'comparison', 'kind': 'contrast',
+                    'basis': 'editorial', 'reason': 'Different mechanisms', 'claim_ids': ['c1'], 'source_ids': ['s1', 's2']}
+        self.value['relation_actions'] = [relation]
+        papers = {'s2': {'packet': {'claims': [{'id': 'c1'}]}}}
+        with self.assertRaisesRegex(ValueError, 'Ambiguous'):
+            km.validate_decision(self.value, self.points, self.existing, {'mechanism'}, papers=papers)
+        relation['evidence_refs'] = [{'source_id': sid, 'claim_id': 'c1'} for sid in ['s1', 's2']]
+        result = km.validate_decision(self.value, self.points, self.existing, {'mechanism'}, papers=papers)
+        self.assertEqual(result['relation_actions'][0]['evidence_refs'], relation['evidence_refs'])
+
+    def test_relation_canonical_alias_and_existing_claim_resolve_to_actual_source_claims(self):
+        import hashlib
+        alias = 'sc_' + hashlib.sha256(b's2:c2').hexdigest()[:20]
+        self.points['p1']['data']['claim_ids'] = ['c1']
+        self.existing.append({'slug': 'comparison', 'version': 'v2', 'point_ids': [], 'meta': {
+            'claims': [{'id': 'old-summary', 'source_ids': ['s1'],
+                        'evidence_refs': [{'source_id': 's1', 'claim_id': 'c1'}]}]}})
+        relation = {'source_slug': 'mechanism', 'target_slug': 'comparison', 'kind': 'contrast',
+                    'basis': 'editorial', 'reason': 'Different mechanisms',
+                    'claim_ids': ['old-summary', alias], 'source_ids': ['s1', 's2']}
+        self.value['relation_actions'] = [relation]
+        papers = {'s2': {'packet': {'claims': [{'id': 'c2'}]}}}
+        result = km.validate_decision(self.value, self.points, self.existing, {'mechanism'}, papers=papers)
+        self.assertEqual(result['relation_actions'][0]['evidence_refs'],
+                         [{'source_id': 's1', 'claim_id': 'c1'}, {'source_id': 's2', 'claim_id': 'c2'}])
+
     def test_selected_source_and_source_version_change_are_incremental(self):
         result = self.plan(Mock(return_value=self.value))
         with sqlite3.connect(self.ws.db) as db:

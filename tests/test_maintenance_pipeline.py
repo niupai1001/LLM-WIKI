@@ -162,6 +162,42 @@ class MaintenancePipelineTests(unittest.TestCase):
         concept = next(c for c in existing if c['slug'] == slug)
         self.assertIn(background_id, concept['point_ids'])
 
+    def test_approved_relation_carries_evidence_outside_member_sources_to_writer_and_publisher(self):
+        pid = self.only_one_pending_point()
+        a, b = fixtures.SIDS
+        (self.ws.wiki / 'other-feedback.md').write_text('跨尝试反馈使用不同机制。')
+        (self.ws.meta / 'other-feedback.json').write_text(json.dumps({'slug': 'other-feedback',
+            'title': '跨尝试反馈', 'page_kind': 'concept', 'page_role': 'knowledge',
+            'source_ids': [b], 'claims': [], 'knowledge_point_ids': []}))
+        def respond(messages):
+            context = json.loads(messages[-1]['content'])
+            result = self.fixture.respond(messages)
+            if context.get('stage') == 'maintain':
+                result['relation_actions'] = [{'source_slug': 'task-feedback-control', 'target_slug': 'other-feedback',
+                    'kind': 'contrast', 'basis': 'editorial', 'claim_ids': ['mechanism'], 'source_ids': [a, b],
+                    'evidence_refs': [{'source_id': a, 'claim_id': 'mechanism'}, {'source_id': b, 'claim_id': 'mechanism'}],
+                    'reason': 'Distinguishes correction during execution from reflection across attempts.',
+                    'summary': 'Execution feedback changes the next action; reflection changes the next attempt.',
+                    'scope': 'The two papers describe different temporal roles, not a direct benchmark comparison.'}]
+            if context.get('stage') == 'write':
+                self.assertEqual({o['source_id'] for o in context['originals']}, {a, b})
+                self.assertTrue(any(c.get('source_id') == b for c in context['supplied_claims']))
+                text = '失败后的反思经验指导下一次尝试，与当前执行中的反馈不同。'
+                result['body_markdown'] += '\n\n' + text + '[S:' + b + ']'
+                result['claims'].append({'id': 'foreign-mechanism', 'text': text,
+                    'scope': '第二篇论文的跨尝试机制。', 'source_ids': [b],
+                    'evidence_refs': [{'source_id': b, 'claim_id': 'mechanism'}]})
+                result['claim_bindings'].append({'claim_id': 'foreign-mechanism', 'body_quote': text})
+                result['relations'] = [{**context['approved_relations'][0],
+                    'claim_ids': [result['claims'][0]['id'], 'foreign-mechanism']}]
+            return result
+        result = self.run_pipeline(respond)
+        self.assertEqual(result['status'], 'completed', result)
+        meta = json.loads((self.ws.meta / 'task-feedback-control.json').read_text())
+        self.assertEqual(set(meta['source_ids']), {a, b})
+        self.assertEqual(meta['knowledge_point_ids'], [pid])
+        self.assertTrue(meta['relations'][0]['id'].startswith('rel-'))
+
     def test_unapproved_but_structurally_valid_relation_cannot_publish(self):
         self.only_one_pending_point()
         def respond(messages):

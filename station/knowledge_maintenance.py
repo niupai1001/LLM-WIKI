@@ -14,8 +14,12 @@ MAX_ATTEMPTS = 3
 CONTRACT = '''Return only JSON {decision_version:"knowledge-maintenance/v1",input_digest,
 point_decisions:[{point_id,disposition:"linked|deferred",memberships:[{concept_slug,role:"core|supplementary|related",reason}],reason,reevaluate_when:["specific evidence or knowledge change"],change_summary}],
 concept_actions:[{concept_slug,action:"create|update|no_change",title,question,reason,affected_point_ids,requires_review:false}],
-relation_actions:[{source_slug,target_slug,kind,basis:"factual|editorial",claim_ids,source_ids,reason,summary,scope}],unresolved:[]}.
+relation_actions:[{source_slug,target_slug,kind,basis:"factual|editorial",claim_ids,source_ids,evidence_refs:[{source_id,claim_id}],reason,summary,scope}],unresolved:[]}.
 Relations may be empty. kind is implementation/shared_mechanism/contrast/design_inference; use only supplied claim/source IDs.
+Every relation source must be supported by a referenced claim from that source. If a local claim ID occurs in multiple selected sources,
+provide source-qualified evidence_refs; unique pairs are attached by the program. Do not list a source without its actual claim.
+implementation can use one source. shared_mechanism/contrast/design_inference require at least two sources with supporting claims.
+shared_mechanism means the same operative mechanism, not merely the same goal or task; implementation links a method to its task/mechanism.
 Every origin needs a create/update concept action; no self links. Exactly one decision per pending_point_ids. linked requires one or more memberships;
 deferred requires none, a concrete knowledge/evidence obstacle, and nonempty reevaluate_when conditions.
 No matching existing concept alone is not a deferral reason: evaluate whether the supplied points can explain a new stable question.
@@ -86,7 +90,7 @@ def point_version(point):
     return {'source_id': point.get('source_id'), 'source_version': point.get('source_version'), 'data_digest': canonical_digest(data)}
 
 
-def validate_decision(value, points, existing, occupied, input_digest=None):
+def validate_decision(value, points, existing, occupied, input_digest=None, *, papers=None):
     if not isinstance(value, dict) or value.get('decision_version') != VERSION:
         raise ValueError('Maintenance decision_version must be ' + VERSION)
     result = copy.deepcopy(value)
@@ -186,12 +190,41 @@ def validate_decision(value, points, existing, occupied, input_digest=None):
                 if issue not in result['unresolved']:
                     result['unresolved'].append(issue)
     from .relations import RELATION_LABELS
-    known_claim_ids = {cid for p in points.values() for cid in p.get('data', json.loads(p.get('data_json', '{}'))).get('claim_ids', [])}
+    # L2 claim IDs are source-local. Carry qualified identities across the
+    # maintenance/writing boundary rather than guessing from a global ID set.
+    claim_sources, claim_evidence, source_aliases = {}, {}, {}
     known_source_ids = {p.get('source_id') for p in points.values()}
+    def register(cid, sid, local_id=None):
+        if isinstance(cid, str) and isinstance(sid, str):
+            claim_sources.setdefault(cid, set()).add(sid)
+            claim_evidence.setdefault(cid, set()).add((sid, local_id or cid))
+
+    def source_claim(cid, sid):
+        if isinstance(cid, str) and isinstance(sid, str):
+            alias = 'sc_' + hashlib.sha256((sid + ':' + cid).encode()).hexdigest()[:20]
+            source_aliases[sid, cid] = source_aliases[sid, alias] = cid
+            register(cid, sid)
+            register(alias, sid, cid)
+    for point in points.values():
+        for cid in point.get('data', json.loads(point.get('data_json', '{}'))).get('claim_ids', []):
+            source_claim(cid, point.get('source_id'))
+    for sid, paper in (papers or {}).items():
+        known_source_ids.add(sid)
+        for claim in paper.get('packet', {}).get('claims', []):
+            source_claim(claim.get('id'), sid)
     for concept in existing:
-        known_claim_ids.update(c['id'] for c in concept.get('meta', {}).get('claims', []))
         known_source_ids.update(concept.get('meta', {}).get('source_ids', []))
-        known_source_ids.update(sid for c in concept.get('meta', {}).get('claims', []) for sid in c.get('source_ids', []))
+        for claim in concept.get('meta', {}).get('claims', []):
+            refs = claim.get('evidence_refs') or []
+            for sid in claim.get('source_ids', []):
+                matching = [r for r in refs if isinstance(r, dict) and r.get('source_id') == sid
+                            and (sid, r.get('claim_id')) in source_aliases]
+                if matching:
+                    for ref in matching:
+                        register(claim.get('id'), sid, source_aliases[sid, ref['claim_id']])
+                else:
+                    register(claim.get('id'), sid, source_aliases.get((sid, claim.get('id')), claim.get('id')))
+                known_source_ids.add(sid)
     seen_relations = set()
     for relation in _list(result['relation_actions'], 'relation_actions'):
         if not isinstance(relation, dict):
@@ -207,8 +240,36 @@ def validate_decision(value, points, existing, occupied, input_digest=None):
         _text(relation.get('reason', relation.get('summary')), 'Relation reason')
         claims = _list(relation.get('claim_ids'), 'Relation claim_ids')
         sources = _list(relation.get('source_ids'), 'Relation source_ids')
-        if not claims or not sources or set(claims) - known_claim_ids or set(sources) - known_source_ids:
+        if not claims or not sources or any(not isinstance(cid, str) for cid in claims) or any(not isinstance(sid, str) for sid in sources) or set(claims) - set(claim_sources) or set(sources) - known_source_ids:
             raise ValueError('Relation references unknown or missing evidence IDs')
+        if relation['kind'] in {'shared_mechanism', 'contrast', 'design_inference'} and len(set(sources)) < 2:
+            raise ValueError('Cross-study mechanism relations require at least two supported sources')
+        refs = relation.get('evidence_refs')
+        if refs is None:
+            pairs = set()
+            for cid in sorted(set(claims)):
+                matches = claim_sources[cid] & set(sources)
+                if len(matches) > 1:
+                    raise ValueError('Ambiguous relation claim ID requires source-qualified evidence_refs')
+                if not matches:
+                    raise ValueError('Relation claim has no corresponding declared source')
+                pairs.update(pair for pair in claim_evidence[cid] if pair[0] in matches)
+        else:
+            pairs = set()
+            allowed = set().union(*(claim_evidence[cid] for cid in claims))
+            for ref in _list(refs, 'Relation evidence_refs'):
+                if not isinstance(ref, dict):
+                    raise ValueError('Relation evidence reference must be an object')
+                sid, cid = ref.get('source_id'), ref.get('claim_id')
+                if not isinstance(cid, str) or not isinstance(sid, str) or sid not in sources:
+                    raise ValueError('Relation evidence reference does not identify an actual source claim')
+                pair = (sid, source_aliases.get((sid, cid), cid))
+                if pair not in allowed:
+                    raise ValueError('Relation evidence reference does not identify an actual source claim')
+                pairs.add(pair)
+        if {sid for sid, _ in pairs} != set(sources) or any(not pairs & claim_evidence[cid] for cid in claims):
+            raise ValueError('Every relation source and claim needs a corresponding source-qualified evidence reference')
+        relation['evidence_refs'] = [{'source_id': sid, 'claim_id': cid} for sid, cid in sorted(pairs)]
         key = (origin, relation['target_slug'], relation['kind'])
         if key in seen_relations:
             raise ValueError('Duplicate relation action')
@@ -381,7 +442,7 @@ def plan_maintenance(ws, papers, points, existing, occupied, invoke, model_ident
             db.execute('BEGIN IMMEDIATE')
             saved, attempts, errors = db.execute('SELECT decision_json,attempts,errors_json FROM maintenance_decisions WHERE id=?', (identifier,)).fetchone()
             if saved:
-                decision = validate_decision(json.loads(saved), pending, list(candidates.values()), occupied, input_digest)
+                decision = validate_decision(json.loads(saved), pending, list(candidates.values()), occupied, input_digest, papers=papers)
                 break
             db.execute('INSERT OR IGNORE INTO maintenance_budgets (operation_key,attempts) VALUES (?,0)', (budget_key,))
             budget_attempts = db.execute('SELECT attempts FROM maintenance_budgets WHERE operation_key=?', (budget_key,)).fetchone()[0]
@@ -403,7 +464,7 @@ def plan_maintenance(ws, papers, points, existing, occupied, invoke, model_ident
                 db.execute('UPDATE maintenance_attempts SET response_json=? WHERE id=?', (json.dumps(value, ensure_ascii=False, default=str), attempt_id))
             if isinstance(value, str):
                 value = json.loads(value)
-            decision = validate_decision(value, pending, list(candidates.values()), occupied, input_digest)
+            decision = validate_decision(value, pending, list(candidates.values()), occupied, input_digest, papers=papers)
             plan = _plan(decision, points, existing)
             with sqlite3.connect(ws.db, timeout=30) as db:
                 db.execute('UPDATE maintenance_decisions SET decision_json=?,status=?,updated_at=? WHERE id=?', (json.dumps(decision, ensure_ascii=False), 'ready', utcnow(), identifier))

@@ -24,7 +24,7 @@ from .workspaces import use_workspace
 
 VERSION = "decision-driven-knowledge-v2"
 PROMPT_VERSION = "approved-maintenance-writing-v3"
-REQUEST_CONTEXT_VERSION = "role-aware-contracts-and-review-v9"
+REQUEST_CONTEXT_VERSION = "role-aware-contracts-and-review-v10"
 MAX_REPAIRS = 2
 MAX_CONTEXT_CHARACTERS = 160000
 _SLUG = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?")
@@ -375,15 +375,16 @@ def _point_context(points, papers):
     return result
 
 
-def _paper_materials(papers, points):
+def _paper_materials(papers, points, relation_refs=()):
     claims, results = [], []
     for sid, paper in papers.items():
         claim_ids = {cid for point in points.values() if point["source_id"] == sid for cid in point["data"]["claim_ids"]}
         result_ids = {rid for point in points.values() if point["source_id"] == sid for rid in point["data"].get("result_ids", [])}
         selected_results = [r for r in paper["packet"].get("results", []) if r["id"] in result_ids]
         claim_ids.update(cid for result in selected_results for cid in result.get("claim_ids", []))
+        claim_ids.update(ref["claim_id"] for ref in relation_refs if ref["source_id"] == sid)
         for claim in paper["packet"]["claims"]:
-            if claim["id"] in claim_ids:
+            if claim["id"] in claim_ids or "sc_" + hashlib.sha256((sid + ":" + claim["id"]).encode()).hexdigest()[:20] in claim_ids:
                 claims.append({**claim, "local_id": claim["id"], "source_id": sid,
                                "id": "sc_" + hashlib.sha256((sid + ":" + claim["id"]).encode()).hexdigest()[:20]})
         results.extend({**r, "source_id": sid} for r in selected_results)
@@ -420,8 +421,8 @@ def _claim_context(claim, originals=None):
     return result
 
 
-def _paper_context(papers, points, originals=None):
-    claims, results = _paper_materials(papers, points)
+def _paper_context(papers, points, originals=None, relation_refs=()):
+    claims, results = _paper_materials(papers, points, relation_refs)
     by_source = {p["source_id"]: p for p in originals} if originals is not None else None
     return [_claim_context(c, by_source) for c in claims], results
 
@@ -1017,6 +1018,10 @@ def _synthesize_library(ws, model=None, job_id=None, *, target_slug=None, termin
         chosen = {identifier: points[identifier] for identifier in target["point_ids"]}
         required = {identifier: chosen[identifier] for identifier in target.get("required_point_ids", target["point_ids"])}
         source_ids = {p["source_id"] for p in chosen.values()}
+        # Approved cross-concept evidence is not necessarily a member point of
+        # this page. Carry its sources and records through every later stage.
+        source_ids.update(sid for relation in target.get("relation_actions", []) for sid in relation["source_ids"])
+        relation_refs = [ref for relation in target.get("relation_actions", []) for ref in relation.get("evidence_refs", [])]
         mp, bp = ws.meta / (target["slug"] + ".json"), ws.wiki / (target["slug"] + ".md")
         with publication_lock(ws):
             old_meta = json.loads(mp.read_text()) if mp.exists() else {}
@@ -1092,7 +1097,7 @@ def _synthesize_library(ws, model=None, job_id=None, *, target_slug=None, termin
         with use_workspace(ws):
             originals = _originals(ws, source_ids)
         try:
-            supplied_claims, supplied_results = _paper_context(selected, chosen, originals)
+            supplied_claims, supplied_results = _paper_context(selected, chosen, originals, relation_refs)
             context = {"target": target, "approved_decision": {"decision_id": maintenance.get("decision_id"),
                            "point_decisions": [p for p in decision.get("point_decisions", []) if any(m["concept_slug"] == target["slug"] for m in p["memberships"])],
                            "concept_actions": [a for a in decision.get("concept_actions", []) if a["concept_slug"] == target["slug"]]},
