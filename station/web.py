@@ -231,7 +231,7 @@ def home(q: str = '', category: str = ''):
 
     collections = [p for p in visible if p.get('page_role') == 'source_collection']
     if visible:
-        for kind, heading in [('topic', '主题入口'), ('knowledge_index', '概念知识索引'), ('concept', '概念知识'), ('paper', '论文解读'), ('comparison', '研究比较')]:
+        for kind, heading in [('topic', '主题入口'), ('concept', '概念知识'), ('paper', '论文解读'), ('comparison', '研究比较'), ('knowledge_index', '原始知识点索引')]:
             group = [p for p in visible if p.get('page_role') != 'source_collection' and
                      ('knowledge_index' if p.get('page_role') == 'knowledge_index' else
                       'comparison' if p.get('page_role') == 'comparison' else
@@ -276,7 +276,7 @@ def page(slug: str):
     metadata = load_json(META / (slug + '.json')) if (META / (slug + '.json')).exists() else {}
     reader_only = metadata.get('presentation_policy') == 'wiki-synthesis-reader'
     backlinks = [p for p in pages if slug in p.get('related_slugs', []) or re.search(r'\[\[' + re.escape(slug) + r'(?:\||\]\])', p['body'])]
-    page_kind = {'comparison': '研究比较', 'source_collection': '资料清单', 'paper': '论文解读', 'knowledge_index': '概念知识索引'}.get(
+    page_kind = {'comparison': '研究比较', 'source_collection': '资料清单', 'paper': '论文解读', 'knowledge_index': '原始知识点索引'}.get(
         current.get('page_role'), "主题入口" if current.get("page_kind") == "topic" else "概念条目")
     is_topic = current.get('page_kind') == 'topic' and current.get('page_role') not in {'source_collection', 'paper'}
     details = topic_details(current, pages) if is_topic else None
@@ -285,10 +285,13 @@ def page(slug: str):
         summary = f'{len(current.get("source_ids", []))} 份研究来源 · 概念知识'
     is_knowledge_index = current.get('page_role') == 'knowledge_index'
     if is_knowledge_index:
-        summary = f'{current.get("knowledge_point_count", 0)} 条原知识点 · {len(current.get("source_ids", []))} 份原始资料 · 各研究的条件与证据分别保留'
+        summary = f'{current.get("knowledge_point_count", 0)} 条原知识点 · {len(current.get("source_ids", []))} 份原始资料 · 按论文保留的查阅索引，综合解释请阅读概念页'
         linked_concept = next((p for p in pages if p['slug'] == current.get('candidate_concept_slug')
             and p.get('page_role') == 'knowledge' and p.get('page_kind') == 'concept'
-            and current.get('knowledge_point_ids') and set(p.get('knowledge_point_ids', [])) == set(current['knowledge_point_ids'])), None)
+            and current.get('knowledge_point_ids') and (
+                set(p.get('knowledge_point_ids', [])) == set(current['knowledge_point_ids']) or
+                p['slug'] in metadata.get('synthesized_concept_slugs', []) and
+                bool(set(p.get('knowledge_point_ids', [])) & set(current['knowledge_point_ids'])))), None)
         if linked_concept:
             summary += f' · <a href="/page/{E(linked_concept["slug"])}">阅读概念解读 →</a>'
     reading_sources = details['source_ids'] if is_topic else current.get('source_ids', [])
@@ -300,8 +303,17 @@ def page(slug: str):
     from .reading_presentation import display_body as reading_display_body
     presented_body = reading_display_body(current_workspace(), slug, current['body'])
     display_body = re.sub(r'\A\s*# [^\n]+(?:\n|$)', '', presented_body, count=1)
+    if is_knowledge_index:
+        overview, separator, points = display_body.partition('\n## ')
+        rendered_body = md_render(overview, reading_sources, evidence_prefix='index-overview-' + slug)
+        if separator:
+            rendered_body += ('<details><summary>展开原始知识点与证据</summary>'
+                              + md_render('## ' + points, reading_sources, evidence_prefix='wiki-' + slug)
+                              + '</details>')
+    else:
+        rendered_body = md_render(display_body, reading_sources, evidence_prefix='wiki-' + slug, topic=is_topic)
     rewrite_action = '' if is_knowledge_index or is_topic else f'<button class="button" data-rewrite="{E(slug)}">改写表达</button>'
-    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading knowledge-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><h1 class="knowledge-title">{E(current["title"])}</h1><p>{summary}</p></div><div class="button-row">{second_pass}{rewrite_action}<a class="button" href="/graph">在图谱中探索 ↗</a></div></div><article class="prose knowledge-document">{md_render(display_body, reading_sources, evidence_prefix="wiki-" + slug, topic=is_topic)}</article>'
+    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading knowledge-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><h1 class="knowledge-title">{E(current["title"])}</h1><p>{summary}</p></div><div class="button-row">{second_pass}{rewrite_action}<a class="button" href="/graph">在图谱中探索 ↗</a></div></div><article class="prose knowledge-document">{rendered_body}</article>'
     connections = semantic_backlinks(slug)
     if connections:
         body += '<section class="prose"><h2>方法之间的联系</h2>'
