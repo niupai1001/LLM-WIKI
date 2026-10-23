@@ -99,7 +99,7 @@ def layout(title, body, active='wiki'):
         'graph': '<circle cx="12" cy="5" r="3"/><circle cx="5" cy="18" r="3"/><circle cx="19" cy="18" r="3"/><path d="m10.5 7.5-4 8M13.5 7.5l4 8M8 18h8"/>',
     }
     nav = ''.join(f'<a class="nav-link {"active" if key == active else ""}" href="{url}" {"aria-current=page" if key == active else ""}><svg viewBox="0 0 24 24" aria-hidden="true">{icons[key]}</svg><span>{name}</span></a>' for key, url, name in [
-        ('wiki', '/', '知识 Wiki'), ('sources', '/sources', '原始资料'), ('drafts', '/drafts', '编写记录'), ('graph', '/graph', '知识图谱')])
+        ('wiki', '/', '知识 Wiki'), ('sources', '/sources', '原始资料'), ('drafts', '/drafts', '编写记录')])
     topic_links = ''.join(f'<a class="topic-link" href="/?category={quote(c["id"])}"><span class="topic-dot"></span>{E(c["name"])}</a>' for c in categories() if c['enabled'])
     nav += f'<a class="nav-link {"active" if active == "collection" else ""}" href="/collection" {"aria-current=page" if active == "collection" else ""}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg><span>采集计划</span></a>'
     nav += f'<a class="nav-link {"active" if active == "settings" else ""}" href="/settings" {"aria-current=page" if active == "settings" else ""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg><span>主题与订阅</span></a>'
@@ -243,7 +243,7 @@ def home(q: str = '', category: str = ''):
     elif (q or category) and not pending_pages:
         body += empty('没有匹配的知识页面', '调整关键词或主题，查看其他页面。')
     elif not pending_pages:
-        body += empty('暂无知识页面', '导入论文、文章或笔记。选择主题，让 LLM 综合原文，生成可核查的知识草稿。', '<div class="empty-actions"><a class="button primary" href="/sources#import">＋ 导入第一份资料</a><a class="button" href="/graph">查看知识图谱</a></div>')
+        body += empty('暂无知识页面', '导入论文、文章或笔记。选择主题，编写知识页面。', '<div class="empty-actions"><a class="button primary" href="/sources#import">＋ 导入第一份资料</a></div>')
     if pending_pages:
         body += '<div class="section-heading"><h2>系统待处理记录</h2><a class="text-link" href="/drafts">查看记录 →</a></div><div class="wiki-grid">'
         for draft in pending_pages:
@@ -315,7 +315,7 @@ def page(slug: str, raw_points: bool = False):
     rendered_body = md_render(display_body, reading_sources, evidence_prefix='wiki-' + slug, topic=is_topic)
     summary_html = f'<p>{summary}</p>' if summary else ''
     rewrite_action = '' if is_knowledge_index or is_topic else f'<button class="button" data-rewrite="{E(slug)}">改写表达</button>'
-    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading knowledge-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><h1 class="knowledge-title">{E(current["title"])}</h1>{summary_html}</div><div class="button-row">{second_pass}{rewrite_action}<a class="button" href="/graph">在图谱中探索 ↗</a></div></div><article class="prose knowledge-document">{rendered_body}</article>'
+    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading knowledge-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><h1 class="knowledge-title">{E(current["title"])}</h1>{summary_html}</div><div class="button-row">{second_pass}{rewrite_action}</div></div><article class="prose knowledge-document">{rendered_body}</article>'
     connections = semantic_backlinks(slug)
     if connections:
         body += '<section class="prose"><h2>方法之间的联系</h2>'

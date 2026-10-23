@@ -366,9 +366,12 @@ def ensure_source_pdf(sid):
 
 def _store(item, db):
     from .workspaces import current_workspace
-    from .paper_policy import enabled, exclusion_reason
+    from .paper_policy import enabled, exclusion_reason, configuration
     workspace = current_workspace()
-    if enabled(workspace):
+    note_categories = configuration(workspace).get('note_import_categories', [])
+    archived_note = (item.get('kind') == 'note' and item.get('content_format') in {'markdown', 'text'}
+                     and isinstance(note_categories, list) and item.get('category') in note_categories)
+    if enabled(workspace) and not archived_note:
         reason = exclusion_reason(workspace, item)
         if reason:
             raise ValueError(reason)
@@ -536,8 +539,12 @@ def import_file(title, file_path, category=None, kind=None):
     title = (title or path.stem).strip()
     kind = validate_kind(kind if kind is not None else ("paper" if suffix == ".pdf" else "document"))
     from .workspaces import current_workspace
-    from .paper_policy import enabled
-    if enabled(current_workspace()) and (suffix != '.pdf' or kind != 'paper'):
+    from .paper_policy import enabled, configuration
+    workspace = current_workspace()
+    note_categories = configuration(workspace).get('note_import_categories', [])
+    allowed_note = (kind == 'note' and suffix in {'.md', '.txt'}
+                    and isinstance(note_categories, list) and category in note_categories)
+    if enabled(workspace) and (suffix != '.pdf' or kind != 'paper') and not allowed_note:
         raise ValueError('当前论文库只接收PDF论文，TXT及资讯提取暂不开放')
     if suffix not in {".md", ".txt", ".pdf"}:
         raise ValueError("Supported originals: .md, .txt, .pdf")
