@@ -601,6 +601,8 @@ def _publish_target(ws, target, extractions, model, job_id):
 
 
 def compile_job(ws, payload, job_id, model=None):
+    from .paper_policy import require_automatic_writing
+    require_automatic_writing(ws)
     from .paper_policy import enabled
     if enabled(ws):
         from .paper_rebuild import compile_job as compile_papers

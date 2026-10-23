@@ -11,7 +11,7 @@ import urllib.request
 from difflib import SequenceMatcher
 from pathlib import Path
 from urllib.parse import urlsplit
-from .common import PENDING, WIKI, META, RAW, connect, load_json, safe_slug, save_json, utcnow
+from .common import ROOT, PENDING, WIKI, META, RAW, connect, load_json, safe_slug, save_json, utcnow
 from hashlib import sha256
 from .knowledge import categories, category_name, validate_category
 from .writing_context import original_context, marked_original, context_size, relevance_score
@@ -311,6 +311,9 @@ def page_version(path):
 def prepare(limit=3, category=None, source_id=None, source_ids=None, topic=None, target_slug=None, second_pass=False,
             revisit=False, _created_ids=None):
     """Compile related original sources into a reviewed topic, one category per batch."""
+    from .paper_policy import require_automatic_writing
+    from .workspaces import Workspace, current_workspace
+    require_automatic_writing(current_workspace() or Workspace('legacy', Path(ROOT)), 'prepare')
     db = connect()
     made = 0
     try:
@@ -670,6 +673,9 @@ def source_versions(ids):
 
 
 def prepare_rewrite(slug, second_pass=False):
+    from .paper_policy import require_automatic_writing
+    from .workspaces import Workspace, current_workspace
+    require_automatic_writing(current_workspace() or Workspace('legacy', Path(ROOT)), '正文改写')
     if not isinstance(second_pass, bool):
         raise ValueError('second_pass must be boolean')
     if not isinstance(slug, str) or safe_slug(slug) != slug or slug == 'index':

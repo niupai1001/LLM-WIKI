@@ -14,6 +14,15 @@ C = '3333333333333333'
 
 
 class CitationTests(unittest.TestCase):
+    def test_reader_gets_explanation_before_evidence_without_numbering_hint(self):
+        body = '## 工具发现\n\n先读取能力描述，再选择工具。\n\n## 执行反馈\n\n执行结果用于决定是否修正参数。'
+        with patch('station.citations.source_info', self.sources.get):
+            rendered = web.md_render(body, [A, B])
+        self.assertNotIn('编号对应正文引用', rendered)
+        self.assertNotIn('citation-navigation', rendered)
+        self.assertLess(rendered.index('执行结果用于决定是否修正参数'), rendered.index('evidence-panel'))
+        self.assertNotIn('<details', rendered)
+
     def test_publisher_dates_preserve_declared_precision(self):
         self.assertEqual(citations._date('2024'), '2024')
         self.assertEqual(citations._date('2024/07'), '2024-07')
@@ -93,7 +102,7 @@ class CitationTests(unittest.TestCase):
         self.assertNotIn('onclick=', rendered)
         self.assertNotIn('style=', rendered)
         self.assertNotIn('class="other"', rendered)
-        self.assertIn('href="#evidence-safe"', rendered)
+        self.assertIn('id="evidence-safe"', rendered)
 
     def test_short_title_limits_and_invalid_identifiers(self):
         title = 'A very long descriptive paper title that contains many words before a colon: subtitle'

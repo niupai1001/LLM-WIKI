@@ -143,7 +143,7 @@ def md_render(source, citation_source_ids=None, evidence_prefix="knowledge", top
         references = (f'<details class="page-evidence-records"><summary>关联原文 · {len(citations)} 份</summary>'
                       + evidence_html(citations, evidence_prefix, label='关联原文') + '</details>') if citations else ''
         return clean + references
-    return evidence_jump(citations, evidence_prefix) + clean + evidence_html(citations, evidence_prefix)
+    return clean + evidence_html(citations, evidence_prefix)
 
 
 def category_options(selected='', all_option=False, active_only=False, retain_selected=False):
@@ -256,7 +256,7 @@ def home(q: str = '', category: str = ''):
 
 @app.get('/page/{slug}', response_class=HTMLResponse)
 @library_snapshot
-def page(slug: str):
+def page(slug: str, raw_points: bool = False):
     if safe_slug(slug) != slug or slug == 'index':
         raise HTTPException(404)
     pages = wiki_pages()
@@ -274,6 +274,15 @@ def page(slug: str):
     current = matches[0]
     from .common import META
     metadata = load_json(META / (slug + '.json')) if (META / (slug + '.json')).exists() else {}
+    reader_slug = metadata.get('reader_concept_slug')
+    if (not raw_points and current.get('page_role') == 'knowledge_index'
+            and isinstance(reader_slug, str) and safe_slug(reader_slug) == reader_slug
+            and any(p['slug'] == reader_slug and p.get('page_role') == 'knowledge' for p in pages)):
+        from .workspaces import current_workspace
+        from fastapi.responses import RedirectResponse
+        workspace = current_workspace()
+        target = '/page/' + reader_slug
+        return RedirectResponse(workspace.url(target) if workspace else target, status_code=307)
     reader_only = metadata.get('presentation_policy') == 'wiki-synthesis-reader'
     backlinks = [p for p in pages if slug in p.get('related_slugs', []) or re.search(r'\[\[' + re.escape(slug) + r'(?:\||\]\])', p['body'])]
     page_kind = {'comparison': '研究比较', 'source_collection': '资料清单', 'paper': '论文解读', 'knowledge_index': '原始知识点索引'}.get(
@@ -282,10 +291,10 @@ def page(slug: str):
     details = topic_details(current, pages) if is_topic else None
     summary = topic_counts(details) if is_topic else f'{len(current.get("source_ids", []))} 份引用来源 · 已发布知识 · <a href="#fact-check">逐项事实核查 ↓</a>'
     if reader_only and not is_topic:
-        summary = f'{len(current.get("source_ids", []))} 份研究来源 · 概念知识'
+        summary = ''
     is_knowledge_index = current.get('page_role') == 'knowledge_index'
     if is_knowledge_index:
-        summary = f'{current.get("knowledge_point_count", 0)} 条原知识点 · {len(current.get("source_ids", []))} 份原始资料 · 按论文保留的查阅索引，综合解释请阅读概念页'
+        summary = ''
         linked_concept = next((p for p in pages if p['slug'] == current.get('candidate_concept_slug')
             and p.get('page_role') == 'knowledge' and p.get('page_kind') == 'concept'
             and current.get('knowledge_point_ids') and (
@@ -293,7 +302,7 @@ def page(slug: str):
                 p['slug'] in metadata.get('synthesized_concept_slugs', []) and
                 bool(set(p.get('knowledge_point_ids', [])) & set(current['knowledge_point_ids'])))), None)
         if linked_concept:
-            summary += f' · <a href="/page/{E(linked_concept["slug"])}">阅读概念解读 →</a>'
+            summary = f'<a href="/page/{E(linked_concept["slug"])}">{E(linked_concept["title"])}</a>'
     reading_sources = details['source_ids'] if is_topic else current.get('source_ids', [])
     from .paper_policy import enabled
     from .workspaces import current_workspace
@@ -303,17 +312,10 @@ def page(slug: str):
     from .reading_presentation import display_body as reading_display_body
     presented_body = reading_display_body(current_workspace(), slug, current['body'])
     display_body = re.sub(r'\A\s*# [^\n]+(?:\n|$)', '', presented_body, count=1)
-    if is_knowledge_index:
-        overview, separator, points = display_body.partition('\n## ')
-        rendered_body = md_render(overview, reading_sources, evidence_prefix='index-overview-' + slug)
-        if separator:
-            rendered_body += ('<details><summary>展开原始知识点与证据</summary>'
-                              + md_render('## ' + points, reading_sources, evidence_prefix='wiki-' + slug)
-                              + '</details>')
-    else:
-        rendered_body = md_render(display_body, reading_sources, evidence_prefix='wiki-' + slug, topic=is_topic)
+    rendered_body = md_render(display_body, reading_sources, evidence_prefix='wiki-' + slug, topic=is_topic)
+    summary_html = f'<p>{summary}</p>' if summary else ''
     rewrite_action = '' if is_knowledge_index or is_topic else f'<button class="button" data-rewrite="{E(slug)}">改写表达</button>'
-    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading knowledge-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><h1 class="knowledge-title">{E(current["title"])}</h1><p>{summary}</p></div><div class="button-row">{second_pass}{rewrite_action}<a class="button" href="/graph">在图谱中探索 ↗</a></div></div><article class="prose knowledge-document">{rendered_body}</article>'
+    body = f'<div class="breadcrumbs"><a href="/">知识 Wiki</a> / {E(category_name(current.get("category", "other")))}</div><div class="page-heading knowledge-heading"><div><span class="tag">{E(category_name(current.get("category", "other")))}</span> <span class="tag subtle">{page_kind}</span><h1 class="knowledge-title">{E(current["title"])}</h1>{summary_html}</div><div class="button-row">{second_pass}{rewrite_action}<a class="button" href="/graph">在图谱中探索 ↗</a></div></div><article class="prose knowledge-document">{rendered_body}</article>'
     connections = semantic_backlinks(slug)
     if connections:
         body += '<section class="prose"><h2>方法之间的联系</h2>'
@@ -834,6 +836,12 @@ async def api_category(sid: str, request: Request):
 
 @app.post('/api/compile')
 async def api_compile(request: Request):
+    from .paper_policy import require_automatic_writing, AutomaticWritingPaused
+    from .workspaces import current_workspace
+    try:
+        require_automatic_writing(current_workspace())
+    except AutomaticWritingPaused as exc:
+        raise HTTPException(409, str(exc)) from exc
     p = await read_payload(request)
     category = p.get('category') or None
     if category:
@@ -872,6 +880,12 @@ async def api_compile(request: Request):
 
 @app.post('/api/pages/{slug}/rewrite')
 async def api_rewrite(slug: str, request: Request):
+    from .paper_policy import require_automatic_writing, AutomaticWritingPaused
+    from .workspaces import current_workspace
+    try:
+        require_automatic_writing(current_workspace(), '改写')
+    except AutomaticWritingPaused as exc:
+        raise HTTPException(409, str(exc)) from exc
     p = await read_payload(request)
     second_pass = p.get('second_pass', False)
     if not isinstance(second_pass, bool):

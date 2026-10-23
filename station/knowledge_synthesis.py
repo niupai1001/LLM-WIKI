@@ -931,6 +931,8 @@ def _publication_groups(concepts, relations):
 
 def synthesize_library(ws, model=None, job_id=None, *, target_slug=None, terminal_origin_digest=None,
                        source_ids=None, publish_pages=True, prepared_run=None):
+    from .paper_policy import require_automatic_writing
+    require_automatic_writing(ws)
     from .model_attempts import synthesis_lock
     check_cancelled()
     with synthesis_lock(ws):
@@ -1340,6 +1342,8 @@ def _synthesize_library(ws, model=None, job_id=None, *, target_slug=None, termin
 
 def synthesis_job(ws, payload, job_id):
     """A separately versioned downstream stage; it never re-extracts papers."""
+    from .paper_policy import require_automatic_writing
+    require_automatic_writing(ws)
     papers, points, stale = _inputs(ws)
     if stale or set(papers) != set(payload.get('source_ids', [])):
         raise ValueError('Synthesis paper snapshot changed; create a new version-bound task')

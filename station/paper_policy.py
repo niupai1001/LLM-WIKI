@@ -14,6 +14,19 @@ def enabled(ws):
     return configuration(ws).get('enabled') is True
 
 
+class AutomaticWritingPaused(ValueError):
+    """This library assigns writing to a human-driven Codex session."""
+
+
+def require_automatic_writing(ws, operation='编写'):
+    """Guard writing entry points without disabling query or other LLM uses."""
+    if configuration(ws).get('writing_executor') == 'codex_manual':
+        raise AutomaticWritingPaused(
+            f'{operation}自动编写已暂停（writing_executor=codex_manual）；'
+            '请由 Codex GPT-6.1-sol（low）手动执行。当前未接入 Codex API，'
+            '不会回退调用 DeepSeek。')
+
+
 def pdf_original(ws, record):
     for name in (record.get('pdf_path'), record.get('asset_path')):
         if not isinstance(name, str) or Path(name).suffix.lower() != '.pdf':

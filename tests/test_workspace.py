@@ -103,7 +103,7 @@ uvicorn.run('station.web:app', host='127.0.0.1', port=int(os.environ['TEST_PORT'
                 pending = next((Path(root)/'pending').glob('*.json'))
                 draft = json.loads(pending.read_text())
                 self.assertEqual(set(draft['source_ids']),set(ids))
-                self.assertIn('2 份原文', request('/drafts'))
+                self.assertIn('2 份来源', request('/drafts'))
                 approved = request('/api/drafts/'+draft['proposal_id']+'/approve', {})
                 page = request(approved['url'])
                 self.assertIn('证据综合',page)

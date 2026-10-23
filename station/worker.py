@@ -64,6 +64,9 @@ def run_once(ws, handlers=None, worker_id=None):
     thread.start()
     context_token = _CURRENT.set((ws, job['id'], token))
     try:
+        if job['kind'] in {'compile', 'synthesize'}:
+            from .paper_policy import require_automatic_writing
+            require_automatic_writing(ws, job['kind'])
         from .publication import recover
         recover(ws)
         check_cancelled()
